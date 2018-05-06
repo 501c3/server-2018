@@ -1,0 +1,16 @@
+comment:
+    - SequenceExceptionCode::INVALID_SUBSTYLE = 3208
+    - invalid_substyle at row:11, col:25 invalid substyle.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia Dancesport Amateur,Georgia DanceSport Proam,ISTD Medal Exams]
+sequence:
+        Session 1 Medal Exams:
+            -
+                ISTD Medal Exams:
+                    American:
+                        invalid_substyle:
+                            Pre Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Silver: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Gold: [Under 6,Under 8,Under 12,Junior 12-16]
+

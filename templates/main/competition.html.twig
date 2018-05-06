@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+{% block navbar %}
+    {% include 'main/navbar.html.twig'  %}
+{% endblock navbar %}
+{% block content %}
+    {% if app.user is not null %}
+        <h1 align="center">Welcome {{ app.user.first }} {{ app.user.last }}</h1>
+        <h3 align="center">You have the following permissions: </h3>
+        <h3 align="center">You may access workareas for the following channels:</h3>
+    {% else %}
+        <div class="container">
+            <div class="row">
+                <div class = "panel panel-default">
+                    <div class = "panel-heading"><h3>Index Page</h3></div>
+                    <div class = "panel-body">
+                        TODO: Competitions
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}

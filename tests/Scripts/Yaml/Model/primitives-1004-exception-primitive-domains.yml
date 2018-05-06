@@ -1,0 +1,12 @@
+-
+     comment:
+        - ModelExceptionCode::PRIMITIVE_DOMAINS
+        - no_domain at row:11, col:9 .  Expected style,substyle,proficiency,age,type,tag,dance.
+     domain:
+        style:             
+            American: {abbr: A, order: 1}                        
+            International: {abbr: I, order: 1}
+            Country: {abbr: C, order: 1}
+            Fun Events: {abbr: F, order: 1}
+        no_domain:
+            Rhythm: {abbr: AR, order: 2}

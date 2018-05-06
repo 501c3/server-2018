@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block navbar %}
+    <div class="navbar-header">
+        <a class="navbar-brand" href="http://www.georgiadancesport.org">News Portal</a>
+    </div>
+    <ul class="nav navbar-nav">
+        <li class="active"><a href="{{ path('main_index') }}">Home</a></li>
+    </ul>
+    <ul class="nav navbar-nav" style="float:right">
+        <li style="float:right"><a href="{{ path('security_login') }}">Login</a></li>
+        <li style="float:right"><a href="{{ path('security_register') }}">Register</a></li>
+    </ul>
+{% endblock navbar %}
+
+{% block content %}
+    {% include 'security/flash.html.twig' %}
+{% endblock content %}

@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+{% block banner %}
+<div class="container-fluid" style=" background-color: dodgerblue; color: whitesmoke; padding-left: 20px; padding-top: 5px; padding-bottom: 5px">
+  <div class="row">
+    <div style="display: inline-block">
+        <img  style="height:130px; width:auto; background-color: dodgerblue; color: whitesmoke" src="{{ cid }}" ></img>
+    </div>
+    <div style="display: inline-block; vertical-align: top">
+        <h2>Georgia Dancesport</h2>
+        <h4>Making DanceSport Fair, Fun, & Affordable</h4>
+    </div>
+  </div>
+</div>
+{% endblock banner %}
+{% block navbar %}
+    {# Navbar eliminated #}
+{% endblock navbar %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3">
+            <p>Click the following link for password recovery : </p>
+            <p><a href="{{ link }}">{{ link }}</a></p>
+        </div>
+    </div>
+{% endblock content %}

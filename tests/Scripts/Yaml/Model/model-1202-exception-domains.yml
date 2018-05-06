@@ -1,0 +1,7 @@
+comment:
+  - ModelExceptionCode::DOMAINS = 1202
+  - no_domain at row:5, col:1 expected domains.
+model: Model Name
+no_domain:
+    style:
+        - American

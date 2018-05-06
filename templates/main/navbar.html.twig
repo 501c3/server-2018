@@ -1,0 +1,21 @@
+<div class="navbar-header">
+    <a class="navbar-brand" href="http://www.georgiadancesport.org">News Portal</a>
+</div>
+
+<div class="container-fluid">
+    <form class="form-inline my-2 my-lg-0" style="float:right; padding-top: 8px">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" style="background-color: dodgerblue; color: white" type="submit">Search</button>
+    </form>
+    <span class="app_navlink_right">
+    {% if is_granted('ROLE_USER') %}
+        <a href="{{ path('security_logout') }}">Logout</a>&nbsp;&nbsp;&nbsp;
+        {% if app.user is defined %}
+            {{ app.user.username }}
+        {% endif %}
+    {% else %}
+        <a href="{{ path('security_register')}}">Register</a>&nbsp;&nbsp;&nbsp;
+        <a href="{{ path('security_login') }}">Login</a>&nbsp;&nbsp;&nbsp;
+    {% endif %}
+    </span>
+</div>

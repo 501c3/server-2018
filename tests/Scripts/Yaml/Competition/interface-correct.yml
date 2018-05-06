@@ -1,0 +1,87 @@
+competition: Georgia DanceSport
+menus:
+    type:
+        - Professional
+        - Teacher
+        - Amateur
+        - Student
+        - Partner
+    proficiency:
+        Amateur:
+            - Social
+            - Newcomer
+            - Bronze
+            - Silver
+            - Gold
+            - Novice
+            - Pre Championship
+            - Championship
+        Student:
+            - Pre Bronze
+            - Intermediate Bronze
+            - Full Bronze
+            - Open Bronze
+            - Pre Silver
+            - Intermediate Silver
+            - Full Silver
+            - Open Silver
+            - Pre Gold
+            - Intermediate Gold
+            - Full Gold
+            - Open Gold
+            - Gold Star 1
+            - Gold Star 2
+        Teacher-Amateur:
+            - Pre Championship
+            - Championship
+        Student-Amateur:
+            - Pre Bronze
+            - Intermediate Bronze
+            - Full Bronze
+            - Open Bronze
+            - Pre Silver
+            - Intermediate Silver
+            - Full Silver
+            - Open Silver
+            - Pre Gold
+            - Intermediate Gold
+            - Full Gold
+            - Open Gold
+            - Gold Star 1
+            - Gold Star 2
+        Teacher-Professional:
+            - Rising Star
+            - Professional
+mappings:
+    genres: [American, Rhythm, Smooth, Latin, Standard]
+    proficiency:
+        Student to Amateur:
+            Pre Bronze: Bronze
+            Intermediate Bronze: Bronze
+            Full Bronze: Bronze
+            Open Bronze: Novice
+            Pre Silver: Silver
+            Intermediate Silver: Silver
+            Full Silver: Silver
+            Open Silver: Novice
+            Pre Gold: Gold
+            Intermediate Gold: Gold
+            Full Gold: Gold
+            Open Gold: Novice
+            Gold Star 1: Pre Championship
+            Gold Star 2: Championship
+    age:
+        Years to Category:
+            1-4: Baby
+            5-6: Juvenile
+            7-9: Preteen 1
+            10-11: Preteen 2
+            12-13: Junior 1
+            14-15: Junior 2
+            16-18: Youth
+            19-34: Adult
+            35-44: Senior 1
+            45-54: Senior 2
+            55-64: Senior 3
+            65-74: Senior 4
+            75-99: Senior 5

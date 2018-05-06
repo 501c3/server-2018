@@ -1,0 +1,23 @@
+<h1 align="center">Welcome {{ app.user.first }} {{ app.user.last }}</h1>
+<h3 align="center">You have {{ app.user.roles[0]|replace({'_':' '})|lower}}</h3>
+   {% if app.user.channels|length %}
+       <h3 align="center">With access to the following channels: </h3>
+       <table>
+           <tr><th>Channel</th></tr>
+       {% for channel in app.user.channels %}
+       {% endfor %}
+       </table>
+   {% else %}
+       <h3 align="center">You have no channel assignments yet.</h3>
+       <p align="center">Administrator action pending.</p>
+   {% endif  %}
+   {% if app.user.controllers|length %}
+      <h3 align="center">And the ability to perform these functions: </h3>
+   {% else %}
+      <h3 align="center">You have no administrative rights</h3>
+       <p align="center">Administrator action pending.</p>
+   {% endif %}
+
+
+
+

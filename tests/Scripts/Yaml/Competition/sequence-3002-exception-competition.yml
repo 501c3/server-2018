@@ -1,0 +1,5 @@
+comment:
+    - SequenceExceptionCode::COMPETITION = 3002
+    - not_competition at row:4, col:1 expected competition.
+not_competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]

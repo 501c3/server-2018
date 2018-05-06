@@ -1,0 +1,49 @@
+comment:
+    - SalesExceptionCode::START = 2402
+    - no_start at row:10, col:8 expected start.
+channel: Georgia DanceSport
+competition: Georgia DanceSport Competition
+logo: /home/mgarber/Dev2018/server/assets/images/dancers-icon.png
+venue: Ballroom Impact
+city: Sandy Springs
+state: GA
+date: {no_start: 2018-09-15,finish: 2018-09-15}
+monitor:
+    Mark Garber: mgarber@georgiadancesport.org
+    Steve Garber: 501c3.management@gmail.com
+inventory:
+    participant:
+        Per Dance Child: {2018-06-01: 8.00, 2018-09-01: 10.00}
+        Per Dance Adult: {2018-06-01: 12.00, 2018-09-01: 15.00}
+        Maximum Child: {2018-06-01: 60.00, 2018-09-01: 80.00}
+        Maximum Adult: {2018-06-01: 90.00, 2018-09-01: 110.00}
+    extra:
+        Spectator Adult: {2018-06-01: 10.00}
+        Spectator Child: {2018-06-01: 7.00}
+        Printed Program: {2018-06-01: 7.00}
+    discount:
+        Early Bird: {2018-06-01: 0.30}
+    penalty:
+        Late Competitor: {2018-9-01: 30.00}
+processor:
+    PayPal:
+        test:
+            mode: sandbox
+            acct1.clientId: CLIENT_ID_TEST_PAYPAL
+            acct1.clientSecret: CLIENT_SECRET_TEST_PAYPAL
+            http.ConnectionTimeout: 2000
+            http.Retry: 1
+            service.EndPoint: https://api.sandbox.paypal.com
+            log.LogEnabled: true
+            log.FileName : PayPal.log
+            log.LogLevel: DEBUG
+        prod:
+            mode: live
+            acct1.clientId: CLIENT_ID_PROD_PAYPAL
+            acct1.clientSecret: CLIENT_SECRET_PROD_PAYPAL
+            http.ConnectionTimeout: 2000
+            http.Retry: 1
+            service.EndPoint: https://api.paypal.com
+            log.LogEnabled: true
+            log.FileName : PayPal.log
+            log.LogLevel: FINE 

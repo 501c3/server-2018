@@ -1,0 +1,253 @@
+<?php
+
+namespace App\Entity\Competition;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Person
+ *
+ * @ORM\Table(name="person")
+ * @ORM\Entity(repositoryClass="App\Repository\Competition\PersonRepository")
+ */
+class Person
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="number", type="smallint", nullable=true)
+     */
+    private $number;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="first", type="string", length=40, nullable=false)
+     */
+    private $first;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="last", type="string", length=40, nullable=false)
+     */
+    private $last;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="sex", type="string", length=1, nullable=true, options={"fixed"=true})
+     */
+    private $sex;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="birth", type="date", nullable=true)
+     */
+    private $birth;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="phone", type="string", length=12, nullable=true)
+     */
+    private $phone;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="email", type="string", length=80, nullable=true)
+     */
+    private $email;
+
+    /**
+     * @var Collection
+     *
+     * @ORM\ManyToMany(targetEntity="App\Entity\Competition\Team", mappedBy="person")
+     */
+    private $team;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->team = new ArrayCollection();
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     * @return Person
+     */
+    public function setId(int $id): Person
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getNumber(): ?int
+    {
+        return $this->number;
+    }
+
+    /**
+     * @param int|null $number
+     * @return Person
+     */
+    public function setNumber(?int $number): Person
+    {
+        $this->number = $number;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFirst(): string
+    {
+        return $this->first;
+    }
+
+    /**
+     * @param string $first
+     * @return Person
+     */
+    public function setFirst(string $first): Person
+    {
+        $this->first = $first;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLast(): string
+    {
+        return $this->last;
+    }
+
+    /**
+     * @param string $last
+     * @return Person
+     */
+    public function setLast(string $last): Person
+    {
+        $this->last = $last;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getSex(): ?string
+    {
+        return $this->sex;
+    }
+
+    /**
+     * @param null|string $sex
+     * @return Person
+     */
+    public function setSex(?string $sex): Person
+    {
+        $this->sex = $sex;
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getBirth(): ?\DateTime
+    {
+        return $this->birth;
+    }
+
+    /**
+     * @param \DateTime|null $birth
+     * @return Person
+     */
+    public function setBirth(?\DateTime $birth): Person
+    {
+        $this->birth = $birth;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param null|string $phone
+     * @return Person
+     */
+    public function setPhone(?string $phone): Person
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param null|string $email
+     * @return Person
+     */
+    public function setEmail(?string $email): Person
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getTeam(): Collection
+    {
+        return $this->team;
+    }
+
+    /**
+     * @param Collection $team
+     * @return Person
+     */
+    public function setTeam(Collection $team): Person
+    {
+        $this->team = $team;
+        return $this;
+    }
+
+
+}

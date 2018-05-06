@@ -1,0 +1,20 @@
+-
+     comment:
+        - ModelExceptionCode::REDUNDANT_ETAG
+        - redundant_tag at row:12, col:11 is redundantly defined at row:20 col:11.
+     domain:
+        style:             
+            American: {abbr: A, order: 1}
+        substyle:
+            Rhythm: {abbr: AR, order: 2}
+     event-tag:
+        - Qualifier
+        - redundant_tag
+-
+     comment:
+        style:
+            International: {abbr: A, order: 1}
+        substyle:
+            Latin: {abbr: AR, order: 2}
+     event-tag:
+        - redundant_tag

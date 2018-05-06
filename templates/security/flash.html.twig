@@ -1,0 +1,15 @@
+
+<div class="container">
+    <div class="row">
+     {% for label, flashes in app.flashes %}
+        <div class="alert alert-danger">
+        {% for  message in flashes %}
+                <div class="flash-{{ label }}">
+                <h3 align="center">{{ message }}</h3>
+                </div>
+        {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+</div>
+

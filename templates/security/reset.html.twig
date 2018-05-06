@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+{% block navbar %}
+    <div class="navbar-header">
+        <a class="navbar-brand" href="http://www.georgiadancesport.org">News Portal</a>
+    </div>
+    <ul class="nav navbar-nav">
+        <li class="active"><a href="{{ path('main_page') }}">Home</a></li>
+    </ul>
+    <ul class="nav navbar-nav" style="float:right">
+        <li style="float:right"><a href="{{ path('security_register') }}">Login</li>
+        <li style="float:right"><a href="{{ path('security_login') }}">Login</li>
+    </ul>
+{% endblock navbar %}
+{% block content %}
+    <div class="container">
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3">
+                {% if error is defined %}
+                    <div class="alert alert-danger">
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                    </div>
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class=" panel-heading">
+                        <h3 align="center">Password Reset</h3>
+                    </div>
+                    <div class="panel-body has-feedback has-feedback">
+                        {{ form_start(form, {'attr': {'class':'form-horizontal', 'action': path('security_reset')}}) }}
+                        <div class="form-group">
+                            <div class = "col-lg-offset-1 col-md-offset-1 col-sm-offset-1 col-lg-5 col-md-5 col-sm-5">
+                                {{ form_widget(form._password.first, {'attr': {'class': 'form-control', 'placeholder': 'Password'}}) }}
+                                {{ form_errors(form._password) }}
+                            </div>
+                            <div class = "col-lg-5 col-md-5 col-sm-5">
+                                {{ form_widget(form._password.second, {'attr': {'class': 'form-control', 'placeholder': 'Repeat Password'}}) }}
+                            </div>
+                        </div>
+                        {{ form_rest(form) }}
+                        <div class="form-group">
+                            <div class="col-lg-offset-1 col-md-offset-1 col-sm-offset-1 col-lg-11 col-md-11 col-sm-11">
+                            <button type="submit" class="btn btn-success" style="background-color:dodgerblue;">Submit<span class="fa fa-lock"></span></button>
+                            <span style="float: right">
+                            <a href = "{{ path('security_login') }}">Login</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href = "{{ path('security_register') }}">Register</a>
+                            </span>
+
+                            </div>
+                        </div>
+
+                        &nbsp;&nbsp;&nbsp;
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,327 @@
+comment:
+    - Valid Specification for competition sequence
+    -
+competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
+sequence:
+        Session 1 Medal Exams:
+            -
+                ISTD Medal Exams:
+                    American:
+                        Rhythm:
+                            Pre Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Silver: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Gold: [Under 6,Under 8,Under 12,Junior 12-16]
+                    International:
+                        Latin:
+                            Pre Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Silver: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Gold: [Under 6,Under 8,Under 12,Junior 12-16]
+            -
+                ISTD Medal Exams:
+                    American:
+                        Rhythm:
+                            Pre Bronze: [Adult 16-50, Senior 50]
+                            Bronze: [Adult 16-50, Senior 50]
+                            Silver: [Adult 16-50, Senior 50]
+                            Gold: [Adult 16-50, Senior 50]
+                    International:
+                        Latin:
+                            Pre Bronze: [Adult 16-50, Senior 50]
+                            Bronze: [Adult 16-50, Senior 50]
+                            Silver: [Adult 16-50, Senior 50]
+                            Gold: [Adult 16-50, Senior 50]
+            -
+                ISTD Medal Exams:
+                    American:
+                        Smooth:
+                            Pre Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Silver: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Gold: [Under 6,Under 8,Under 12,Junior 12-16]
+                    International:
+                        Standard:
+                            Pre Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Silver: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Gold: [Under 6,Under 8,Under 12,Junior 12-16]
+            -
+                ISTD Medal Exams:
+                    American:
+                        Smooth:
+                            Pre Bronze: [Adult 16-50, Senior 50]
+                            Bronze: [Adult 16-50, Senior 50]
+                            Silver: [Adult 16-50, Senior 50]
+                            Gold: [Adult 16-50, Senior 50]
+                    International:
+                        Standard:
+                            Pre Bronze: [Adult 16-50, Senior 50]
+                            Bronze: [Adult 16-50, Senior 50]
+                            Silver: [Adult 16-50, Senior 50]
+                            Gold: [Adult 16-50, Senior 50]
+
+
+        Session 2:Youth Latin & Rhythm:
+            -
+                Georgia DanceSport Amateur:
+                    American:
+                        Rhythm:
+                            Newcomer: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+            -
+                Georgia DanceSport Amateur:
+                    American:
+                        Rhythm:
+                            Newcomer: [Junior 1,Junior 2,Youth]
+                            Bronze: [Junior 1,Junior 2,Youth]
+                            Silver: [Junior 1,Junior 2,Youth]
+                            Gold: [Junior 1,Junior 2,Youth]
+                            Novice: [Junior 1,Junior 2,Youth]
+                            Pre Championship: [Junior 1,Junior 2,Youth]
+                            Championship: [Junior 1,Junior 2,Youth]
+                Georgia DanceSport ProAm:
+                    American:
+                        Rhythm:
+                            Pre Bronze: [Junior 1,Junior 2,Youth]
+                            Intermediate Bronze: [Junior 1,Junior 2,Youth]
+                            Full Bronze: [Junior 1,Junior 2,Youth]
+                            Open Bronze: [Junior 1,Junior 2,Youth]
+                            Pre Silver: [Junior 1,Junior 2,Youth]
+                            Intermediate Silver: [Junior 1,Junior 2,Youth]
+                            Full Silver: [Junior 1,Junior 2,Youth]
+                            Open Silver: [Junior 1,Junior 2,Youth]
+                            Pre Gold: [Junior 1,Junior 2,Youth]
+                            Intermediate Gold: [Junior 1,Junior 2,Youth]
+                            Full Gold: [Junior 1,Junior 2,Youth]
+                            Open Gold: [Junior 1,Junior 2,Youth]
+            -
+                Georgia DanceSport Amateur:
+                    International:
+                        Latin:
+                            Newcomer: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+            -
+                Georgia DanceSport Amateur:
+                    International:
+                        Latin:
+                            Newcomer: [Junior 1,Junior 2,Youth]
+                            Bronze: [Junior 1,Junior 2,Youth]
+                            Silver: [Junior 1,Junior 2,Youth]
+                            Gold: [Junior 1,Junior 2,Youth]
+                            Novice: [Junior 1,Junior 2,Youth]
+                            Pre Championship: [Junior 1,Junior 2,Youth]
+                            Championship: [Junior 1,Junior 2,Youth]
+                Georgia DanceSport ProAm:
+                    International:
+                        Latin:
+                            Pre Bronze:  [Junior 1,Junior 2,Youth]
+                            Intermediate Bronze:  [Junior 1,Junior 2,Youth]
+                            Full Bronze:  [Junior 1,Junior 2,Youth]
+                            Open Bronze: [Junior 1,Junior 2,Youth]
+                            Pre Silver:  [Junior 1,Junior 2,Youth]
+                            Intermediate Silver:  [Junior 1,Junior 2,Youth]
+                            Full Silver: [Junior 1,Junior 2,Youth]
+                            Open Silver: [Junior 1,Junior 2,Youth]
+                            Pre Gold: [Junior 1,Junior 2,Youth]
+                            Intermediate Gold: [Junior 1,Junior 2,Youth]
+                            Full Gold: [Junior 1,Junior 2,Youth]
+                            Open Gold: [Junior 1,Junior 2,Youth]
+            -
+                Georgia DanceSport Amateur:
+                    Fun Events:
+                        Novelty:
+                            Bronze: [Youngster]
+                        Rhythm:
+                            Social: [Adult Youngster, Senior Youngster]
+                        Smooth:
+                            Social: [Adult Youngster, Senior Youngster]
+
+
+        Session 4 Youth Standard and Smooth:
+            -
+                Georgia DanceSport Amateur:
+                    American:
+                        Rhythm:
+                            Newcomer: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+            -
+                Georgia DanceSport ProAm:
+                    American:
+                        Rhythm:
+                            Newcomer: [Junior 1,Junior 2,Youth]
+                            Bronze: [Junior 1,Junior 2,Youth]
+                            Silver: [Junior 1,Junior 2,Youth]
+                            Gold: [Junior 1,Junior 2,Youth]
+                            Novice: [Junior 1,Junior 2,Youth]
+                            Pre Championship: [Junior 1,Junior 2,Youth]
+                            Championship: [Junior 1,Junior 2,Youth]
+                            Pre Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Intermediate Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Full Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Open Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Pre Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Intermediate Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Full Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Open Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+            -
+                Georgia DanceSport ProAm:
+                    American:
+                        Rhythm:
+                            Pre Bronze: [Junior 1,Junior 2,Youth]
+                            Intermediate Bronze: [Junior 1,Junior 2,Youth]
+                            Full Bronze: [Junior 1,Junior 2,Youth]
+                            Open Bronze: [Junior 1,Junior 2,Youth]
+                            Pre Silver: [Junior 1,Junior 2,Youth]
+                            Intermediate Silver: [Junior 1,Junior 2,Youth]
+                            Full Silver: [Junior 1,Junior 2,Youth]
+                            Open Silver: [Junior 1,Junior 2,Youth]
+                            Pre Gold: [Junior 1,Junior 2,Youth]
+                            Intermediate Gold: [Junior 1,Junior 2,Youth]
+                            Full Gold: [Junior 1,Junior 2,Youth]
+                            Open Gold: [Junior 1,Junior 2,Youth]
+                    International:
+                        Latin:
+                            Newcomer: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+            -
+                Georgia DanceSport Amateur:
+                    International:
+                        Latin:
+                            Newcomer: [Junior 1,Junior 2,Youth]
+                            Bronze: [Junior 1,Junior 2,Youth]
+                            Silver: [Junior 1,Junior 2,Youth]
+                            Gold: [Junior 1,Junior 2,Youth]
+                            Novice: [Junior 1,Junior 2,Youth]
+                            Pre Championship: [Junior 1,Junior 2,Youth]
+                            Championship: [Junior 1,Junior 2,Youth]
+            -
+                Georgia DanceSport ProAm:
+                    International:
+                        Latin:
+                            Pre Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Intermediate Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Full Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Open Bronze: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Pre Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Intermediate Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Full Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+                            Open Silver: [Baby,Juvenile,Preteen 1,Preteen 2]
+            -
+                Georgia DanceSport ProAm:
+                    International:
+                        Latin:
+                            Pre Bronze: [Junior 1,Junior 2,Youth]
+                            Intermediate Bronze: [Junior 1,Junior 2,Youth]
+                            Full Bronze: [Junior 1,Junior 2,Youth]
+                            Open Bronze: [Junior 1,Junior 2,Youth]
+                            Pre Silver: [Junior 1,Junior 2,Youth]
+                            Intermediate Silver: [Junior 1,Junior 2,Youth]
+                            Full Silver: [Junior 1,Junior 2,Youth]
+                            Open Silver: [Junior 1,Junior 2,Youth]
+                            Pre Gold: [Junior 1,Junior 2,Youth]
+                            Intermediate Gold: [Junior 1,Junior 2,Youth]
+                            Full Gold: [Junior 1,Junior 2,Youth]
+                            Open Gold: [Junior 1,Junior 2,Youth]
+            -
+                Georgia DanceSport Amateur:
+                    Fun Events:
+                        Rhythm:
+                            Social: [Adult Youngster, Senior Youngster]
+                        Smooth:
+                            Social: [Adult Youngster, Senior Youngster]
+        Session 3 Adult Latin and Rhythm:
+            -
+                Georgia DanceSport ProAm:
+                    American:
+                        Rhythm:
+                            Pre Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Newcomer: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Gold:  [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Novice: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Championship: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Championship: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                    International:
+                        Latin:
+                            Pre Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Newcomer: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Novice: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Championship: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Championship: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+        Session 4 Adult Smooth And Standard:
+            -
+                Georgia DanceSport ProAm:
+                    American:
+                        Smooth:
+                            Pre Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Newcomer: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Novice: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Championship: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Championship: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                    International:
+                        Standard:
+                            Pre Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Intermediate Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Full Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Open Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Newcomer: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Bronze: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Silver: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Gold: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Novice: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Pre Championship: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]
+                            Championship: [Senior 5,Senior 4,Senior 3,Senior 2,Senior 1,Adult]

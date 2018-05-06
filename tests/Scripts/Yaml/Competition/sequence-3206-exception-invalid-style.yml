@@ -1,0 +1,21 @@
+comment:
+    - SequenceExceptionCode::INVALID_STYLE = 3206
+    - invalid_style at row:10, col:21 invalid style.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia Dancesport Amateur,Georgia DanceSport Proam,ISTD Medal Exams]
+sequence:
+        Session 1 Medal Exams:
+            -
+                ISTD Medal Exams:
+                    invalid_style:
+                        Rhythm:
+                            Pre Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Silver: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Gold: [Under 6,Under 8,Under 12,Junior 12-16]
+                    International:
+                        Latin:
+                            Pre Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Silver: [Under 6,Under 8,Under 12,Junior 12-16]
+                            Gold: [Under 6,Under 8,Under 12,Junior 12-16]

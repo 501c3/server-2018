@@ -1,0 +1,25 @@
+App\Entity\Access\User:
+    user_{001..100}:
+        username: user_<current()>
+        username_canonical: user_<current()>
+        title: Mr
+        first: User_<current()>
+        last: Admin_<current()>
+        email: mgarber+<current()>\@georgiadancesport.org
+        email_canonical: mgarber+<current()>\@georgiadancesport.org
+        salt: salt
+        plainPassword: password
+        enabled: true
+        roles: ['ROLE_USER']
+    mgarber:
+        username: superadmin
+        username_canonical: superadmin
+        title: Mr
+        first: Super
+        last: Admin
+        email: mgarber\@georgiadancesport.org
+        email_canonical: mgarber\@georgiadancesport.org
+        salt: salt
+        plainPassword: password
+        enabled: true
+        roles: ['ROLE_SUPERADMIN']

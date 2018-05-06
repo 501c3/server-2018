@@ -1,0 +1,83 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: mgarber
+ * Date: 2/26/18
+ * Time: 5:32 PM
+ */
+
+namespace App\Utils;
+use App\Exceptions\Yaml\YamlEmptyStringException;
+use Symfony\Component\Yaml\Yaml;
+
+class YamlPosition
+{
+    private static $positions;
+
+    private static $lineCount;
+
+    public static function parse(string $string){
+        if(trim($string)==''){
+            throw new \Exception(__FILE__, 1000);
+;       }
+        $data=Yaml::parse($string);
+        $rowColumns=self::rowColumn($string);
+        $positions=Yaml::parse($rowColumns);
+        return ['data'=>$data, 'position'=>$positions];
+    }
+
+    public static function getLineCount()
+    {
+        return self::$lineCount;
+    }
+
+    public static function positionYaml()
+    {
+        return self::$positions;
+    }
+
+    public static function rowColumn(string $string)
+    {
+        $lines=mbsplit('\n',$string);
+        self::$lineCount=count($lines);
+        $row=0;
+        $positions = [];
+        foreach($lines as $line)
+        {
+            $row++;
+            array_push($positions, self::position($row, $line));
+        }
+        self::$positions=join("\n",$positions);
+        return self::$positions;
+    }
+
+    public static function position(int $row, $string)
+    {
+        $len=strlen($string);
+        $col=0;
+        $array=[];
+        $match=[];
+        while($col<$len){
+            $char=substr($string,$col,1);
+            $rest=substr($string,$col);
+            if(in_array($char, [' ',',','{','}','[',']','-',':'])){
+                $col++;
+                array_push($array,$char);
+            }elseif (preg_match('/(\d*)?\.\d+|\'(\w+(\s|\-|\/|\.|\@|\,))*\w+(\s*\(\w+\))?\'|"(\w+(\s|\-|\/|\.|\@|\,))*\w+(\(\w+\))?"|\w+(\s|\-\w+)*/',$rest, $match)) {
+                $size = strlen( $match[0] );
+                $position = sprintf( 'R%dC%d', $row, $col + 1 );
+                array_push( $array, $position );
+                $col += $size;
+            }elseif ($char=='#'){
+                $col=$len;
+            } else {
+                $col++;
+            }
+        }
+        return join('',$array);
+    }
+
+    public static function validEmail($email){
+        return preg_match('/\w+((\.)\w+)*\@\w+\.\w{2,3}/',$email);
+    }
+}

@@ -1,0 +1,117 @@
+parameters:
+    # Adds a fallback DATABASE_URL if the env var is not set.
+    # This allows you to run cache:warmup even if your
+    # environment variables are not available yet.
+    # You should not need to change this value.
+    env(DATABASE_URL): ''
+
+doctrine:
+    dbal:
+        # configure these for your database server
+
+        default_connection: access
+        connections:
+            access:
+                dbname: access
+                driver:   'pdo_mysql'
+                server_version: '5.7'
+                charset:  utf8mb4
+                host:     env(DATABASE_HOST_DEV)
+                user:     env(DATABASE_USER_DEV)
+                password: env(DATABASE_PASSWD_DEV)
+                url: '%env(resolve:DATABASE_URL_ACCESS_DEV)%'
+            configuration:
+                dbname:   configuration
+                driver:   'pdo_mysql'
+                server_version: '5.7'
+                charset:  utf8mb4
+                host:     env(DATABASE_HOST_DEV)
+                user:     env(DATABASE_USER_DEV)
+                password: env(DATABASE_PASSWD_DEV)
+                url: '%env(resolve:DATABASE_URL_CONFIGURATION_DEV)%'
+            sales:
+                dbname:   sales
+                driver:   'pdo_mysql'
+                server_version: '5.7'
+                charset:  utf8mb4
+                host:     env(DATABASE_HOST_DEV)
+                user:     env(DATABASE_USER_DEV)
+                password: env(DATABASE_PASSWD_DEV)
+                url: '%env(resolve:DATABASE_URL_SALES_DEV)%'
+            models:
+                dbname:   models
+                driver:   'pdo_mysql'
+                server_version: '5.7'
+                charset:  utf8mb4
+                host:     env(DATABASE_HOST_DEV)
+                user:     env(DATABASE_USER_DEV)
+                password: env(DATABASE_PASSWORD_DEV)
+                url: '%env(resolve:DATABASE_URL_MODELS_DEV)%'
+            competition:
+                dbname:   competition
+                driver:   'pdo_mysql'
+                server_version: '5.7'
+                charset:  utf8mb4
+                host:     env(DATABASE_HOST_DEV)
+                user:     env(DATABASE_USER_DEV)
+                password: env(DATABASE_PASSWD_DEV)
+                url: '%env(resolve:DATABASE_URL_COMPETITION_DEV)%'
+    orm:
+        auto_generate_proxy_classes: '%kernel.debug%'
+        default_entity_manager: access
+        entity_managers:
+            access:
+                connection: access
+                auto_mapping: false
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                mappings:
+                    Access:
+                        is_bundle: false
+                        type: annotation
+                        dir:  '%kernel.project_dir%/src/Entity/Access'
+                        prefix: 'App\Entity\Access'
+                        alias: Access
+            configuration:
+                connection: configuration
+                auto_mapping: false
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                mappings:
+                    Configuration:
+                        is_bundle: false
+                        type: annotation
+                        dir:  '%kernel.project_dir%/src/Entity/Configuration'
+                        prefix: 'App\Entity\Configuration'
+                        alias: Configuration
+            sales:
+                connection: sales
+                auto_mapping: false
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                mappings:
+                    Sales:
+                        is_bundle: false
+                        type: annotation
+                        dir:  '%kernel.project_dir%/src/Entity/Sales'
+                        prefix: 'App\Entity\Sales'
+                        alias: Sales
+            models:
+                connection: models
+                auto_mapping: false
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                mappings:
+                    Models:
+                        is_bundle: false
+                        type: annotation
+                        dir:  '%kernel.project_dir%/src/Entity/Models'
+                        prefix: 'App\Entity\Models'
+                        alias: Models
+            competition:
+                connection: competition
+                auto_mapping: false
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                mappings:
+                    Competition:
+                        is_bundle: false
+                        type: annotation
+                        dir:  '%kernel.project_dir%/src/Entity/Competition'
+                        prefix: 'App\Entity\Competition'
+                        alias: Competition

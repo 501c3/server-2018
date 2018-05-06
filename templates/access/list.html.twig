@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+{% block navbar %}
+   {% include 'main/navbar.html.twig' %}
+{% endblock navbar %}
+
+{% block breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+    {# total items count #}
+    <div class="container">
+        <div>&nbsp;</div>
+        <div class="count">
+            Total Records : {{ pagination.getTotalItemCount }}
+        </div>
+
+    <table class="table table-bordered table-striped">
+      <thead>
+      <tr>
+          {# sorting of properties based on query components #}
+         <th>{{ knp_pagination_sortable(pagination, 'Id', 'user.id') }}</th>
+         <th{% if pagination.isSorted('user.username') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Username', 'user.username') }}</th>
+         <th{% if pagination.isSorted('user.first') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'First', 'user.first') }}</th>
+         <th{% if pagination.isSorted('user.last') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Last', 'user.last') }}</th>
+         <th{% if pagination.isSorted('user.emailCononical') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Email', 'user.emailCanonical') }}</th>
+      </tr>
+      </thead>
+      <tbody>
+       {# table body #}
+       {% for user in pagination %}
+          <tr {% if loop.index is odd %}class="color"{% endif %}>
+             <td>{{ user.id }}</td>
+             <td>{{ user.username }}</td>
+             <td>{{ user.first }}</td>
+             <td>{{ user.last }}</td>
+             <td>{{ user.emailCanonical }}</td>
+          </tr>
+       {% endfor %}
+      </tbody>
+   </table>
+
+    {# display navigation #}
+        <div class="navigation">
+        {{ knp_pagination_render(pagination) }}
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,35 @@
+comment:
+    - ModelExceptionCode::MISSING_DOMAINS
+    - Missing substyle,age domain definitions between lines 6 and 24.
+model: Georgia DanceSport Amateur
+domains:
+    style:
+        - American
+        - International
+    proficiency:
+        - Social
+        - Newcomer
+        - Bronze
+        - Bronze-Silver
+        - Silver
+        - Silver-Gold
+        - Gold
+        - Novice
+        - Pre Championship
+        - Championship
+        - All
+    type:
+        - Amateur
+        - Teacher Student
+    tag: [Solo, Couple, Parent Child, Grandparent Child]
+dances:
+    American:
+        Rhythm: [Cha Cha,Rumba,Mambo,Bolero,Swing,West Coast Swing,Night Club,Hustle,Salsa,Merengue]
+        Smooth: [Waltz, Tango, Viennese Waltz, Foxtrot,Peabody]
+    Fun Events:
+        Rhythm: [Rumba, Swing]
+        Smooth: [Waltz, Foxtrot]
+        Novelty: [Chicken Dance]
+    International:
+        Latin: [Samba, Cha Cha,Rumba,Paso Doble,Jive]
+        Standard: [Waltz, Tango,Viennese Waltz, Foxtrot,Quickstep,Polka]

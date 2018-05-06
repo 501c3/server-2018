@@ -1,0 +1,8 @@
+twig:
+    paths: ['%kernel.project_dir%/templates']
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+    form_themes:
+        - bootstrap_3_layout.html.twig
+    globals:
+        google_recaptcha_public: '6LctIw8UAAAAAHCY0Zep3vR_B9a4p9IslePjnBVE'

@@ -1,0 +1,62 @@
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: 'en'
+    container.autowiring.strict_mode: true
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: false       # Allows optimizing the container by removing unused services; this also means
+                            # fetching services directly from the container via $container->get() won't work.
+                            # The best practice is to be explicit about your dependencies anyway.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{Entity,Migrations,Tests,Doctrine,Controller,Subscriber}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+    App\Doctrine\:
+        resource: '../src/Doctrine'
+        exclude: '../src/Doctrine/{Model,Sales,Competition}'
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
+            - { name: doctrine.event_listener, event: preUpdate }
+
+
+    App\DataFixtures\ORM\:
+        resource: '../src/DataFixtures/ORM'
+        tags: ['doctrine.fixture.orm']
+
+    App\Command\:
+        resource: '../src/Command'
+        tags: ['console.command']
+
+    app.command.subscriber:
+        class: 'App\Subscriber\CommandStatusSubscriber'
+        public: true
+        tags:
+            - { name: 'status.update', event: '\App\Subscriber\StatusEvent' }
+
+
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
+        arguments:
+            - 'mysql:dbname=access'
+            - { db_table: sessions, db_username: '%env(DATABASE_USER_DEV)%', db_password: '%env(DATABASE_PASSWD_DEV)%' }
+
+            #If you're using Doctrine & want to re-use that connection, then:
+            # comment-out the above 2 lines and uncomment the line below
+            # - !service { class: PDO, factory: 'database_connection:getWrappedConnection' }
+
+

@@ -1,0 +1,15 @@
+comment:
+    - SequenceExceptionCode::SEQUENCE = 3202
+    - not_sequence at row:6, col:1 expected sequence.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
+not_sequence:
+    Session 1 Medal Exams:
+        -
+            ISTD Medal Exams:
+                American:
+                    Rhythm:
+                        Pre Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                        Bronze: [Under 6,Under 8,Under 12,Junior 12-16]
+                        Silver: [Under 6,Under 8,Under 12,Junior 12-16]
+                        Gold: [Under 6,Under 8,Under 12,Junior 12-16]

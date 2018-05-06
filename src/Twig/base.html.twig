@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"  >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="noindex, nofollow">
+    {% block baseurl %}{% if baseurl is defined %}<base href="/{{baseurl}}/"></base>{% endif %}{% endblock baseurl %}
+    {% block css %}
+        <!--<link rel="stylesheet" href="{{asset('sf3/css/page.css')}}" />-->
+    {% endblock css %}
+
+    {% block js %}
+        <!--<script type="text/javascript" src="{{asset('sf3/js/page.js')}}"></script>-->
+    {% endblock js %}
+</head>
+<body>
+{% block navigation %}<h2 align="center">TODO: Add Navigation</h2>{% endblock navigation %}
+{% block header %}<h2 align="center">TODO: Add Branding Header</h2>{% endblock header %}
+{% block content %}<h2 align="center">TODO: Add Body Content</h2>{% endblock content %}
+{% block footer %}<h2 align="center">TODO:Add Footer</h2>{% endblock footer %}
+</body>
+</html>

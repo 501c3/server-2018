@@ -1,0 +1,49 @@
+comment:
+    - SalesExceptionCode::START = 2402
+    - 09-15-2018 at row:10, col:15 format not YYYY-MM-DD or invalid date.
+channel: Georgia DanceSport
+competition: Georgia DanceSport Competition
+logo: /home/mgarber/Dev2018/server/assets/images/dancers-icon.png
+venue: Ballroom Impact
+city: Sandy Springs
+state: GA
+date: {start: 09-15-2018,finish: 2018-09-15}
+monitor:
+    - {Mark Garber: mgarber@georgiadancesport.org}
+    - {Steve Garber: 501c3.management@gmail.com}
+inventory:
+    participant:
+       - {Per Dance Child: {2018-06-01: 8.00, 2018-09-01: 10.00}}
+       - {Per Dance Adult: {2018-06-01: 12.00, 2018-09-01: 15.00}}
+       - {Maximum Child: {2018-06-01: 60.00, 2018-09-01: 80.00}}
+       - {Maximum Adult: {2018-06-01: 90.00, 2018-09-01: 110.00}}
+    extra:
+       - {Spectator Adult: {2018-06-01: 10.00}}
+       - {Spectator Child: {2018-06-01: 7.00}}
+       - {Printed Program: {2018-06-01: 7.00}}
+    discount:
+       - {Early Bird: {2018-06-01: 0.30}}
+    penalty:
+       - {Late Competitor: {2018-9-01: 30.00}}
+processor:
+    PayPal:
+        test:
+            mode: sandbox
+            acct1.clientId: AZs1IYEkiwP5mFSq4R1Za8JQfVGBF6z3lA5XI53ANdlyl2ZIr0by49rT2QduuDNRPFOT8RBMebjBZTDV
+            acct1.clientSecret: EItdonirLT3rsitGiJbFd1wIOyk9_2rpEJ5HUvs1dolyf52OVOpgh-BIwkuogSHP8PC_2Sdp_mEtQhvy 
+            http.ConnectionTimeout: 2000
+            http.Retry: 1
+            service.EndPoint: https://api.sandbox.paypal.com
+            log.LogEnabled: true
+            log.FileName : PayPal.log
+            log.LogLevel: DEBUG
+        prod:
+            mode: live 
+            acct1.clientId: AScXiu54b7XlUJI25FycMU3WEyMrazshiwwxz_pf36B2T_J0RWw2vc_hpzoxsXhO_aT4UUs8JZlWB_0h
+            acct1.clientSecret: ECQs5-HIzM3ciRR2kUEJ0IRcSGS4_hGZ61KShiyhonZhYrIxXAFXodbM9JMe_Dk2oiJKzPMvEgUIzJyK 
+            http.ConnectionTimeout: 2000
+            http.Retry: 1
+            service.EndPoint: https://api.paypal.com
+            log.LogEnabled: true
+            log.FileName : PayPal.log
+            log.LogLevel: FINE 

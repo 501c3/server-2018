@@ -1,0 +1,5 @@
+comment:
+    - SequenceExceptionCode::INVALID_MODEL
+    - invalid_model at row:5, col:37 is an invalid model.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia Dancesport Amateur,invalid_model,ISTD Medal Exams]

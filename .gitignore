@@ -1,0 +1,34 @@
+###> symfony/framework-bundle ###
+/public/bundles/
+/public/build/
+/var/
+/vendor/
+.env
+.git/
+.idea/
+bin/
+package-lock.json
+symfony.lock
+yarn.lock
+mink.php
+phpunit.phar
+
+composer.lock
+###< symfony/framework-bundle ###
+
+###> symfony/web-server-bundle ###
+.web-server-pid
+###< symfony/web-server-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> symfony/webpack-encore-pack ###
+/node_modules/
+###< symfony/webpack-encore-pack ###
+
+###> behat/symfony2-extension ###
+behat.yml
+###< behat/symfony2-extension ###

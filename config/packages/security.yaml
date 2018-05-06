@@ -1,0 +1,62 @@
+parameters:
+    recaptcha: false
+    recaptcha_secret: '6LctIw8UAAAAALDwpMHLXxzb2EEaeNb_jYuF4mt9'
+
+
+security:
+    # https://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+    encoders:
+        App\Entity\Access\User: bcrypt
+
+    role_hierarchy:
+        ROLE_SUPERADMIN: [ROLE_ADMIN]
+        ROLE_ADMIN: [ROLE_CRUD_USER,ROLE_CRUD_SALES,ROLE_CRUD_COMP]
+        ROLE_CRUD_USER: [ROLE_READ_USER]
+        ROLE_CRUD_SALES: [ROLE_READ_SALES]
+        ROLE_CRUD_COMP: [ROLE_READ_COMP]
+        ROLE_READ_USER: [ROLE_USER]
+        ROLE_READ_SALES: [ROLE_USER]
+        ROLE_READ_COMP: [ROLE_USER]
+        ROLE_USER: [IS_AUTHENTICATED_FULLY]
+    providers:
+        db_provider:
+            entity:
+                class: App\Entity\Access\User
+                property: username
+        oauth:
+            id: knpu.oauth2.user_provider
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        secured_area:
+            provider: db_provider
+            anonymous: ~
+            form_login: ~
+            guard:
+                authenticators:
+                    - App\Security\LoginFormAuthenticator
+                    - App\Security\OAuthAuthenticator
+                entry_point: App\Security\LoginFormAuthenticator
+
+            logout:
+                path: /logout
+            switch_user: ~
+            logout_on_user_change: true
+
+            # activate different ways to authenticate
+
+            # http_basic: ~
+            # https://symfony.com/doc/current/book/security.html#a-configuring-how-your-users-will-authenticate
+
+            # form_login: ~
+            # https://symfony.com/doc/current/cookbook/security/form_login_setup.html
+
+
+    access_control:
+            - { path: ^/$, roles: [IS_AUTHENTICATED_ANONYMOUSLY, ROLE_USER] }
+            - { path: ^/(login|register|recover|reset)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+            - { path: ^/connect/\w+(/check)?$, roles: [ROLE_USER, IS_AUTHENTICATED_ANONYMOUSLY] }
+            - { path: ^/admin, roles: [ROLE_USER]}

@@ -1,0 +1,200 @@
+-
+     comment: "Generic Classifications"
+     domain:
+        style:             
+            American: {abbr: A, order: 1}                        
+            International: {abbr: I, order: 1}
+            Country: {abbr: C, order: 1}
+            Fun Events: {abbr: F, order: 1}
+        substyle: 
+            Rhythm: {abbr: AR, order: 2}
+            Smooth: {abbr: AS, order: 2}         
+            Latin: {abbr: IL, order: 2}
+            Standard: {abbr: IS, order: 2}
+            Theater Arts: {abbr: TA, order: 2}
+            Western: {abbr: CW, order: 2}
+            Caberet: {abbr: Cab, order: 2} 
+            Night Club: {abbr: NC, order: 2}
+            Argentine: {abbr: Ar, order: 2}
+            Novelty: {abbr: N, order: 2}
+        proficiency:
+            Social: {abbr: S, order: 3}
+            Newcomer: {abbr: NC, order: 3}
+            Intermediate Bronze: {abbr: IB, order: 3}
+            Full Bronze: {abbr: FB, order: 3}
+            Open Bronze: {abbr: OB, order: 3}
+            Bronze: {abbr: B, order: 3}
+            Pre Silver: {abbr: PS, order: 3}
+            Intermediate Silver: {abbr: IS, order: 3}
+            Full Silver: {abbr: FS, order: 3}
+            Open Silver: {abbr: OS, order: 3}
+            Silver: {abbr: S, order: 3}
+            Pre Gold: {abbr: PG, order: 3}
+            Intermediate Gold: {abbr: IG, order: 3}
+            Full Gold: {abbr: FG, order: 3}
+            Open Gold: {abbr: OG, order: 3}
+            Gold: {abbr: G,  order: 3}
+            Novice: {abbr: N, order: 3}
+            Gold Star 1: {abbr: GS1, order: 3}
+            Pre Championship: {abbr: PC, order: 3}
+            Gold Star 2: {abbr: GS2, order: 3}
+            Championship: {abbr: C, order: 3}
+            Rising Star-Pro: {abbr: RS, order: 3}
+            Professional: {abbr: Pro, order: 3}
+            Pre Novice: {abbr: PN, order: 3}
+        age:
+            1-4: {abbr: 1, order: 4}
+            5-6: {abbr: 5, order: 5}
+            7-8: {abbr: 7, order: 5}
+            9-9: {abbr: 9, order: 5}
+            10-11: {abbr: 10, order: 5}
+            12-13: {abbr: 12, order: 5}
+            14-15: {abbr: 14, order: 5}
+            16-18: {abbr: 16, order: 5}
+            19-20: {abbr: 18, order: 5}
+            20-34: {abbr: 20, order: 5}
+            35-35: {abbr: 35, order: 5}
+            36-44: {abbr: 36, order: 5}
+            45-50: {abbr: 45, order: 5}
+            51-54: {abbr: 51, order: 5}
+            55-60: {abbr: 55, order: 5}
+            60-64: {abbr: 60, order: 5}
+            61-74: {abbr: 61, order: 5}
+            75-80: {abbr: 75, order: 5}
+            81-99: {abbr: 81, order: 5}
+        dance:
+            Cha Cha: {abbr: CC,order: 7}
+            Samba: {abbr: Sa,order: 8}
+            Rumba: {abbr: R,order: 9}
+            Paso Doble: {abbr: PD,order: 10}
+            Jive: {abbr: J,order: 11}
+            Swing: {abbr: Sw,order: 12}
+            Bolero: {abbr: B,order: 13}
+            Mambo: {abbr: M,order: 14}
+            Salsa: {abbr: Sal,order: 15}
+            West Coast Swing: {abbr: WCS,order: 16}
+            Merengue: {abbr: Mer,order: 17}
+            Night Club: {abbr: NC, order: 18}
+            Hustle: {abbr: H,order: 19}
+            Chicken Dance: {abbr: CD, order: 20}
+            Waltz: {abbr: W,order: 21}
+            Tango: {abbr: T,order: 22}
+            Viennese Waltz: {abbr: VW,order: 23}
+            Foxtrot: {abbr: F,order: 24}
+            Quickstep: {abbr: QS,order: 25}
+            Argentine Tango: {abbr: AT,order: 26}
+            Peabody: {abbr: PB,order: 27}
+            Valtz: {abbr: V,order: 28}
+            Melonga: {abbr: Mel,order: 29}
+            2-Step: {abbr: 2-S,order: 30}
+            Nightclub: {abbr: NC,order: 31}
+            Polka: {abbr: Plka,order: 32}
+            Triple Two: {abbr: TT,order: 33}
+            Performance: {abbr: P,order: 34}
+     event-tag:
+        - Qualifier
+        - Scholarship
+-
+     comment: USA Dance Specific Proficiency and Ages
+     domain:
+         age:
+             Preteen 1: {abbr: PT1, order: 4}
+             Preteen 2: {abbr: PT2, order: 4}
+             Junior 1: {abbr: J1, order: 4}
+             Junior 2: {abbr: J2, order: 4}
+             Youth: {abbr: Y, order: 4}
+             Adult: {abbr: A, order: 4}
+             Senior 1: {abbr: S1, order: 4}
+             Senior 2: {abbr: S2, order: 4}
+             Senior 3: {abbr: S3, order: 4}
+             Senior 4: {abbr: S4, order: 4}
+             Senior 5: {abbr: S5, order: 4}
+             Senior: {abbr: S, order: 4}
+         type:
+             Amateur: {abbr: A, order: 5}
+             Professional: {abbr: P, order: 5}
+             Teacher-Student: {abbr: TS, order: 5}
+         tag:
+             Parent Child: {abbr: PC, order: 6}
+             Grandparent Child: {abbr: GC, order: 6}
+             Couple: {abbr: C, order: 6}
+             Male Couple: {abbr: MC, order: 6}
+             Female Couple: {abbr: FC, order: 6}
+             Student Male: {abbr: SM, order: 6}
+             Student Female: {abbr: SF, order: 6}
+             Solo: {abbr: Solo, order: 5}
+
+-
+     comment: Georgia DanceSport Specific
+     domain:
+         proficiency:
+             Bronze-Silver: {abbr: BS, order: 3}
+             Silver-Gold: {abbr: SG, order: 3}
+             All: {abbr: All, order: 3}
+         age:
+             Baby: {abbr: BY,order: 4}
+             Juvenile: {abbr: JV,order: 4}
+             Youth-Senior: {abbr: YS,order: 4}
+             Youth-Senior 5: {abbr: YS5, order: 4}
+             Adult-Senior 2: {abbr: AS2, order: 4}
+             Senior 3-Senior 5: {abbr: S35, order: 4}
+             Adult Youngster: {abbr: AY, order: 4}
+             Senior Youngster: {abbr: SY, order: 4}
+             College: {abbr: C, order: 4}
+             Youngster: {abbr: Y, order: 4}
+             Baby-Preteen 2: {abbr: BPT, order: 4}
+         type:
+             Family: {abbr: F, order: 4}
+-
+     comment: ISTD Specific Classifications
+     domain:
+         proficiency:
+             Pre Bronze: {abbr: PB, order: 3}
+         age:
+             Under 6: {abbr: U6, order: 4}
+             Under 8: {abbr: U8, order: 4}
+             Under 12: {abbr: U12, order: 4}
+             Junior 12-16: {abbr: J12, order: 4}
+             Adult 16-50: {abbr: A, order: 4}
+             Senior 50: {abbr: S50, order: 4}
+         type:
+             Couple: {abbr: C, order: 5}
+             Opposite: {abbr: O, order: 5}
+             Partner: {abbr: P, order: 5}
+             Solo: {abbr: S, order: 5}
+         tag:
+             Introductory Tests: {abbr: IT, order: 5}
+             One Dance Tests: {abbr: ODT, order: 5}
+             Medal Series: {abbr: MS, order: 5}
+-
+     comment: National Dance Council Ages
+     domain:
+         age:
+             JV 8: {abbr: JV, order: 4}
+             PT 9-11: {abbr: PT, order: 4}
+             JR 12-15: {abbr: JR, order: 4}
+             Y 16-20: {abbr: Y, order: 4}
+             A 21-50: {abbr: A, order: 4}
+             A1 21-35: {abbr: A1, order: 4}
+             A2 36-50: {abbr: A2, order: 4}
+             B 51-70: {abbr: B, order: 4}
+             B1 51-60: {abbr: B1, order: 4}
+             B2 61-70: {abbr: B2, order: 4}
+             C1 71-80: {abbr: C1, order: 4}
+             C2-81-99: {abbr: C2, order: 4}
+             C 71+: {abbr: C, order: 4}
+             Preteen: {abbr: PT, order: 4}
+             Junior: {abbr: JR, order: 4}
+             Under 45: {abbr: U45, order: 4}
+             Over 46: {abbr: 46+, order: 4}
+             Senior 65+: {abbr: 65+, order: 4}
+             Under 21: {abbr: <21, order: 4}
+         type:
+             Am-Am: {abbr: AA, order: 5}
+             Pro-Am: {abbr: PA, order: 5}
+             Pro-Pro: {abbr: PP, order: 5}
+         tag:             
+             Open Championship: {abbr: OC, order: 6}
+             Closed Championship: {abbr: CS,order: 6}
+             Open Scholarship: {abbr: OS, order: 6}             
+             Closed Scholarship: {abbr: CS, order: 6}              

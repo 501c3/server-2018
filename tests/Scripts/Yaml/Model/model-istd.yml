@@ -1,0 +1,178 @@
+model: ISTD Medal Exams
+domains:
+    style:
+        - American
+        - International
+    substyle:
+        - Rhythm
+        - Smooth
+        - Standard
+        - Latin
+    proficiency:
+        - Pre Bronze
+        - Bronze
+        - Silver
+        - Gold
+    age:
+        - Under 6
+        - Under 8
+        - Under 12
+        - Junior 12-16
+        - Adult 16-50
+        - Senior 50
+    type:
+        - Solo
+        - Couple
+        - Opposite
+    tag: [Introductory Tests, One Dance Tests,Medal Series]
+
+dances:
+    American: 
+        Rhythm: [Rumba, Cha Cha, Mambo, Bolero, Swing, West Coast Swing,Night Club,Hustle,Salsa,Merengue]
+        Smooth: [Waltz, Tango, Viennese Waltz,Foxtrot,Peabody]
+    International:
+        Latin: [Rumba, Cha Cha,Samba,Paso Doble,Jive]
+        Standard: [Waltz, Tango,Viennese Waltz, Foxtrot,Quickstep,Polka]
+
+players:
+    -
+        substyle:
+             - Rhythm
+             - Smooth
+             - Latin
+             - Standard
+        proficiency:
+             - Pre Bronze
+             - Bronze
+             - Silver
+             - Gold
+        age:
+              - Under 6
+              - Under 8
+              - Under 12
+              - Junior 12-16
+              - Adult 16-50
+              - Senior 50
+        type:
+              - Solo
+              - Couple
+              - Opposite
+event-tags: [Qualifier]
+event-collections:
+    -
+        style: American
+        event-tag: Qualifier
+        age:
+            Under 6: [Under 6]
+            Under 8: [Under 8]
+            Under 12: [Under 12]
+            Junior 12-16: [Junior 12-16]
+            Adult 16-50: [Adult 16-50]
+            Senior 50: [Senior 50]
+        proficiency:
+            Introductory Tests:
+                Pre Bronze:
+                    eligible: [Pre Bronze]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba],[Bolero,Swing],[Night Club,Hustle],[Merengue,Salsa]]
+                        Smooth: [[Waltz,Tango]]
+
+            Medal Series:
+                Bronze:
+                    eligible: [Bronze]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba],[Bolero,Swing],[Night Club,West Coast Swing]]
+                        Smooth: [[Waltz,Tango],[Foxtrot,Viennese Waltz]]
+                Silver:
+                    eligible: [Silver]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Swing]]
+                        Smooth: [[Waltz,Tango,Foxtrot]]
+                Gold:
+                    eligible: [Gold]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Bolero,Swing]]
+                        Smooth: [[Waltz,Tango,Foxtrot,Viennese Waltz]]
+            One Dance Tests:
+                Pre Bronze:
+                    eligible: [Pre Bronze]
+                    events:
+                        Rhythm: [[Cha Cha],[Rumba],[Bolero],[Swing],[West Coast Swing],[Night Club],[Hustle],[Merengue],[Salsa]]
+                        Smooth: [[Waltz],[Tango],[Foxtrot],[Viennese Waltz],[Peabody]]
+                Bronze:
+                    eligible: [Bronze]
+                    events:
+                        Rhythm: [[Cha Cha],[Rumba],[Bolero],[Swing],[West Coast Swing],[Night Club],[Hustle],[Merengue],[Salsa]]
+                        Smooth: [[Waltz],[Tango],[Foxtrot],[Viennese Waltz],[Peabody]]
+                Silver:
+                    eligible: [Silver]
+                    events:
+                        Rhythm: [[Cha Cha],[Rumba],[Bolero],[Swing],[West Coast Swing],[Night Club],[Hustle],[Merengue],[Salsa]]
+                        Smooth: [[Waltz],[Tango],[Foxtrot],[Viennese Waltz],[Peabody]]
+                Gold:
+                    eligible: [Gold]
+                    events:
+                        Rhythm: [[Cha Cha],[Rumba],[Bolero],[Swing],[West Coast Swing],[Night Club],[Hustle],[Merengue],[Salsa]]
+                        Smooth: [[Waltz],[Tango],[Foxtrot],[Viennese Waltz],[Peabody]]
+
+        type:
+            Solo: [Solo]
+            Couple: [Couple]
+            Opposite: [Opposite]
+
+    -
+        style: International
+        event-tag: Qualifier
+        age:
+            Under 6: [Under 6]
+            Under 8: [Under 8]
+            Under 12: [Under 12]
+            Junior 12-16: [Junior 12-16]
+            Adult 16-50: [Adult 16-50]
+            Senior 50: [Senior 50]
+        proficiency:
+            Introductory Tests:
+                Pre Bronze:
+                    eligible: [Pre Bronze]
+                    events: {Latin: [[Cha Cha,Rumba]]}
+            Medal Series:
+                Bronze:
+                    eligible: [Bronze]
+                    events:
+                        Latin: [[Cha Cha,Rumba],[Samba,Jive]]
+                        Standard: [[Waltz,Tango], [Foxtrot,Quickstep]]
+                Silver:
+                    eligible: [Silver]
+                    events:
+                        Latin: [[Cha Cha,Rumba,Jive]]
+                        Standard: [[Waltz,Tango,Foxtrot]]
+                Gold:
+                    eligible: [Gold]
+                    events:
+                        Latin: [[Cha Cha,Samba,Rumba,Jive]]
+                        Standard: [[Waltz,Tango,Foxtrot,Quickstep]]
+            One Dance Tests:
+                Pre Bronze:
+                    eligible: [Pre Bronze]
+                    events:
+                        Latin: [[Cha Cha],[Samba],[Paso Doble],[Rumba],[Jive]]
+                        Standard: [[Waltz],[Tango],[Viennese Waltz],[Foxtrot],[Quickstep]]
+                Bronze:
+                    eligible: [Bronze]
+                    events:
+                        Latin: [[Cha Cha],[Samba],[Paso Doble],[Rumba],[Jive]]
+                        Standard: [[Waltz],[Tango],[Viennese Waltz],[Foxtrot],[Quickstep]]
+                Silver:
+                    eligible: [Silver]
+                    events:
+                        Latin: [[Cha Cha],[Samba],[Paso Doble],[Rumba],[Jive]]
+                        Standard: [[Waltz],[Tango],[Viennese Waltz],[Foxtrot],[Quickstep]]
+                Gold:
+                    eligible: [Gold]
+                    events:
+                        Latin: [[Cha Cha],[Samba],[Paso Doble],[Rumba],[Jive]]
+                        Standard: [[Waltz],[Tango],[Viennese Waltz],[Foxtrot],[Quickstep]]
+        type:
+            Solo: [Solo]
+            Couple: [Couple]
+            Opposite: [Opposite]

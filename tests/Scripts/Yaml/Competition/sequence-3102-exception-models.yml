@@ -1,0 +1,5 @@
+comment:
+    - ExceptionCode::MODELS
+    - not_models at row:4, col:1 expected models
+competition: Georgia DanceSport Competition and Medal Exams
+not_models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]

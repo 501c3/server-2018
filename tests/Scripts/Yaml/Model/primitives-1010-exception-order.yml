@@ -1,0 +1,11 @@
+-
+     comment:
+        - ModelExceptionCode::ORDER
+        - no_order at row:11, col:30 expected order.
+     domain:
+        style:             
+            American: {abbr: A, order: 1}                        
+            International: {abbr: I, order: 1}
+        substyle:
+            Rhythm: {abbr: AR, order: 2}
+            Latin: {abbr: L, no_order: 2}

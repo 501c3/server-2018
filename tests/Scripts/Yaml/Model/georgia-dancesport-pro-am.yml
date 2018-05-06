@@ -1,0 +1,261 @@
+model: Georgia DanceSport ProAm
+domains:
+    style:
+        - American
+        - International
+    substyle:
+        - Rhythm
+        - Smooth
+        - Standard
+        - Latin
+    proficiency:
+        - Newcomer
+        - Bronze
+        - Pre Bronze
+        - Intermediate Bronze
+        - Full Bronze
+        - Open Bronze
+        - Bronze-Silver
+        - Silver
+        - Pre Silver
+        - Intermediate Silver
+        - Full Silver
+        - Open Silver
+        - Silver-Gold
+        - Gold
+        - Pre Gold
+        - Intermediate Gold
+        - Full Gold
+        - Open Gold
+        - Novice
+        - Gold Star 1
+        - Pre Championship
+        - Gold Star 2
+        - Championship
+        - Rising Star-Pro
+        - Professional
+        - All
+    age: 
+        - Baby
+        - Juvenile
+        - Preteen 1
+        - Preteen 2
+        - Junior 1
+        - Junior 2
+        - Youth
+        - Adult
+        - Senior 1
+        - Senior 2
+        - Senior 3
+        - Senior 4
+        - Senior 5
+        - Senior
+        - Youth-Senior
+    type:
+        - Professional
+        - Teacher
+        - Student
+        - Teacher Student
+    tag:
+        - Multi Dance
+        - Single Dance
+        - Parent Child
+        - Grandparent Child
+dances:
+    American:
+        Rhythm: [Cha Cha,Rumba,Mambo,Bolero,Swing,West Coast Swing,Night Club,Hustle,Salsa,Merengue]
+        Smooth: [Waltz, Tango, Viennese Waltz, Foxtrot,Peabody]    
+    International:
+        Latin: [Samba, Cha Cha,Rumba,Paso Doble,Jive]        
+        Standard: [Waltz, Tango,Viennese Waltz, Foxtrot,Quickstep,Polka]
+players:
+    -      
+      style: 
+          - American
+          - International
+      substyle:
+          - Rhythm
+          - Smooth
+          - Latin
+          - Standard
+      proficiency:
+          - Newcomer
+          - Pre Bronze
+          - Intermediate Bronze
+          - Full Bronze
+          - Open Bronze
+          - Bronze
+          - Pre Silver
+          - Intermediate Silver
+          - Full Silver
+          - Open Silver
+          - Silver
+          - Pre Gold
+          - Intermediate Gold
+          - Full Gold
+          - Open Gold
+          - Gold
+          - Gold Star 1
+          - Novice
+          - Gold Star 2
+          - Pre Championship
+          - Championship
+      age:
+          - Baby
+          - Juvenile
+          - Preteen 1
+          - Preteen 2
+          - Junior 1
+          - Junior 2
+          - Youth
+          - Adult
+          - Senior 1
+          - Senior 2
+          - Senior 3
+          - Senior 4
+          - Senior 5
+      type:
+          - Teacher Student
+event-tags:
+    - Qualifier
+    - Scholarship
+
+event-collections:
+    -
+        style: American Rhythm
+        etag: Qualifier
+        age:
+            Baby:      [Baby]
+            Juvenile:  [Baby, Juvenile]
+            Preteen 1: [Juvenile, Preteen 1]
+            Preteen 2: [Preteen 1, Preteen 2]
+            Junior 1:  [Preteen 2, Junior 1]
+            Junior 2:  [Junior 1,Junior 2]
+            Youth:     [Junior 2, Youth]
+            Adult:     [Youth, Adult,Senior 1]
+            Senior 1:  [Senior 1, Senior 2]
+            Senior 2:  [Senior 2, Senior 3]
+            Senior 3:  [Senior 3, Senior 4]
+            Senior 4:  [Senior 4, Senior 5]
+            Senior 5:  [Senior 5]
+        proficiency:
+            Couple:
+                Pre Bronze:
+                    eligible: [Pre Bronze]
+                    events:
+                        Rhythm: [[Rumba,Swing]]
+                        Smooth: [[Waltz,Tango]]
+                Intermediate Bronze:
+                    eligible: [Pre Bronze,Intermediate Bronze]
+                    events:
+                        Rhythm: [[Rumba,Swing]]
+                        Smooth: [[Waltz,Tango]]
+                Full Bronze:
+                    eligible: [Pre Bronze,Intermediate Bronze,Full Bronze]
+                    events:
+                        Rhythm: [[Rumba,Swing]]
+                        Smooth: [[Waltz,Tango]]
+                Open Bronze:
+                    eligible: [Intermediate Bronze, Full Bronze,Open Bronze]
+                    events:
+                        Rhythm: [[Rumba,Swing]]
+                        Smooth: [[Waltz,Tango]]
+                Pre Silver:
+                    eligible: [Full Bronze,Open Bronze,Pre Silver]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Swing]]
+                        Smooth: [[Waltz,Tango,Foxtrot]]
+                Intermediate Silver:
+                    eligible: [Open Bronze,Pre Silver,Intermediate Silver]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Swing]]
+                        Smooth: [[Waltz,Tango,Foxtrot]]
+                Full Silver:
+                    eligible: [Pre Silver,Intermediate Silver,Full Silver]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Swing]]
+                        Smooth: [[Waltz,Tango,Foxtrot]]
+                Open Silver:
+                    eligible: [Intermediate Silver,Full Silver,Open Silver]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Swing]]
+                        Smooth: [[Waltz,Tango,Foxtrot]]
+                Pre Gold:
+                    eligible: [Intermediate Silver,Open Silver,Pre Gold]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Swing,Bolero]]
+                        Smooth: [[Waltz,Tango,Foxtrot,Viennese Waltz]]
+                Intermediate Gold:
+                    eligible: [Open Silver,Pre Gold,Intermediate Gold]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Swing,Bolero]]
+                        Smooth: [[Waltz,Tango,Foxtrot,Viennese Waltz]]
+                Full Gold:
+                    eligible: [Pre Gold,Intermediate Gold,Full Gold]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Swing,Bolero]]
+                        Smooth: [[Waltz,Tango,Foxtrot,Viennese Waltz]]
+                Open Gold:
+                    eligible: [Intermediate Gold,Full Gold,Open Gold]
+                    events:
+                        Rhythm: [[Cha Cha,Rumba,Swing,Bolero,Mambo]]
+                        Smooth: [[Waltz,Tango,Foxtrot,Viennese Waltz]]
+        type:
+            Teacher Student : [Teacher Student]
+    -
+        style: International
+        etag: Qualifier
+        age:
+            Baby:      [Baby]
+            Juvenile:  [Baby, Juvenile]
+            Preteen 1: [Juvenile, Preteen 1]
+            Preteen 2: [Preteen 1, Preteen 2]
+            Junior 1:  [Preteen 2, Junior 1]
+            Junior 2:  [Junior 1,Junior 2]
+            Youth:     [Junior 2, Youth]
+            Adult:     [Youth, Adult,Senior 1]
+            Senior 1:  [Senior 1, Senior 2]
+            Senior 2:  [Senior 2, Senior 3]
+            Senior 3:  [Senior 3, Senior 4]
+            Senior 4:  [Senior 4, Senior 5]
+            Senior 5:  [Senior 5]
+        proficiency:
+            Couple:
+                Pre Bronze:
+                    eligible: [Pre Bronze]
+                    events: {Latin: [[Cha Cha,Rumba]], Standard: [[Waltz,Quickstep]]}
+                Intermediate Bronze:
+                    eligible: [Pre Bronze,Intermediate Bronze]
+                    events: {Latin: [[Cha Cha,Rumba]], Standard: [[Waltz,Quickstep]]}
+                Full Bronze:
+                    eligible: [Pre Bronze,Intermediate Bronze,Full Bronze]
+                    events: {Latin: [[Cha Cha,Rumba]], Standard: [[Waltz,Quickstep]]}
+                Open Bronze:
+                    eligible: [Intermediate Bronze,Full Bronze,Open Bronze]
+                    events: {Latin: [[Cha Cha,Rumba]], Standard: [[Waltz,Quickstep]]}
+                Pre Silver:
+                    eligible: [Pre Bronze]
+                    events: {Latin: [[Samba,Cha Cha,Rumba]], Standard: [[Waltz,Foxtrot,Quickstep]]}
+                Intermediate Silver:
+                    eligible: [Open Bronze,Pre Silver,Intermediate Silver]
+                    events: {Latin: [[Samba,Cha Cha,Rumba]], Standard: [[Waltz,Foxtrot,Quickstep]]}
+                Full Silver:
+                    eligible: [Pre Silver,Intermediate Silver,Full Silver]
+                    events: {Latin: [[Samba,Cha Cha,Rumba]], Standard: [[Waltz,Foxtrot,Quickstep]]}
+                Open Silver:
+                    eligible: [Intermediate Silver,Full Silver,Open Silver]
+                    events: {Latin: [[Samba,Cha Cha,Rumba]], Standard: [[Waltz,Foxtrot,Quickstep]]}
+                Pre Gold:
+                    eligible: [Full Silver,Open Silver,Pre Gold]
+                    events: {Latin: [[Samba,Cha Cha,Rumba,Jive]], Standard: [[Waltz,Tango,Foxtrot,Quickstep]]}
+                Intermediate Gold:
+                    eligible: [Open Silver,Pre Gold,Intermediate Gold]
+                    events: {Latin: [[Samba,Cha Cha,Rumba,Jive]], Standard: [[Waltz,Tango,Foxtrot,Quickstep]]}
+                Full Gold:
+                    eligible: [Pre Gold,Intermediate Gold,Full Gold]
+                    events: {Latin: [[Samba,Cha Cha,Rumba,Jive]], Standard: [[Waltz,Tango,Foxtrot,Quickstep]]}
+                Open Gold:
+                    eligible: [Full Silver,Open Silver,Pre Gold]
+                    events: {Latin: [[Samba,Cha Cha,Rumba,Jive]], Standard: [[Waltz,Tango,Foxtrot,Quickstep]]}
+        type:
+            Teacher Student: [Teacher Student]

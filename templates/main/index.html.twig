@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block navbar %}
+    {% include 'main/navbar.html.twig'  %}
+{% endblock navbar %}
+{% block content %}
+    {% if app.user is null %}
+        {% include 'main/activities.html.twig' %}
+    {% else %}
+        {% include 'main/user_summary.html.twig' with {role: app.user.roles[0] } %}
+    {% endif %}
+{% endblock content %}

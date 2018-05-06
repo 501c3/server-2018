@@ -1,0 +1,13 @@
+-
+     comment:
+        - ModelExceptionCode:KEY = 1002
+        - no_key at row:3, col:6 expected comment,domain,event-tag
+     no_key:
+        style:             
+            American: {abbr: A, order: 1}                        
+            International: {abbr: I, order: 1}
+            Country: {abbr: C, order: 1}
+            Fun Events: {abbr: F, order: 1}
+        substyle:
+            Rhythm: {abbr: AR, order: 2}
+            Smooth: {abbr: AS, order: 2}

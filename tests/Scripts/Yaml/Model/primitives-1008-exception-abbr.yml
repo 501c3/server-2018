@@ -1,0 +1,12 @@
+-
+     comment:
+        - ModelExceptionCode::ABBR = 1008
+        - no_abbr at row:11, col:21 expected abbr.
+     domain:
+        style:             
+            American: {abbr: A, order: 1}                        
+            International: {abbr: I, order: 1}
+        substyle:
+            Rhythm: {abbr: AR, order: 2}
+            Latin: {no_abbr: L, order: 2}
+

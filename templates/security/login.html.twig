@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block navbar %}
+    <div class="navbar-header">
+        <a class="navbar-brand" href="http://www.georgiadancesport.org">News Portal</a>
+    </div>
+    <ul class="nav navbar-nav">
+        <li class="active"><a href="{{ path('main_index') }}">Home</a></li>
+    </ul>
+    <ul class="nav navbar-nav" style="float:right">
+        <li style="float:right"><a href="{{ path('security_login') }}">Login</a></li>
+        <li style="float:right"><a href="{{ path('security_register') }}">Register</a></li>
+    </ul>
+{% endblock navbar %}
+{% block content %}
+    <div class="container">
+        <div class="row" align="center">
+                <a href="/connect/google"><img alt="Login via Google" src="{{ asset('/build/assets/images/google+.png') }}"/></a>
+                <a href="/connect/facebook"><img alt="Login via Facebook" src="{{ asset('/build/assets/images/facebook.png') }}"/></a>
+                <a href="/connect/linkedin"><img alt="Login via LinkedIn" src="{{ asset('/build/assets/images/linkedin.png') }}"/></a>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3">
+                {# TODO: Reduce the number of header error messages. #}
+
+                {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                    </div>
+                {% endif %}
+                <div class="panel panel-default">
+                <div class=" panel-heading">
+                <h3 align="center">Login</h3>
+                </div>
+                <div class="panel-body has-feedback">
+                    {{ form_start(form, {'attr': {'class':'form-horizontal'}}) }}
+                        <input type="hidden" name="_target_path" value="{{ path('main_index') }}" />
+                        <input type="hidden" name="go_to" value="/" />
+                        <div class="form-group">
+                            <div class="col-md-12">
+                            {{  form_widget(form._username, {'attr': {'placeholder': 'User Name',  'class': 'form-control'}}) }}
+                            {{  form_errors(form._username) }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                            {{  form_widget(form._password, {'attr': {'placeholder': 'Password', 'class': 'form-control'}}) }}
+                            {{  form_errors(form._password) }}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success" style="background-color:dodgerblue;">Login<span class="fa fa-lock"></span></button>
+
+                        <a style="float:right" href = "{{ path('security_recover') }}">Forgot Password</a>&nbsp;&nbsp;&nbsp;&nbsp
+                    &nbsp;&nbsp;&nbsp;
+                    {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

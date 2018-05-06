@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block navbar %}
+    {% include 'main/navbar.html.twig'  %}
+{% endblock navbar %}
+{% block content %}
+    {% if app.user is not null %}
+        {% include 'main/user_summary.html.twig' %}
+    {% else %}
+        <div class="container">
+            <div class="row">
+                <div class = "panel panel-default">
+                    <div class = "panel-heading"><h3>Index Page</h3></div>
+                    <div class = "panel-body">
+                        <a href="/admin">Home Page</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}

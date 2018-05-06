@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% macro recaptcha(siteKey)%}
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+    <div align="center" class="g-recaptcha" data-sitekey="{{siteKey}}"></div>
+{% endmacro %}
+
+{% import _self as extra %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script>
+        function focusMobilePrefix(id) {
+            var phone = document.getElementById(id);
+
+            if (phone.value.length == 0) {
+                phone.value = '(';
+            }
+        }
+
+        function blurMobilePrefix(id) {
+            var phone = document.getElementById(id);
+
+            if (phone.value === '(') {
+                phone.value = '';
+            }
+        }
+
+        function keyPress(e, id) {
+            var phone = document.getElementById(id);
+
+            if (phone.value.length === 0) {
+                phone.value = '(';
+            } else {
+                var prefix = phone.value.slice(0, 1);
+                if (prefix != '(') {
+                    phone.value = '(' + phone.value;
+                }
+            }
+
+            if (e.key !== "Backspace") {
+                if (phone.value.length === 4) {
+                    phone.value = phone.value + ')';
+                }
+                if (phone.value.length === 5) {
+                    phone.value = phone.value + ' ';
+                }
+                if (phone.value.length === 9) {
+                    phone.value = phone.value + '-';
+                }
+            }
+        }
+    </script>
+{% endblock scripts %}
+
+{% block navbar %}
+    <div class="navbar-header">
+        <a class="navbar-brand" href="http://www.georgiadancesport.org">News Portal</a>
+    </div>
+    <ul class="nav navbar-nav">
+        <li class="active"><a href="{{ path('main_index') }}">Home</a></li>
+    </ul>
+    <ul class="nav navbar-nav" style="float:right">
+        <li style="float:right"><a href="{{ path('security_login') }}">Login</a></li>
+    </ul>
+{% endblock navbar %}
+
+{% block content %}
+    <div class="container">
+        <div align="center">
+            <a href="/connect/google"><img alt="Register via Google" src="{{ asset('/build/assets/images/google+.png') }}"/></a>
+            <a href="/connect/facebook"><img alt="Register via Facebook" src="{{ asset('/build/assets/images/facebook.png') }}"/></a>
+            <a href="/connect/linkedin"><img alt="Register via LinkedIn" src="{{ asset('/build/assets/images/linkedin.png') }}"/></a>
+        <div>
+        {% include 'security/flash.html.twig' %}
+        <div class="row">
+            {{ form_errors(form) }}
+                <h1 align="center">Register for Administrative Privileges!</h1>
+            {{ form_start(form, {'attr': {'action': path('security_register'), 'method': 'POST'}}) }}
+            <div class = "panel panel-default">
+                <div class = "panel-heading">Registrants Name</div>
+                <div class = "panel-body">
+                    <div class="col-lg-1 col-md-2 col-sm-2">
+                        {{ form_widget(form.title) }}
+                        {{ form_errors(form.title) }}
+                    </div>
+                    <div class = "col-lg-3 col-md-3 col-sm-3">
+                        {{ form_widget(form.first, {'attr': {'placeholder': 'First'}}) }}
+                        {{ form_errors(form.first) }}
+                    </div>
+                    <div class = "col-lg-2 col-md-2 col-sm-2">
+                        {{ form_widget(form.middle,{'attr': {'placeholder': 'Middle'}}) }}
+                        {{ form_errors(form.middle) }}
+                    </div>
+                    <div class = "col-lg-3 col-md-3 col-sm-3">
+                        {{ form_widget(form.last, {'attr': {'placeholder': 'Last'}}) }}
+                        {{ form_errors(form.last) }}
+                    </div>
+                    <div class = "col-lg-1 col-md-2 col-sm-2">
+                        {{ form_widget(form.suffix, {'attr': {'placeholder': 'Suffix'}}) }}
+                        {{ form_errors(form.suffix) }}
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+            <div class = "panel panel-default">
+                <div class = "panel-heading">Login Credentials</div>
+                <div class = "panel-body">
+                    <div class = "col-lg-4 col-md-4 col-sm-4 {% if form.username.vars.valid==false %}has-error{% endif %}">
+                        {{ form_widget(form.username,{'attr': {'placeholder': 'Username'}}) }}
+                        {{ form_errors(form.username) }}
+                    </div>
+                    <div class = "col-lg-4 col-md-4 col-sm-4 {% if form.plainPassword.vars.valid==false %}has-error{% endif %}">
+                        {{ form_widget(form.plainPassword.first, {'attr': {'placeholder': 'Password'}}) }}
+                        {{ form_errors(form.plainPassword.first) }}
+                    </div>
+                    <div class = "col-lg-4 col-md-4 col-sm-4 {% if form.plainPassword.vars.valid==false %}has-error{% endif %}">
+                        {{ form_widget(form.plainPassword.second, {'attr': {'placeholder': 'Repeat Password'}}) }}
+                        {{ form_errors(form.plainPassword.second) }}
+                    </div>
+                </div>
+            </div>
+            <div class = "panel panel-default">
+                <div class="panel-heading">Contacts</div>
+                <div class="panel-body">
+                    <div class = "col-lg-4 col-md-4 col-sm-4 {% if form.email.first.vars.valid==false %}has-error{% endif %}">
+                        {{ form_widget(form.email.first, {'attr': {'placeholder': 'Email'}}) }}
+                        {{ form_errors(form.email.first) }}
+                    </div>
+                    <div class = "col-lg-4 col-md-4 col-sm-4 {% if form.email.second.vars.valid==false %}has-error{% endif %}">
+                        {{ form_widget(form.email.second, {'attr': {'placeholder': 'Repeat Email'}}) }}
+                        {{ form_errors(form.email.second) }}
+                    </div>
+                    <div class = "col-lg-4 col-md-4 col-sm-4">
+                        {# TODO: Enable javascript after tests #}
+                        {# form_widget(form.mobile, {'attr': {'placeholder': 'Mobile#'}}) #}
+                        {{    form_widget(form.mobile, {'attr': {'placeholder': 'Mobile#',
+                                                                'id':'register_form_mobile',
+                                                                'onfocus':'focusMobilePrefix("register_form_mobile")',
+                                                                'onblur':'blurMobilePrefix("register_form_mobile")',
+                                                                'onkeypress': 'keyPress(event,"register_form_mobile")',
+                                                                'maxlength':14}})}}
+                        {{ form_errors(form.mobile)}}
+                    </div>
+                </div>
+            </div>
+            {# TODO: Uncomment after passing tests #}
+            {#  extra.recaptcha(google_recaptcha_public) #}
+            <button type="submit" class="btn btn-primary" formnovalidate>Register</button>
+            {{ form_end(form) }}
+        </div>
+        <div class="row">
+            &nbsp;
+        </div>
+        <div class="row">
+            &nbsp;
+        </div>
+    </div>
+{% endblock content %}

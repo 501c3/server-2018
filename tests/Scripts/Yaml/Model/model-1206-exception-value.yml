@@ -1,0 +1,48 @@
+comment:
+    - ModelExceptionCode::VALUE =  1206
+    - no_value at row:12, col:11 is not a valid substyle..
+model: Georgia DanceSport Amateur
+domains:
+    style:
+        - American
+        - International
+        - Fun Events
+    substyle:
+        - Rhythm
+        - no_value
+        - Standard
+        - Latin
+        - Novelty
+    proficiency:
+        - Social
+        - Newcomer
+        - Bronze
+        - Bronze-Silver
+        - Silver        
+        - Silver-Gold
+        - Gold
+        - Novice
+        - Pre Championship
+        - Championship
+        - All
+    age: 
+        - Baby
+        - Juvenile
+        - Preteen 1
+        - Preteen 2
+        - Junior 1
+        - Junior 2
+        - Youth
+        - Adult
+        - Senior 1
+        - Senior 2
+        - Senior 3
+        - Senior 4
+        - Senior 5
+        - Senior
+        - Youth-Senior
+        - Senior 3-Senior 5
+    type:
+        - Amateur       
+        - Teacher Student        
+    tag: [Solo, Couple, Parent Child, Grandparent Child]

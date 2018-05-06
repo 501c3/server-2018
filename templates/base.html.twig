@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"  >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="noindex, nofollow">
+    {% block baseurl %}{% if baseurl is defined %}<base href="/{{baseurl}}/"></base>{% endif %}{% endblock baseurl %}
+    {% block styles %}
+        <link rel="stylesheet" href="{{  asset('build/app.css') }}">
+    {% endblock styles %}
+    {% block scripts %}
+        <script src="{{ asset('build/app.js') }}"></script>
+    {% endblock scripts %}
+</head>
+<body>
+<nav class="navbar" style="margin-bottom: 5px">
+    <div class="container-fluid">
+        {% block navbar %}
+           <span>TODO: navbar</span>
+        {% endblock navbar %}
+    </div>
+</nav>
+{% block banner %}
+    <div class="container-fluid" style=" background-color: dodgerblue; color: whitesmoke; padding-top: 5px; padding-bottom: 5px">
+        <div class="row">
+           {% include 'banner.html.twig' %}
+        </div>
+    </div>
+{% endblock banner %}
+{% block breadcrumbs %}
+
+{% endblock breadcrumbs %}
+
+{% block content %}
+
+{% endblock content %}
+
+{% block footer %}
+    <footer class="footer navbar-fixed-bottom" style="background-color: dodgerblue; color: whitesmoke; padding:10px 10px">
+            <div class='container'>
+                <div class='row'>
+                    <div class='col-md-12'>
+                        &copy; 2018 Competition Management Services, Inc.
+                    </div>
+                </div>
+            </div>
+    </footer>
+{% endblock footer %}
+</body>
+</html>

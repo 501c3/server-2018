@@ -1,0 +1,56 @@
+comment:
+    - ModelExceptionCode 1204
+    - no_domain at row:16, col:5 expected style,substyle,proficiency,age,type,tag.
+model: Georgia DanceSport Amateur
+domains:
+    style:
+        - American
+        - International
+        - Fun Events
+    substyle:
+        - Rhythm
+        - Smooth
+        - Standard
+        - Latin
+        - Novelty
+    no_domain:
+        - Rhythm
+        - Smooth
+        - Standard
+        - Latin
+        - Novelty
+    proficiency:
+        - Social
+        - Newcomer
+        - Bronze
+        - Bronze-Silver
+        - Silver        
+        - Silver-Gold
+        - Gold
+        - Novice
+        - Pre Championship
+        - Championship
+        - All
+    age: 
+        - Baby
+        - Juvenile
+        - Preteen 1
+        - Preteen 2
+        - Junior 1
+        - Junior 2
+        - Youth
+        - Adult
+        - Senior 1
+        - Senior 2
+        - Senior 3
+        - Senior 4
+        - Senior 5
+        - Senior
+        - Youth-Senior
+        - Senior 3-Senior 5
+        - Adult Child
+        - Senior Child
+    type:
+        - Amateur       
+        - Teacher Student        
+    tag: [Solo, Couple, Parent Child, Grandparent Child]

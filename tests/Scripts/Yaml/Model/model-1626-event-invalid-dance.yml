@@ -1,0 +1,117 @@
+comment:
+    - ModelExceptionCode 1624
+    - Line 195 Should not have double brackets.
+model: Georgia DanceSport Amateur
+domains:
+    style:
+        - American
+        - International
+        - Fun Events
+    substyle:
+        - Rhythm
+        - Smooth
+        - Standard
+        - Latin
+        - Novelty
+    proficiency:
+        - Social
+        - Newcomer
+        - Bronze
+        - Bronze-Silver
+        - Silver        
+        - Silver-Gold
+        - Gold
+        - Novice
+        - Pre Championship
+        - Championship
+        - All
+    age: 
+        - Baby
+        - Juvenile
+        - Preteen 1
+        - Preteen 2
+        - Junior 1
+        - Junior 2
+        - Youth
+        - Adult
+        - Senior 1
+        - Senior 2
+        - Senior 3
+        - Senior 4
+        - Senior 5
+        - Senior
+        - Youth-Senior
+        - Senior 3-Senior 5
+        - Adult Child
+        - Senior Child
+    type:
+        - Amateur
+    tag: [Solo, Couple, Parent Child, Grandparent Child]
+dances:
+    American:
+        Rhythm: [Cha Cha,Rumba,Mambo,Bolero,Swing,West Coast Swing,Night Club,Hustle,Salsa,Merengue]
+        Smooth: [Waltz, Tango, Viennese Waltz, Foxtrot,Peabody]
+    Fun Events:
+        Rhythm: [Rumba, Swing]
+        Smooth: [Waltz, Foxtrot]
+        Novelty: [Chicken Dance]
+    International:
+        Latin: [Samba, Cha Cha,Rumba,Paso Doble,Jive]
+        Standard: [Waltz, Tango,Viennese Waltz, Foxtrot,Quickstep,Polka]
+
+players:
+    -
+      substyle:
+          - Rhythm
+          - Smooth
+          - Standard
+          - Latin
+          - Novelty
+      proficiency:
+          - Newcomer
+          - Bronze
+          - Silver
+          - Gold
+          - Novice
+          - Pre Championship
+          - Championship
+      age:
+          - Baby
+          - Juvenile
+          - Preteen 1
+          - Preteen 2
+          - Junior 1
+          - Junior 2
+          - Youth
+          - Adult
+          - Senior 1
+          - Senior 2
+          - Senior 3
+          - Senior 4
+          - Senior 5
+      type:
+          - Amateur
+
+event-tags:
+    - Qualifier
+
+event-collections:
+    -
+        style: Fun Events
+        event-tag: Qualifier
+        age: {Adult Child: [Adult Child]}
+        proficiency:
+            Parent Child:
+                 Social:
+                    eligible:
+                        - Social
+                        - Newcomer
+                        - Bronze
+                        - Silver
+                        - Gold
+                        - Novice
+                        - Pre Championship
+                        - Championship
+                    single-event: {Smooth: [Invalid Dance], Rhythm: [Swing]}
+        type:
+            Amateur: [Amateur]

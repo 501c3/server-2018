@@ -1,0 +1,76 @@
+knp_paginator:
+    page_range: 5                       # number of links showed in the pagination menu (e.g: you have 10 pages, a page_range of 3, on the 5th page you'll see links to page 4, 5, 6)
+    default_options:
+        page_name: page                 # page query parameter name
+        sort_field_name: sort           # sort field query parameter name
+        sort_direction_name: direction  # sort direction query parameter name
+        distinct: true                  # ensure distinct results, useful when ORM queries are using GROUP BY statements
+        filter_field_name: filterField  # filter field query parameter name
+        filter_value_name: filterValue  # filter value query paameter name
+    template:
+        pagination: '@KnpPaginator/Pagination/twitter_bootstrap_v3_pagination.html.twig'     # sliding pagination controls template
+        sortable: '@KnpPaginator/Pagination/sortable_link.html.twig' # sort link template
+        filtration: '@KnpPaginator/Pagination/filtration.html.twig'  # filters template
+
+#TODO: Move client secrets to operating system
+knpu_oauth2_client:
+    clients:
+        # Will create a service: "knpu.oauth2.client.google_main"
+        # Location to modify client id and client secret at google
+        # https://console.developers.google.com/apis/credentials/oauthclient/807061552312-bbp7b4vk5vib9tj1ce7soumggr5tt1oq.apps.googleusercontent.com?project=807061552312
+        google_main:
+            # this will be one of the supported types
+            type: google
+            client_id: '%env(GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(GOOGLE_SECRET)%'
+            # the route that you're redirected to after
+            # see the controller example below
+            redirect_route: oauth2_google_check
+            #redirect_route: main_admin
+            # route parameters to pass to your route, if needed
+            # access_type: offline
+            redirect_params: {}
+
+        # Location to modify client id and client secret at facebook
+        #https://developers.facebook.com/apps/1599970460056316/
+        facebook_main:
+            # must be "facebook" - it activates that type!
+            type: facebook
+            # add and configure client_id and client_secret in parameters.yml
+            client_id: '%env(FACEBOOK_CLIENT_ID)%'
+            client_secret: '%env(FACEBOOK_SECRET)%'
+            # a route name you'll create
+            redirect_route: oauth2_facebook_check
+            redirect_params: {}
+            graph_api_version: v2.8
+            # whether to check OAuth2 "state": defaults to true
+            # use_state: true
+        #Location to modify client id and client secret at LinkedIn
+        #https://www.linkedin.com/developer/apps/4776494/auth
+        linkedin_main:
+            # must be "linkedin" - it activates that type!
+            type: linkedin
+            # add and configure client_id and client_secret in parameters.yml
+            client_id: '%env(LINKEDIN_CLIENT_ID)%'
+            client_secret: '%env(LINKEDIN_SECRET)%'
+            # a route name you'll create
+            redirect_route: oauth2_linkedin_check
+            redirect_params: {}
+
+            # whether to check OAuth2 "state": defaults to true
+            # use_state: true
+
+        #Location to modify client id and client secret at PayPal
+        #https://developer.paypal.com/developer/applications
+        paypal_main:
+            # must be "paypal" - it activates that type!
+            type: paypal
+            # add and configure client_id and client_secret in parameters.yml
+            client_id: '%env(PAYPAL_CLIENT_ID)%'
+            client_secret: '%env(PAYPAL_SECRET)%'
+            # a route name you'll create
+            redirect_route: oauth2_paypal_check
+            redirect_params: {}
+
+            # whether to check OAuth2 "state": defaults to true
+            # use_state: true
