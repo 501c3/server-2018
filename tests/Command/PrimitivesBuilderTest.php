@@ -74,7 +74,7 @@ class PrimitivesBuilderTest extends KernelTestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command'=>$command->getName(),
-            'filename'=>__DIR__."/../Source/$testSource"
+            'filename'=>__DIR__."/../Scripts/Yaml/Model/$testSource"
         ]);
         $output=$commandTester->getDisplay();
         return $output;
@@ -83,7 +83,7 @@ class PrimitivesBuilderTest extends KernelTestCase
 
     public function testCommandLoadModelPrimitivesCorrect()
     {
-        $output=$this->loadCommandTestSource(new ModelPrimitives, 'primitives-correct.yml');
+        $output=$this->loadCommandTestSource(new ModelPrimitives, 'primitives.yml');
         $this->assertContains('Commencing at', $output);
         $this->assertContains('100%', $output);
         $this->assertContains('Duration',$output);
@@ -91,7 +91,7 @@ class PrimitivesBuilderTest extends KernelTestCase
 
     public function testCommandLoadModelPrimitivesError()
     {
-        $output=$this->loadCommandTestSource(new ModelPrimitives(), 'primitives-1006-previous-value.yml');
-        $this->assertContains("\"American Rhythm\" at row:46 col:18.  Previously defined at row:5 col:18.", $output);
+        $output=$this->loadCommandTestSource(new ModelPrimitives(), 'primitives-1002-exception-key.yml');
+        $this->assertContains('"no_key" at row:5, col:6 expected "comment","domain","event-tag"', $output);
     }
 }

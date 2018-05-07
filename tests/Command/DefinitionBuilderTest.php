@@ -52,9 +52,8 @@ class DefinitionBuilderTest extends KernelTestCase
     /**
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws \App\Exceptions\YamlToPrimitivesException
+     * @throws \App\Exceptions\GeneralException
      * @throws \Doctrine\DBAL\DBALException
-     * @throws \Exception
      */
     public function setUp()
     {
@@ -94,7 +93,7 @@ class DefinitionBuilderTest extends KernelTestCase
                                                     $valueRepository,
                                                     $tagRepository,
                                                     $miscellaneousRepository);
-        $yamlTxt=file_get_contents(__DIR__.'/../Source/primitives-correct.yml');
+        $yamlTxt=file_get_contents(__DIR__.'/../Scripts/Yaml/Model/primitives.yml');
         /** @var TraceableEventDispatcher $eventDispatcher*/
         $eventDispatcher = self::$kernel->getContainer()->get('event_dispatcher');
         $subscriber = new CommandStatusSubscriber();
@@ -113,7 +112,7 @@ class DefinitionBuilderTest extends KernelTestCase
         $commandTester = new CommandTester($command);
         $executionItem=[
             'command'=>$command->getName(),
-            'filename'=>__DIR__."/../Source/$testSource"
+            'filename'=>__DIR__."/../Scripts/Yaml/Model/$testSource"
         ];
         $commandTester->execute($executionItem);
         $output=$commandTester->getDisplay();
@@ -135,14 +134,14 @@ class DefinitionBuilderTest extends KernelTestCase
 
     public function testCommandLoadModelDefinitionError()
     {
-        $output = $this->commandTestBuild('model-1604-players-domain-invalid.yml');
-        $message = 'Found "domain invalid" at row:210, col:7 expected "style","proficiency","age","type".';
+        $output = $this->commandTestBuild('model-1308-exception-dance.yml');
+        $message ='"not_dance" at row:54, col:25 is an invalid dance.';
         $this->assertContains($message, $output);
     }
 
     public function testCommandLoadModelDefinitionCorrect()
     {
-        $output=$this->commandTestBuild('model-events-correct-short-1.yml');
+        $output=$this->commandTestBuild('model-correct-amateur.yml');
         $this->assertContains('Commencing at', $output);
         $this->assertContains('100%', $output);
         $this->assertContains('Duration',$output);
@@ -157,7 +156,7 @@ class DefinitionBuilderTest extends KernelTestCase
     {
         $emConfig=self::$entityManagerConfiguration;
         $repositoryModels=$emConfig->getRepository(Model::class);
-        $definitionYaml=file_get_contents(__DIR__.'/../Source/model-events-correct-short-2.yml');
+        $definitionYaml=file_get_contents(__DIR__.'/../Scripts/Yaml/Model/model-correct-amateur.yml');
         $model=new Model();
         $model->setModelId(1)
                 ->setName('Georgia DanceSport')

@@ -162,10 +162,10 @@ class ModelRebuild extends Command
                 throw new RebuildException('Nothing to rebuild.  No models defined.',
                                             RebuildException::NO_MODELS);
             }
-            $this->primitivesBuilder->build($misc->getText());
+            $this->primitivesBuilder->build($misc->getText(),true);
             /** @var ModelConfiguration $definition */
             foreach($modelDefinitions as $definition){
-                $this->definitionBuilder->build($definition->getText());
+                $this->definitionBuilder->build($definition->getText(),true);
             }
             $output->writeln('Models rebuilt successfully.');
         } catch (\Exception $e){
