@@ -25,8 +25,6 @@ use App\Entity\Sales\Channel;
 use App\Exceptions\GeneralException;
 use App\Exceptions\MissingException;
 use App\Exceptions\SalesExceptionCode;
-use App\Exceptions\YamlToSalesException;
-use App\Exceptions\YamlToSalesMissingException;
 use App\Repository\Configuration\SalesRepository;
 use App\Repository\Sales\ChannelRepository;
 use App\Repository\Sales\InventoryRepository;
@@ -83,7 +81,25 @@ class ChannelBuilder extends Builder
      * @var SettingsRepository
      */
     private $settingsRepository;
+    /**
+     * @var TraceableEventDispatcherInterface
+     */
+    private $dispatcher;
 
+    /**
+     * ChannelBuilder constructor.
+     * @param ChannelRepository $channelRepository
+     * @param InventoryRepository $inventoryRepository
+     * @param PricingRepository $pricingRepository
+     * @param ParametersRepository $parametersRepository
+     * @param TagRepository $tagRepository
+     * @param ProcessorRepository $processorRepository
+     * @param SettingsRepository $settingsRepository
+     * @param SalesRepository $salesRepository
+     * @param TraceableEventDispatcherInterface|null $dispatcher
+     *
+     * throws \Exception
+     */
     public function __construct(
         ChannelRepository $channelRepository,
         InventoryRepository $inventoryRepository,
@@ -103,11 +119,23 @@ class ChannelBuilder extends Builder
         $this->processorRepository = $processorRepository;
         $this->settingsRepository = $settingsRepository;
         $this->salesRepository = $salesRepository;
+        $this->dispatcher = $dispatcher;
     }
 
 
+    /**
+     * @param string $yamlTxt
+     * @return bool
+     * @throws GeneralException
+     * @throws MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Exception
+     */
     public function build(string $yamlTxt)
     {
+        parent::setDispatcher($this->dispatcher);
         $result = YamlPosition::parse($yamlTxt);
         $lineCount=YamlPosition::getLineCount();
         $this->sendStatus(Status::COMMENCE, $lineCount);
@@ -139,8 +167,12 @@ class ChannelBuilder extends Builder
         return true;
     }
 
-
-    private function checkTopKeysValid($dataKeys, $positionKeys)
+    /**
+     * @param array $dataKeys
+     * @param array $positionKeys
+     * @throws GeneralException
+     */
+    private function checkTopKeysValid(array $dataKeys, array $positionKeys)
     {
         $data = current($dataKeys);
         $position= current($positionKeys);
@@ -157,7 +189,11 @@ class ChannelBuilder extends Builder
         }
     }
 
-
+    /**
+     * @param $dataKeys
+     * @param $positionKeys
+     * @throws MissingException
+     */
     private function checkTopKeysMissing($dataKeys, $positionKeys)
     {
          $missingKeys=array_diff(self::EXPECTED_KEYS, $dataKeys);
@@ -167,6 +203,11 @@ class ChannelBuilder extends Builder
     }
 
 
+    /**
+     * @param $data
+     * @param $position
+     * @throws GeneralException
+     */
     private function checkDate($data,$position)
     {
         list($startDate, $startDatePos, $startKey, $startKeyPosition)
@@ -190,6 +231,12 @@ class ChannelBuilder extends Builder
     }
 
 
+    /**
+     * @param $date
+     * @param $position
+     * @return bool
+     * @throws GeneralException
+     */
     private function checkDateValid($date, $position)
     {
         if(is_int($date)){
@@ -209,6 +256,12 @@ class ChannelBuilder extends Builder
                                     SalesExceptionCode::DATE);
     }
 
+    /**
+     * @param $name
+     * @return Tag|null|object
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function fetchTag($name)
     {
         $tag=$this->tagRepository->findOneBy(['name'=>$name]);
@@ -223,6 +276,21 @@ class ChannelBuilder extends Builder
     }
 
 
+    /**
+     * @param string $channelName
+     * @param string $competitionName
+     * @param string $logoFile
+     * @param string $logoPos
+     * @param string $venue
+     * @param string $city
+     * @param string $state
+     * @param array $dateData
+     * @return Channel
+     * @throws GeneralException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function buildChannel(string $channelName,
                                   string $competitionName,
                                   string $logoFile, string $logoPos,
@@ -231,7 +299,6 @@ class ChannelBuilder extends Builder
                                   string $state,
                                   array $dateData) : Channel
     {
-
        $start=new \DateTime(gmdate('Y-m-d',$dateData['start']));
        $finish=new \DateTime(gmdate('Y-m-d',$dateData['finish']));
        $dateText=$start->format('D M d, Y');
@@ -266,7 +333,14 @@ class ChannelBuilder extends Builder
        return $channel;
     }
 
-
+    /**
+     * @param Channel $channel
+     * @param $data
+     * @param $position
+     * @throws GeneralException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function buildMonitor(Channel $channel, $data, $position)
     {
         $tag=$this->fetchTag('monitor');
@@ -281,6 +355,14 @@ class ChannelBuilder extends Builder
         }
     }
 
+    /**
+     * @param Channel $channel
+     * @param Tag $tag
+     * @param string $key
+     * @param string $value
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function addParameter(Channel $channel, Tag $tag, string $key, string $value){
         $em=$this->parametersRepository->getEntityManager();
         $parameter=new Parameters();
@@ -293,7 +375,14 @@ class ChannelBuilder extends Builder
         $em->flush($parameter);
     }
 
-
+    /**
+     * @param Channel $channel
+     * @param $data
+     * @param $position
+     * @throws GeneralException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function buildInventory(Channel $channel, $data, $position)
     {
         list($products, $productsPosition, $tagKey, $tagPositionKey) = $this->current($data, $position);
@@ -313,6 +402,15 @@ class ChannelBuilder extends Builder
         }
     }
 
+    /**
+     * @param Channel $channel
+     * @param Tag $tag
+     * @param array $products
+     * @param array $productsPosition
+     * @throws GeneralException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function buildInventorySection(Channel $channel, Tag $tag, array $products, array $productsPosition)
     {
         $em=$this->inventoryRepository->getEntityManager();
@@ -329,7 +427,15 @@ class ChannelBuilder extends Builder
         }
     }
 
-
+    /**
+     * @param Channel $channel
+     * @param Inventory $inventory
+     * @param array $pricing
+     * @param array $pricingPosition
+     * @throws GeneralException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function buildDatePricing(Channel $channel, Inventory $inventory,
                                       array $pricing, array $pricingPosition)
     {
@@ -342,7 +448,16 @@ class ChannelBuilder extends Builder
         }
     }
 
-
+    /**
+     * @param Channel $channel
+     * @param Inventory $inventory
+     * @param $date
+     * @param $price
+     * @param $pricePosition
+     * @throws GeneralException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function buildPricing(Channel $channel, Inventory $inventory, $date, $price, $pricePosition)
     {
         if (!is_double( $price )) {
@@ -359,6 +474,14 @@ class ChannelBuilder extends Builder
         $em->flush();
     }
 
+    /**
+     * @param Channel $channel
+     * @param $data
+     * @param $position
+     * @throws GeneralException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function buildProcessor(Channel $channel, $data, $position)
     {
         list($settingsPart, $positionPart, $processorKey, $processorKeyPosition)
@@ -380,6 +503,15 @@ class ChannelBuilder extends Builder
     }
 
 
+    /**
+     * @param Channel $channel
+     * @param Processor $processor
+     * @param $data
+     * @param $position
+     * @throws GeneralException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function saveProcessorParameters(Channel $channel, Processor $processor, $data, $position)
     {
         $keyList=['prod','test'];
@@ -407,7 +539,11 @@ class ChannelBuilder extends Builder
     }
 
 
-    private function slug($string)
+    /**
+     * @param $string
+     * @return null|string|string[]
+     */
+    private function slug(string $string)
     {
         return preg_replace('/\s+/','-',strtolower($string));
     }

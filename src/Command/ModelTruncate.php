@@ -69,7 +69,7 @@ class ModelTruncate extends Command
                     $this->purge(['domain','value']);
                     break;
             }
-            $output->writeln('Truncate complete.');
+            $output->writeln('Completed Model Truncation.');
         } catch (\Exception $e) {
             $output->writeln($e->getMessage());
         }

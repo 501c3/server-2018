@@ -8,8 +8,7 @@
 
 namespace Tests\Command;
 
-
-use App\Command\ChannelInventory;
+use App\Command\SalesChannel;
 use App\Kernel;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\DBAL\Connection;
@@ -67,28 +66,29 @@ class SalesChannelInventoryTest extends KernelTestCase
         $connectionConfiguration->query('SET FOREIGN_KEY_CHECKS=1');
     }
 
-    private function loadCommandTestSource(ChannelInventory $command, string $testSource)
+    private function loadCommandTestSource(SalesChannel $command, string $testSource)
     {
         $application = new Application('Test SalesChannelInventory');
         $application->add($command);
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command'=>$command->getName(),
-            'filename'=>__DIR__."/../Source/$testSource"
+            'filename'=>__DIR__."/../Scripts/Yaml/Sales/$testSource"
         ]);
         $output=$commandTester->getDisplay();
         return $output;
     }
 
-    public function testCommandSalesChannelInventoryException()
+
+    public function testCommandSalesExceptionChannelInventory()
     {
-        $output=$this->loadCommandTestSource(new ChannelInventory(), 'sales-2708-inventory-not-number.yml');
-        $this->assertContains('"xxx" at row:11, col:45 is not number.',$output);
+        $output=$this->loadCommandTestSource(new SalesChannel(), 'sales-2202-exception-logo.yml');
+        $this->assertContains('"/home/mgarber/Dev2018/server/badlocation/images/dancers-icon.png" at row:6, col:7 not found.',$output);
     }
 
     public function testCommandSalesChannelInventory()
     {
-        $output=$this->loadCommandTestSource(new ChannelInventory(), 'sales-correct.yml');
+        $output=$this->loadCommandTestSource(new SalesChannel(), 'sales-correct.yml');
         $this->assertContains('Completed at',$output);
     }
 

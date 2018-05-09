@@ -7,7 +7,6 @@
  */
 
 namespace App\Utils;
-use App\Exceptions\Yaml\YamlEmptyStringException;
 use Symfony\Component\Yaml\Yaml;
 
 class YamlPosition
@@ -16,10 +15,12 @@ class YamlPosition
 
     private static $lineCount;
 
+    /**
+     * @param string $string
+     * @return array
+     * @throws \Exception
+     */
     public static function parse(string $string){
-        if(trim($string)==''){
-            throw new \Exception(__FILE__, 1000);
-;       }
         $data=Yaml::parse($string);
         $rowColumns=self::rowColumn($string);
         $positions=Yaml::parse($rowColumns);
@@ -31,13 +32,21 @@ class YamlPosition
         return self::$lineCount;
     }
 
+    /**
+     * @return mixed|null
+     */
     public static function positionYaml()
     {
         return self::$positions;
     }
 
+    /**
+     * @param string $string
+     * @return string
+     */
     public static function rowColumn(string $string)
     {
+        /** @var array $lines */
         $lines=mbsplit('\n',$string);
         self::$lineCount=count($lines);
         $row=0;

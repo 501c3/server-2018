@@ -25,6 +25,7 @@ class SalesExceptionCode
     const EMAIL = 2502;
     const PARTICIPANT = 2602;
     const TAGS = 2604;
+    const DOUBLE = 2606;
     const PROCESSOR = 2702;
     const PROD_TEST = 2704;
 }

@@ -1,0 +1,12 @@
+comment:
+    - Complete build of databases
+    -
+primitives: tests/Scripts/Yaml/Model/primitives.yml
+models:
+    - tests/Scripts/Yaml/Model/model-istd.yml
+    - tests/Scripts/Yaml/Model/model-correct-amateur.yml
+    - tests/Scripts/Yaml/Model/model-correct-pro-am.yml
+competition:
+    sequence: tests/Scripts/Yaml/Competition/sequence-correct.yml
+    interface: tests/Scripts/Yaml/Competition/interface-correct.yml
+sales: tests/Scripts/Yaml/Sales/sales-correct.yml
