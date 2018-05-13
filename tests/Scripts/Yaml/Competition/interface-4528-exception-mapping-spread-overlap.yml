@@ -1,6 +1,6 @@
 comment:
-    -
-    -
+    - InterfaceExceptionCode::MAPPING_SPREAD_OVERLAP = 4528
+    - 4-6 at row:72, col:13 age spread overlap.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 setups:
@@ -69,7 +69,7 @@ mappings:
     age:
         Amateur:
             1-4: Baby
-            5-6: Juvenile
+            4-6: Juvenile
             7-9: Preteen 1
             10-11: Preteen 2
             12-13: Junior 1

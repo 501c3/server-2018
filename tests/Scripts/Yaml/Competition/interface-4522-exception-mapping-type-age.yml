@@ -1,6 +1,6 @@
 comment:
-    -
-    -
+    - InterfaceExceptionCode::MAPPING_TYPE_AGE
+    - Invalid at row:70, col:9 is invalid.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 setups:
@@ -67,7 +67,7 @@ mappings:
             Gold Star 1: Pre Championship
             Gold Star 2: Championship
     age:
-        Amateur:
+        Invalid:
             1-4: Baby
             5-6: Juvenile
             7-9: Preteen 1

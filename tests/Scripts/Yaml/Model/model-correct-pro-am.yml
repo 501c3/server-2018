@@ -52,6 +52,9 @@ domains:
         - Senior
         - Youth-Senior
     type:
+        - Professional
+        - Teacher
+        - Student
         - Teacher-Student
     tag:
         - Couple

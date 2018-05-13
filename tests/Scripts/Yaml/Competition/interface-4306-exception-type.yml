@@ -1,21 +1,23 @@
 comment:
-    -
-    -
+    - InterfaceExceptionCode::TYPE=4306
+    - no_type at row:8, col:9 expected type.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 setups:
     participant:
-        type:
+        no_type:
             - Professional
             - Teacher
             - Amateur
             - Student
             - Partner
         proficiency:
-            Professional:
-                - Rising Star-Pro
-                - Professional
-            Teacher:
+            Amateur:
+                - Newcomer
+                - Bronze
+                - Silver
+                - Gold
+                - Novice
                 - Pre Championship
                 - Championship
             Student:
@@ -33,25 +35,31 @@ setups:
                 - Open Gold
                 - Gold Star 1
                 - Gold Star 2
-            Amateur:
-                - Newcomer
-                - Bronze
-                - Silver
-                - Gold
-                - Novice
+            Teacher-Amateur:
                 - Pre Championship
                 - Championship
-        combinations:
-            Professional:
-                Teacher: Professional
-            Amateur:
-                Teacher: Teacher
-                Student: Student
-
+            Amateur-Student:
+                - Pre Bronze
+                - Intermediate Bronze
+                - Full Bronze
+                - Open Bronze
+                - Pre Silver
+                - Intermediate Silver
+                - Full Silver
+                - Open Silver
+                - Pre Gold
+                - Intermediate Gold
+                - Full Gold
+                - Open Gold
+                - Gold Star 1
+                - Gold Star 2
+            Professional-Teacher:
+                - Rising Star
+                - Professional
 mappings:
-    genre: [American, Rhythm, Smooth, International, Latin, Standard]
+    genres: [American, Rhythm, Smooth, International, Latin, Standard]
     proficiency:
-        Student-Amateur:
+        Student to Amateur:
             Pre Bronze: Bronze
             Intermediate Bronze: Bronze
             Full Bronze: Bronze
@@ -67,7 +75,7 @@ mappings:
             Gold Star 1: Pre Championship
             Gold Star 2: Championship
     age:
-        Amateur:
+        Years Amateur:
             1-4: Baby
             5-6: Juvenile
             7-9: Preteen 1

@@ -178,7 +178,7 @@ class Channel
     /**
      * @return json|null
      */
-    public function getHeading(): ?json
+    public function getHeading()
     {
         return $this->heading;
     }

@@ -1,6 +1,6 @@
 comment:
-    -
-    -
+    - InterfaceExceptionCode::MAPPING_CHECK = 4516
+    - Full Silver at row:59, col:25 is not valid for Amateur.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 setups:
@@ -56,7 +56,7 @@ mappings:
             Intermediate Bronze: Bronze
             Full Bronze: Bronze
             Open Bronze: Novice
-            Pre Silver: Silver
+            Pre Silver: Full Silver
             Intermediate Silver: Silver
             Full Silver: Silver
             Open Silver: Novice
@@ -67,7 +67,7 @@ mappings:
             Gold Star 1: Pre Championship
             Gold Star 2: Championship
     age:
-        Amateur:
+        Years Amateur:
             1-4: Baby
             5-6: Juvenile
             7-9: Preteen 1

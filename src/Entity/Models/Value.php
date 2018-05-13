@@ -54,29 +54,12 @@ class Value
      */
     private $domain;
 
-    /*
-     * TODO: Delete when fully tested
-     * @var Collection
-     *
-     * @ORM\ManyToMany(targetEntity="App\Entity\Models\Choice", mappedBy="value")
-     */
-    //private $choice;
-
     /**
      * @var Collection
      *
      * @ORM\ManyToMany(targetEntity="App\Entity\Models\Event", mappedBy="value")
      */
     private $event;
-
-    /*
-     * TODO: Delete when fully tested
-     *
-     * @var Collection
-     *
-     * @ORM\ManyToMany(targetEntity="App\Entity\Models\Mapping", mappedBy="value")
-     */
-    //private $mapping;
 
     /**
      * @var Collection

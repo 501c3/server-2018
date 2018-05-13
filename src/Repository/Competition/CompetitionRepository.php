@@ -28,4 +28,17 @@ class CompetitionRepository extends ServiceEntityRepository
     {
         return parent::getEntityManager();
     }
+
+    public function fetchCompetitionModelIds($competitionName)
+    {
+        $qb = $this->createQueryBuilder('competition');
+        $qb->select('competition','subevent.modelId')
+            ->leftJoin('competition.subevent','subevent')
+            ->where('competition.name=:name')
+            ->groupBy('competition.subevent.modelId');
+        $query=$qb->getQuery();
+        $query->setParameter('competition.name=:name',$competitionName);
+        $result=$query->getResult();
+        return $result;
+    }
 }

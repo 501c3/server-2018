@@ -46,7 +46,11 @@ domains:
         - Senior Youngster
     type:
         - Amateur
-    tag: [Solo, Couple, Parent Child, Grandparent Child]
+    tag:
+        - Solo
+        - Couple
+        - Parent Child
+        - Grandparent Child
 dances:
     American:
         Rhythm: [Cha Cha,Rumba,Mambo,Bolero,Swing,West Coast Swing,Night Club,Hustle,Salsa,Merengue]

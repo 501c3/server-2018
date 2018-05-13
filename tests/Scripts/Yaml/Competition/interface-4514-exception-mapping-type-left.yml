@@ -1,6 +1,6 @@
 comment:
-    -
-    -
+    - InterfaceExceptionCode::MAPPING_PROFICIENCY_TYPE = 4514
+    - No Student at row:54, col:9 left type is invalid.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 setups:
@@ -51,7 +51,7 @@ setups:
 mappings:
     genre: [American, Rhythm, Smooth, International, Latin, Standard]
     proficiency:
-        Student-Amateur:
+        No Student-Amateur:
             Pre Bronze: Bronze
             Intermediate Bronze: Bronze
             Full Bronze: Bronze

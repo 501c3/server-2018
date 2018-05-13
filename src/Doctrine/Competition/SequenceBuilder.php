@@ -220,7 +220,7 @@ class SequenceBuilder extends Builder
                                        SequenceExceptionCode::COMPETITION);
         }
         $competition=$this->competitionRepository->findOneBy(['name'=>$dataPart]);
-        //TODO: Test at command level
+
         if($competition){
             throw new GeneralException($dataPart,$positionPart,"previously loaded",
                                         SequenceExceptionCode::PREVIOUS_LOAD);

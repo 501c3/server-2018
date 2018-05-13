@@ -1,0 +1,5 @@
+comment:
+    - InterfaceExceptionCode::INVALID_COMPETITION
+    - Invalid Competition at row:4, col:14 not found.
+competition: Invalid Competition
+models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]

@@ -111,9 +111,11 @@
              Senior 5: {abbr: S5, order: 4}
              Senior: {abbr: S, order: 4}
          type:
-             Amateur: {abbr: A, order: 5}
              Professional: {abbr: P, order: 5}
-             Teacher-Student: {abbr: TS, order: 5}
+             Amateur: {abbr: A, order: 5}
+             Teacher: {abbr: T, order: 5}
+             Student: {abbr: S, order: 5}
+             Partner: {abbr: P, order: 5}
          tag:
              Parent Child: {abbr: PC, order: 6}
              Grandparent Child: {abbr: GC, order: 6}

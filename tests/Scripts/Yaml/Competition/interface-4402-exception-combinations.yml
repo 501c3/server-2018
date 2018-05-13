@@ -41,17 +41,19 @@ setups:
                 - Novice
                 - Pre Championship
                 - Championship
-        combinations:
+        no_combinations:
             Professional:
                 Teacher: Professional
+                Partner: Professional
             Amateur:
                 Teacher: Teacher
                 Student: Student
+                Partner: Amateur
 
-mappings:
+mapping:
     genre: [American, Rhythm, Smooth, International, Latin, Standard]
     proficiency:
-        Student-Amateur:
+        Student to Amateur:
             Pre Bronze: Bronze
             Intermediate Bronze: Bronze
             Full Bronze: Bronze
@@ -67,7 +69,7 @@ mappings:
             Gold Star 1: Pre Championship
             Gold Star 2: Championship
     age:
-        Amateur:
+        Years Amateur:
             1-4: Baby
             5-6: Juvenile
             7-9: Preteen 1

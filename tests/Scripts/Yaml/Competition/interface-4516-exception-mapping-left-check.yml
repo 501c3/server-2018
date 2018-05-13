@@ -1,6 +1,6 @@
 comment:
-    -
-    -
+    - InterfaceExceptionCode::MAPPING_CHECK = 4516
+    - Bronze at row:57, col:13 is not valid for Student.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 setups:
@@ -54,7 +54,7 @@ mappings:
         Student-Amateur:
             Pre Bronze: Bronze
             Intermediate Bronze: Bronze
-            Full Bronze: Bronze
+            Bronze: Bronze
             Open Bronze: Novice
             Pre Silver: Silver
             Intermediate Silver: Silver
@@ -67,7 +67,7 @@ mappings:
             Gold Star 1: Pre Championship
             Gold Star 2: Championship
     age:
-        Amateur:
+        Years Amateur:
             1-4: Baby
             5-6: Juvenile
             7-9: Preteen 1

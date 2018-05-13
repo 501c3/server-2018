@@ -1,6 +1,6 @@
 comment:
-    -
-    -
+    - InterfaceExceptionCode::INVALID_PROFICIENCY = 4314
+    - Invalid Proficiency at row:19, col:19 is invalid.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 setups:
@@ -16,7 +16,7 @@ setups:
                 - Rising Star-Pro
                 - Professional
             Teacher:
-                - Pre Championship
+                - Invalid Proficiency
                 - Championship
             Student:
                 - Pre Bronze
@@ -41,17 +41,17 @@ setups:
                 - Novice
                 - Pre Championship
                 - Championship
-        combinations:
+        proficiency-combinations:
             Professional:
                 Teacher: Professional
+                Partner: Professional
             Amateur:
                 Teacher: Teacher
-                Student: Student
 
-mappings:
+mapping:
     genre: [American, Rhythm, Smooth, International, Latin, Standard]
     proficiency:
-        Student-Amateur:
+        Student to Amateur:
             Pre Bronze: Bronze
             Intermediate Bronze: Bronze
             Full Bronze: Bronze
@@ -67,7 +67,7 @@ mappings:
             Gold Star 1: Pre Championship
             Gold Star 2: Championship
     age:
-        Amateur:
+        Years Amateur:
             1-4: Baby
             5-6: Juvenile
             7-9: Preteen 1
@@ -81,6 +81,3 @@ mappings:
             55-64: Senior 3
             65-74: Senior 4
             75-99: Senior 5
-
-
-

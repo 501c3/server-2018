@@ -1,6 +1,6 @@
 comment:
-    -
-    -
+    - InterfaceExceptionCode::MAPPING_AGE = 4520
+    - no_age at row:69, col:5 expected age.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 setups:
@@ -66,7 +66,7 @@ mappings:
             Open Gold: Novice
             Gold Star 1: Pre Championship
             Gold Star 2: Championship
-    age:
+    no_age:
         Amateur:
             1-4: Baby
             5-6: Juvenile
