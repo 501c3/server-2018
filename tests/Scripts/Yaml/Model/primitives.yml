@@ -116,6 +116,7 @@
              Teacher: {abbr: T, order: 5}
              Student: {abbr: S, order: 5}
              Partner: {abbr: P, order: 5}
+             Teacher-Student: {abbr: TS, order: 5}
          tag:
              Parent Child: {abbr: PC, order: 6}
              Grandparent Child: {abbr: GC, order: 6}
@@ -162,7 +163,6 @@
          type:
              Couple: {abbr: C, order: 5}
              Opposite: {abbr: O, order: 5}
-             Partner: {abbr: P, order: 5}
              Solo: {abbr: S, order: 5}
          tag:
              Introductory Tests: {abbr: IT, order: 5}

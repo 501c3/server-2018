@@ -32,14 +32,6 @@ class Model
     /**
      * @var string
      *
-     * @ORM\Column(name="eventlookup", type="json", nullable=false)
-     */
-    private $eventlookup;
-
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="playerlookup", type="json", nullable=false)
      */
     private $playerlookup;
@@ -78,25 +70,6 @@ class Model
     public function setName(string $name): Model
     {
         $this->name = $name;
-        return $this;
-    }
-
-
-    /**
-     * @return array
-     */
-    public function getEventlookup(): array
-    {
-        return json_decode($this->eventlookup);
-    }
-
-    /**
-     * @param array $eventlookup
-     * @return Model
-     */
-    public function setEventlookup(array $eventlookup): Model
-    {
-        $this->eventlookup = json_encode($eventlookup);
         return $this;
     }
 
