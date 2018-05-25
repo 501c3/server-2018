@@ -32,7 +32,6 @@ use App\Repository\Sales\SettingsRepository;
 use App\Repository\Sales\TagRepository;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
-use Egulias\EmailValidator\Exception\CRLFX2;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -108,6 +107,12 @@ class ChannelInventoryTest extends KernelTestCase
      * @expectedExceptionCode  2002
      *
      * SalesExceptionCode::KEYS = 2002
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function test2002SalesExceptionKeys()
     {
@@ -121,6 +126,12 @@ class ChannelInventoryTest extends KernelTestCase
      * @expectedExceptionCode 2004
      *
      * SalesExceptionCode::MISSING = 2004
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function test2004SalesExceptionMissing()
     {
@@ -128,13 +139,18 @@ class ChannelInventoryTest extends KernelTestCase
         $this->channelBuilder->build($yamlTxt);
     }
 
-
     /**
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "/home/mgarber/Dev2018/server/badlocation/images/dancers-icon.png" at row:6, col:7 not found.
      * @expectedExceptionCode 2202
      *
      * SalesExceptionCode::LOGO = 2202
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function test2202SalesExceptionLogo()
     {
@@ -148,8 +164,13 @@ class ChannelInventoryTest extends KernelTestCase
      * @expectedExceptionCode 2402
      *
      * SalesExceptionCode::START = 2402
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-
     public function test2402SalesExceptionStart()
     {
         $yamlTxt=file_get_contents(__DIR__.'/../../Scripts/Yaml/Sales/sales-2402-exception-start.yml');
@@ -163,6 +184,12 @@ class ChannelInventoryTest extends KernelTestCase
      * @expectedExceptionCode 2404
      *
      * SalesExceptionCode::FINISH = 2404
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function  test2404SalesExceptionFinish()
     {
@@ -176,6 +203,12 @@ class ChannelInventoryTest extends KernelTestCase
      * @expectedExceptionCode 2406
      *
      * SalesExceptionCode::DATE = 2406
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function test2406SalesExceptionDate()
     {
@@ -190,6 +223,12 @@ class ChannelInventoryTest extends KernelTestCase
      * @expectedExceptionCode 2502
      *
      * SalesExceptionCode::EMAIL = 2502
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
      */
     public function test2502SalesExceptionEmail()
     {
@@ -204,6 +243,12 @@ class ChannelInventoryTest extends KernelTestCase
      * @expectedExceptionCode 2602
      *
      * SalesExceptionCode::PARTICIPANT = 2602
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function test2602SalesExceptionParticipant()
     {
@@ -218,6 +263,12 @@ class ChannelInventoryTest extends KernelTestCase
      * @expectedExceptionCode 2406
      *
      * SalesExceptionCode::DATE = 2406
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function test2406SalesExceptionPriceDate()
     {
@@ -233,6 +284,11 @@ class ChannelInventoryTest extends KernelTestCase
      *
      * SalesExceptionCode::TAGS = 2604
      *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function test2604SalesExceptionTags()
     {
@@ -246,6 +302,12 @@ class ChannelInventoryTest extends KernelTestCase
      * @expectedException 2702
      *
      * SalesExceptionCode::PROD_TEST=2702
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function test2702SalesExceptionProdTest()
     {
@@ -253,6 +315,13 @@ class ChannelInventoryTest extends KernelTestCase
         $this->channelBuilder->build($yamlTxt);
     }
 
+    /**
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function testSalesCorrect()
     {
         $yamlTxt=file_get_contents(__DIR__.'/../../Scripts/Yaml/Sales/sales-correct.yml');

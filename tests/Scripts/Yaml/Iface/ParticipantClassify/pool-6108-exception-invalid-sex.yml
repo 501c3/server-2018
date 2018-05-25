@@ -1,0 +1,63 @@
+comment:
+    - ExceptionCode::INVALID_SEX = 6108
+    -  L at row:17, col:15 expected M and/or F.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia DanceSport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
+participant-pool:
+    -
+        genres: [Rhythm,Smooth,Latin,Standard]
+        proficiencies: [Newcomer, Bronze, Silver]
+        ages: 3-11
+        sex: [M,F]
+        type: Amateur
+    -
+        genres: [Rhythm,Smooth,Latin,Standard]
+        proficiencies: [Newcomer,Bronze,Silver,Gold,Novice,Pre Championship,Championship]
+        ages: 11-90
+        sex: [L,G]
+        type: Amateur
+    -
+        genres: [Rhythm,Smooth,Latin,Standard]
+        proficiencies: [Pre Championship,Championship]
+        ages: 19-90
+        sex: [M,F]
+        type: Amateur
+    -
+        genres: [Rhythm,Smooth,Latin,Standard]
+        proficiencies: [Newcomer,Bronze,Silver,Gold,Novice,Pre Championship,Championship]
+        ages: 11-90
+        sex: [M,F]
+        type: Amateur
+    -
+        genres: [Rhythm,Smooth,Latin,Standard]
+        proficiencies:
+            - Newcomer
+            - Pre Bronze
+            - Intermediate Bronze
+            - Full Bronze
+            - Open Bronze
+            - Pre Silver
+            - Intermediate Silver
+            - Full Silver
+            - Open Silver
+            - Pre Gold
+            - Intermediate Gold
+            - Full Gold
+            - Open Gold
+        ages: 3-90
+        sex: [M,F]
+        type: Student
+    -
+        genres: [Rhythm,Smooth,Latin,Standard]
+        proficiencies:
+            - Rising Star (Pro)
+            - Professional
+        ages: 0-0
+        sex: [M,F]
+        type: Professional
+    -
+        genres: [Fun Events]
+        proficiencies: [Social]
+        ages: 3-90
+        sex: [M,F]
+        type: Amateur

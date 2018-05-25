@@ -38,4 +38,26 @@ class ValueRepository extends ServiceEntityRepository
         $result =$query->getResult();
         return $result;
     }
+
+    public function fetchAllDomainValues()
+    {
+        $qb=$this->createQueryBuilder('value');
+        $qb->select('value','domain')
+            ->leftJoin('value.domain','domain');
+        $query=$qb->getQuery();
+        $result =$query->getResult();
+        return $result;
+    }
+
+    public function fetchAllGenreValues()
+    {
+        $qb=$this->createQueryBuilder('value');
+        $qb->select('value','domain')
+            ->leftJoin('value.domain','domain')
+            ->where('domain.name="style"')
+            ->orWhere('domain.name="substyle"');
+        $query=$qb->getQuery();
+        $result=$query->getResult();
+
+    }
 }

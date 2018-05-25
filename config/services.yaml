@@ -29,11 +29,10 @@ services:
     # please note that last definitions always *replace* previous ones
     App\Doctrine\:
         resource: '../src/Doctrine'
-        exclude: '../src/Doctrine/{Model,Sales,Competition}'
+        exclude: '../src/Doctrine/{Model,Sales,Competition,Access,Iface}'
         tags:
             - { name: doctrine.event_listener, event: prePersist }
             - { name: doctrine.event_listener, event: preUpdate }
-
 
     App\DataFixtures\ORM\:
         resource: '../src/DataFixtures/ORM'
@@ -48,6 +47,7 @@ services:
         public: true
         tags:
             - { name: 'status.update', event: '\App\Subscriber\StatusEvent' }
+
 
 
     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:

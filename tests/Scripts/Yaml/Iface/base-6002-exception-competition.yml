@@ -1,0 +1,5 @@
+comment:
+    - ExceptionCode::COMPETITION = 6002
+    - no competition at row:4, col:1 expected competition.
+no competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia DanceSport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]

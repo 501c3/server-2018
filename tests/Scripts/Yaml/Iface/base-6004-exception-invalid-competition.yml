@@ -1,0 +1,5 @@
+comment:
+    - ExceptionCode::INVALID_COMPETITION
+    - Invalid Competition at row:4, col:14 does not exist.
+competition: Invalid Competition
+models: [Georgia DanceSport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]

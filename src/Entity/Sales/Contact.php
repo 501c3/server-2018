@@ -2,6 +2,7 @@
 
 namespace App\Entity\Sales;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -153,7 +154,7 @@ class Contact
      */
     public function __construct()
     {
-        $this->workarea = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->workarea = new ArrayCollection();
     }
 
 }

@@ -19,7 +19,6 @@ use App\Repository\Models\DomainRepository;
 use App\Repository\Models\TagRepository;
 use App\Repository\Models\ValueRepository;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
@@ -53,23 +52,26 @@ class PrimitivesBuilderTest extends KernelTestCase
     }
 
     /**
+     * @param EntityManagerInterface $entityManager
+     * @throws DBALException
+     */
+    private function purgeDb(EntityManagerInterface $entityManager)
+    {
+        $purger = new ORMPurger($entityManager);
+        $purger->setPurgeMode(ORMPurger::PURGE_MODE_TRUNCATE);
+        $conn = $purger->getObjectManager()->getConnection();
+        $conn->query('SET FOREIGN_KEY_CHECKS=0');
+        $purger->purge();
+        $conn->query('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    /**
      * @throws DBALException
      */
     protected function setUp()
     {
-        $purgerModels=new ORMPurger(self::$entityManagerModels);
-        $purgerConfiguration = new ORMPurger(self::$entityManagerConfiguration);
-        $purgerModels->setPurgeMode(ORMPurger::PURGE_MODE_TRUNCATE);
-        $purgerConfiguration->setPurgeMode(ORMPurger::PURGE_MODE_TRUNCATE);
-        $connectionModel=$purgerModels->getObjectManager()->getConnection();
-        /** @var Connection $connectionConfiguration */
-        $connectionConfiguration=$purgerConfiguration->getObjectManager()->getConnection();
-        $connectionModel->query( 'SET FOREIGN_KEY_CHECKS=0' );
-        $connectionConfiguration->query('SET FOREIGN_KEY_CHECKS=0');
-        $purgerModels->purge();
-        $purgerConfiguration->purge();
-        $connectionModel->query('SET FOREIGN_KEY_CHECKS=1');
-        $connectionConfiguration->query('SET FOREIGN_KEY_CHECKS=1');
+        $this->purgeDb(self::$entityManagerModels);
+        $this->purgeDb(self::$entityManagerConfiguration);
         /** @var DomainRepository $domainRepository */
         /** @var ValueRepository $valueRepository   */
         /** @var TagRepository $tagRepository       */
