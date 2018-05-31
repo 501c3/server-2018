@@ -33,15 +33,12 @@ class BaseParser
     /**
      * @var CompetitionRepository
      */
-    private $competitionRepository;
-    /**
-     * @var ValueRepository
-     */
-    private $valueRepository;
+    protected $competitionRepository;
+
     /**
      * @var ModelRepository
      */
-    private $modelRepository;
+    protected $modelRepository;
 
     /**
      * @var integer
@@ -88,12 +85,12 @@ class BaseParser
         list($name, $namePosition, $key, $keyPosition) = $params;
         if($key != 'competition') {
             throw new GeneralException($key, $keyPosition, 'expected "competition"',
-                ExceptionCode::COMPETITION);
+                ParticipantExceptionCode::COMPETITION);
         }
         $competition=$this->competitionRepository->findOneBy(['name'=>$name]);
         if(!$competition){
             throw new GeneralException($name, $namePosition, "does not exist",
-                ExceptionCode::INVALID_COMPETITION);
+                ParticipantExceptionCode::INVALID_COMPETITION);
         }
         $this->competition = $competition;
         return $competition;
@@ -107,7 +104,7 @@ class BaseParser
         list($data,$positions,$key,$keyPosition) = $params;
         if($key != 'models') {
             throw new GeneralException($key, $keyPosition, 'expected "models"',
-                ExceptionCode::MODELS);
+                ParticipantExceptionCode::MODELS);
         }
         $models = [];
         $position=current($positions);
@@ -115,7 +112,7 @@ class BaseParser
             $model=$this->modelRepository->findOneBy(['name'=> $modelName]);
             if(!$model){
                 throw new GeneralException($modelName,$position,"is invalid",
-                    ExceptionCode::INVALID_MODEL);
+                    ParticipantExceptionCode::INVALID_MODEL);
             }
             $models[$modelName] = $model;
             $position = next($positions);

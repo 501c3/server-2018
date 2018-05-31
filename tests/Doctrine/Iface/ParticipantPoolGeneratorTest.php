@@ -31,8 +31,18 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
     /** @var EntityManagerInterface */
     private static $entityManagerModels;
 
+    /** @var array */
+    private static $domainValueHash;
+
+
+    /** @var ParticipantPoolGenerator */
     private $participantPoolGenerator;
 
+    /**
+     * @param EntityManagerInterface $entityManager
+     * @param $dataFile
+     * @throws \Doctrine\DBAL\DBALException
+     */
     private static function initializeDatabase(EntityManagerInterface $entityManager, $dataFile)
     {
         $purger = new ORMPurger($entityManager);
@@ -51,8 +61,13 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
         $kernel = self::bootKernel();
         self::$entityManagerCompetition = $kernel->getContainer()->get('doctrine.orm.competition_entity_manager');
         self::$entityManagerModels = $kernel->getContainer()->get('doctrine.orm.models_entity_manager');
+        $valueRepository = self::$entityManagerModels->getRepository(Value::class);
+        self::$domainValueHash = $valueRepository->fetchDomainValueHash();
     }
 
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
     public function setUp()
     {
         self::initializeDatabase(self::$entityManagerModels,'models.sql');
@@ -122,7 +137,7 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
     public function test6010ExceptionParticipantPool()
     {
         $yamlText = file_get_contents(
-            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantClassify/pool-6010-exception-participant-pool.yml' );
+            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/pool-6010-exception-participant-pool.yml' );
         $this->participantPoolGenerator->parse($yamlText);
     }
 
@@ -134,7 +149,7 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
     public function test6100ExceptionInvalidKey()
     {
         $yamlText = file_get_contents(
-            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantClassify/pool-6100-exception-invalid-key.yml' );
+            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/pool-6100-exception-invalid-key.yml' );
         $this->participantPoolGenerator->parse($yamlText);
     }
 
@@ -147,7 +162,7 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
     public function test6102ExceptionInvalidGenre()
     {
         $yamlText = file_get_contents(
-            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantClassify/pool-6102-exception-invalid-genre.yml' );
+            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/pool-6102-exception-invalid-genre.yml' );
         $this->participantPoolGenerator->parse($yamlText);
     }
 
@@ -160,7 +175,7 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
     public function test6104ExceptionInvalidRange()
     {
         $yamlText = file_get_contents(
-            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantClassify/pool-6104-exception-invalid-range.yml');
+            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/pool-6104-exception-invalid-range.yml' );
         $this->participantPoolGenerator->parse($yamlText);
     }
 
@@ -172,7 +187,7 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
     public function test6106ExceptionAgeRange()
     {
         $yamlText = file_get_contents(
-            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantClassify/pool-6106-exception-age-range.yml');
+            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/pool-6106-exception-age-range.yml' );
         $this->participantPoolGenerator->parse($yamlText);
     }
 
@@ -181,10 +196,11 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedExceptionMessage "L" at row:17, col:15 expected M and/or F.
      * @expectedExceptionCode 6108
      */
+
     public function test6108ExceptionInvalidSex()
     {
         $yamlText = file_get_contents(
-            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantClassify/pool-6108-exception-invalid-sex.yml' );
+            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/pool-6108-exception-invalid-sex.yml' );
         $this->participantPoolGenerator->parse($yamlText);
     }
 
@@ -196,12 +212,35 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
     public function test6110ExceptionInvalidType()
     {
         $yamlText = file_get_contents(
-            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantClassify/pool-6110-exception-invalid-type.yml' );
+            __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/pool-6110-exception-invalid-type.yml' );
         $this->participantPoolGenerator->parse($yamlText);
     }
 
-    public function testConnect()
+    public function testParticipantPoolGenerate()
     {
-        $this->assertTrue(true);
+        $fileLocation = realpath( __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/participant-pool.yml' );
+        $yamlText =  file_get_contents($fileLocation);
+        $participantPool = $this->participantPoolGenerator->parse($yamlText);
+        foreach($participantPool as $genre=>$proficiencyList){
+            foreach($proficiencyList as $proficiency=>$ageList){
+                foreach($ageList as $age=>$sexList){
+                    foreach($sexList as $sex=>$typeList){
+                        foreach($typeList as $type=>$participant){
+                            $genreValue=isset(self::$domainValueHash['style'][$genre])?
+                                self::$domainValueHash['style'][$genre]:
+                                self::$domainValueHash['substyle'][$genre];
+                            $proficiencyValue = self::$domainValueHash['proficiency'][$proficiency];
+                            $this->assertAttributeEquals($sex,'sex',$participant);
+                            $this->assertAttributeEquals("$genre-$proficiency-$age",
+                                'first', $participant);
+                            $this->assertAttributeEquals("$sex-$type", 'last', $participant);
+                            $genreProficiencies = $participant->getGenreProficiency()->toArray();
+                            $expected = [$genreValue->getId()=>$proficiencyValue->getId()];
+                            $this->assertEquals($expected,$genreProficiencies);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

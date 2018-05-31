@@ -1,13 +1,13 @@
 comment:
-    - ExceptionCode::PARTICIPANT_POOL = 6010
-    - invalid key at row:10, col:9 expected genres,proficiencies,ages,sex,type.
+    - ParticipantExceptionCode::PARTICIPANT_POOL = 6010
+    - not participant-pool at row:6, col:1 expected participant-pool.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia DanceSport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
-participant-pool:
+not participant-pool:
     -
         genres: [Rhythm,Smooth,Latin,Standard]
         proficiencies: [Newcomer, Bronze, Silver]
-        invalid key: 3-11
+        ages: 3-11
         sex: [M,F]
         type: Amateur
     -
@@ -56,7 +56,7 @@ participant-pool:
         sex: [M,F]
         type: Professional
     -
-        genres: [Fun Events]
+        genres: [Fun Select]
         proficiencies: [Social]
         ages: 3-90
         sex: [M,F]

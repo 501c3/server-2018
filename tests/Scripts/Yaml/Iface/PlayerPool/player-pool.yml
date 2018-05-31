@@ -1,0 +1,561 @@
+comment:
+    -
+    -
+competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia DanceSport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
+genres: [Rhythm,Smooth,Latin,Standard]
+couples:
+    -
+        lead: {proficiency: Newcomer, age: 3, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Newcomer
+                age: 3
+                sex: F
+                type: Amateur
+                expected: {proficiency: Newcomer, age: Baby, type: Amateur}
+            -
+                proficiency: Bronze
+                age: 4
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Baby, type: Amateur}
+            -
+                proficiency: Silver
+                age: 5
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Juvenile, type: Amateur}
+    -
+        lead: {proficiency: Bronze, age: 4, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Bronze
+                age: 5
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Juvenile, type: Amateur}
+            -
+                proficiency: Silver
+                age: 6
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Juvenile, type: Amateur}
+    -
+        lead: {proficiency: Silver, age: 6, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Silver
+                age: 6
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Juvenile, type: Amateur}
+    -
+
+        lead: {proficiency: Newcomer, age: 7, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Newcomer
+                age: 7
+                sex: F
+                type: Amateur
+                expected: {proficiency: Newcomer, age: Preteen 1, type: Amateur}
+            -
+                proficiency: Bronze
+                age: 8
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Preteen 1, type: Amateur}
+            -
+               proficiency: Silver
+               age: 9
+               sex: F
+               type: Amateur
+               expected: {proficiency: Silver, age: Preteen 1, type: Amateur}
+            -
+                proficiency: Newcomer
+                age: 10
+                sex: F
+                type: Amateur
+                expected: {proficiency: Newcomer, age: Preteen 2, type: Amateur}
+            -
+                proficiency: Bronze
+                age: 11
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Preteen 2, type: Amateur}
+            -
+                proficiency: Silver
+                age: 12
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Junior 1, type: Amateur}
+            -
+                proficiency: Gold
+                age: 13
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Junior 1, type: Amateur}
+    -
+        lead: {proficiency: Bronze, age: 10, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Bronze
+                age: 11
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Preteen 2, type: Amateur}
+            -
+                proficiency: Silver
+                age: 12
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Junior 1, type: Amateur}
+            -
+                proficiency: Gold
+                age: 13
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Junior 1, type: Amateur}
+    -
+        lead: {proficiency: Silver, age: 10, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Silver
+                age: 11
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Preteen 2, type: Amateur}
+            -
+                proficiency: Gold
+                age: 12
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Junior 1, type: Amateur}
+    -
+        lead: {proficiency: Silver, age: 12, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Silver
+                age: 13
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Junior 1, type: Amateur}
+            -
+                proficiency: Gold
+                age: 14
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Junior 2, type: Amateur}
+            -
+                proficiency: Novice
+                age: 13
+                sex: F
+                type: Amateur
+                expected: {proficiency: Novice, age: Junior 1, type: Amateur}
+    -
+        lead: {proficiency: Gold, age: 13, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Silver
+                age: 14
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Junior 2, type: Amateur}
+            -
+                proficiency: Gold
+                age: 15
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Junior 2, type: Amateur}
+            -
+                proficiency: Novice
+                age: 16
+                sex: F
+                type: Amateur
+                expected: {proficiency: Novice, age: Youth, type: Amateur}
+    -
+        lead: {proficiency: Novice, age: 14, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Novice
+                age: 14
+                sex: F
+                type: Amateur
+                expected: {proficiency: Novice, age: Junior 2, type: Amateur}
+            -
+                proficiency: Pre Championship
+                age: 15
+                sex: F
+                type: Amateur
+                expected: {proficiency: Pre Championship, age: Junior 2, type: Amateur}
+            -
+                proficiency: Championship
+                age: 16
+                sex: F
+                type: Amateur
+                expected: {proficiency: Championship, age: Youth, type: Amateur}
+    -
+        lead: {proficiency: Pre Championship, age: 15, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Pre Championship
+                age: 16
+                sex: F
+                type: Amateur
+                expected: {proficiency: Pre Championship, age: Youth, type: Amateur}
+            -
+                proficiency: Championship
+                age: 17
+                sex: F
+                type: Amateur
+                expected: {proficiency: Championship, age: Youth, type: Amateur}
+    -
+        lead: {proficiency: Championship, age: 15, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Championship
+                age: 16
+                sex: F
+                type: Amateur
+                expected: {proficiency: Championship, age: Youth, type: Amateur}
+    -
+        lead: {proficiency: Newcomer, age: 54, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Newcomer
+                age: 29
+                sex: F
+                type: Amateur
+                expected: {proficiency: Newcomer, age: Adult, type: Amateur}
+            -
+                proficiency: Bronze
+                age: 30
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Senior 1, type: Amateur}
+            -
+                proficiency: Silver
+                age: 35
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Senior 1, type: Amateur}
+            -
+                proficiency: Gold
+                age: 40
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Senior 2, type: Amateur}
+    -
+        lead: {proficiency: Bronze, age: 44, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Bronze
+                age: 29
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Adult, type: Amateur}
+            -
+                proficiency: Silver
+                age: 30
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Senior 1, type: Amateur}
+            -
+                proficiency: Gold
+                age: 40
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Senior 1, type: Amateur}
+    -
+        lead: {proficiency: Silver, age: 34, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Silver
+                age: 19
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Adult, type: Amateur}
+            -
+                proficiency: Gold
+                age: 54
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Senior 1, type: Amateur}
+            -
+                proficiency: Novice
+                age: 44
+                sex: F
+                type: Amateur
+                expected: {proficiency: Novice, age: Senior 1, type: Amateur}
+    -
+        lead: {proficiency: Gold, age: 54, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Gold
+                age: 30
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Senior 1, type: Amateur}
+            -
+                proficiency: Novice
+                age: 29
+                sex: F
+                type: Amateur
+                expected: { proficiency: Novice, age: Adult, type: Amateur}
+            -
+                proficiency: Pre Championship
+                age: 40
+                sex: F
+                type: Amateur
+                expected: {proficiency: Pre Championship, age: Senior 2, type: Amateur}
+    -
+        lead: {proficiency: Novice, age: 44, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Novice
+                age: 30
+                sex: F
+                type: Amateur
+                expected: {proficiency: Novice, age: Senior 1, type: Amateur}
+            -
+                proficiency: Pre Championship
+                age: 35
+                sex: F
+                type: Amateur
+                expected: {proficiency: Pre Championship, age: Senior 1, type: Amateur}
+            -
+                proficiency: Championship
+                age: 55
+                sex: F
+                type: Amateur
+                expected: {proficiency: Championship, age: Senior 2, type: Amateur}
+    -
+        lead: {proficiency: Pre Championship, age: 19, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Pre Championship
+                age: 29
+                sex: F
+                type: Amateur
+                expected: {proficiency: Pre Championship, age: Adult, type: Amateur}
+            -
+                proficiency: Championship
+                age: 45
+                sex: F
+                type: Amateur
+                expected: {proficiency: Championship, age: Adult, type: Amateur}
+    -
+        lead: {proficiency: Newcomer, age: 75, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Newcomer
+                age: 70
+                sex: F
+                type: Amateur
+                expected: {proficiency: Newcomer, age: Senior 5, type: Amateur}
+            -
+                proficiency: Bronze
+                age: 69
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Senior 4, type: Amateur}
+    -
+        lead: {proficiency: Bronze, age: 65, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Bronze
+                age: 60
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Senior 4, type: Amateur}
+            -
+                proficiency: Silver
+                age: 59
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Senior 3, type: Amateur}
+    -
+        lead: {proficiency: Silver, age: 60, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Silver
+                age: 60
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Senior 3, type: Amateur}
+            -
+                proficiency: Gold
+                age: 55
+                sex: F
+                type: Amateur
+                expected: {proficiency: Gold, age: Senior 3, type: Amateur}
+            -
+                proficiency: Novice
+                age: 50
+                sex: F
+                type: Amateur
+                expected: {proficiency: Novice, age: Senior 3, type: Amateur}
+    -
+        lead: {proficiency: Pre Championship, age: 65, sex: M, type: Amateur}
+        follow:
+            -
+                proficiency: Pre Championship
+                age: 60
+                sex: F
+                type: Amateur
+                expected: {proficiency: Pre Championship, age: Senior 4, type: Amateur}
+            -
+                proficiency: Championship
+                age: 58
+                sex: F
+                type: Amateur
+                expected: {proficiency: Championship, age: Senior 3, type: Amateur}
+    -
+        lead: {proficiency: Pre Bronze, age: 4 ,  sex: M, type: Student}
+        follow:
+            - 
+                proficiency: Intermediate Bronze
+                age: 5
+                sex: F
+                type: Student
+                expected: {proficiency: Bronze , age: Juvenile, type: Amateur}
+            - 
+                proficiency: Open Bronze
+                age: 7
+                sex: F
+                type: Student
+                expected: {proficiency: Novice , age: Preteen 1 , type: Amateur}
+    -        
+        lead: {proficiency: Intermediate Bronze, age: 7, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Full Bronze
+                age: 9
+                sex: F
+                type: Student
+                expected: {proficiency: Full Bronze, age: Preteen 1, type: Amateur}
+            -
+                proficiency: Intermediate Silver
+                age: 10
+                sex: F
+                type: Student
+                expected: {proficiency: Silver, age: Preteen 2, type: Amateur}
+    -                
+        lead: {proficiency: Full Bronze, age: 9, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Open Bronze
+                age: 11
+                sex: F
+                type: Student
+                expected: {proficiency: Novice, age: Preteen 2, type: Amateur}
+    -
+        lead: {proficiency: Open Bronze, age: 11, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Intermediate Silver
+                age: 12
+                sex: F
+                type: Student
+                expected: {proficiency: Novice, age: Junior 1, type: Amateur}
+    -
+        lead: {proficiency: Pre Silver, age: 13, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Full Silver
+                age: 14
+                sex: F
+                type: Student
+                expected: {proficiency: Silver, age: Junior 2, type: Amateur}
+            -
+                proficiency: Open Silver
+                age: 15
+                sex: F
+                type: Student
+                expected: {proficiency: Novice, age: Junior 2, type: Amateur}
+    -            
+        lead: {proficiency: Intermediate Silver, age: 15, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Pre Gold
+                age: 16
+                sex: F
+                type: Student
+                expected: {proficiency: Pre Gold, age: Youth, type: Amateur}
+            -
+                proficiency: Open Gold
+                age: 17
+                sex: F
+                type: Student
+                expected: {proficiency: Novice, age: Youth, type: Amateur}
+    -
+        lead: {proficiency: Full Silver, age: 18, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Pre Gold
+                age: 19
+                sex: F
+                type: Student
+                expected: {proficiency: Pre Gold, age: Adult, type: Amateur}
+            -
+                proficiency: Open Gold
+                age: 34
+                sex: F
+                type: Student
+                expected: {proficiency: Novice, age: Adult, type: Amateur}
+    -
+        lead: {proficiency: Gold Star 1, age: 19, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Open Gold
+                age: 36
+                sex: F
+                type: Student
+                expected: {proficiency: Pre Championship, age: Adult, type: Amateur}
+            -
+                proficiency: Gold Star 2
+                age: 45
+                sex: F
+                type: Student
+                expected: {proficiency: Championship, age: Adult, type: Amateur}
+    -                
+        lead: {proficiency: Gold Star 1, age: 30, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Open Gold
+                age: 36
+                sex: F
+                type: Student
+                expected: {proficiency: Pre Championship, age: Senior 1, type: Amateur}
+            -
+                proficiency: Gold Star 2
+                age: 45
+                sex: F
+                type: Student
+                expected: {proficiency: Championship, age: Senior 1, type: Amateur}
+    -
+        
+        lead: {proficiency: Intermediate Gold, age: 40, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Open Gold
+                age: 54
+                sex: F
+                type: Student
+                expected: {proficiency: Novice, age: Senior 2, type: Amateur}
+            -
+                proficiency: Gold Star 2
+                age: 55
+                sex: F
+                type: Student
+                expected: {proficiency: Championship, age: Senior 2, type: Amateur}
+    -                
+        lead: {proficiency: Full Gold, age: 70, sex: M, type: Student}
+        follow:
+            -
+                proficiency: Open Gold
+                age: 75
+                sex: F
+                type: Student
+                expected: {proficiency: Novice, age: Senior 5, type: Amateur}

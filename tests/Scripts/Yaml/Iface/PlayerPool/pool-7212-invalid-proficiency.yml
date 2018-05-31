@@ -1,0 +1,48 @@
+comment:
+    - PlayerExceptionCode::INVALID_PROFICIENCY = 7212
+    - Invalid Proficiency at row:9, col:29 invalid proficiency.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia DanceSport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
+genres: [Rhythm,Smooth,Latin,Standard]
+couples:
+    -
+        lead: {proficiency: Invalid Proficiency, age: 3, sex: M, type: Amateur}
+        follow:
+            -
+                proficency: Newcomer
+                age: 3
+                sex: F
+                type: Amateur
+                expected: {proficiency: Newcomer, age: Baby, type: Amateur}
+            -
+                proficiency: Bronze
+                age: 4
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Baby, type: Amateur}
+            -
+                proficiency: Silver
+                age: 5
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Juvenile, type: Amateur}
+solo:
+    -
+        proficency: Newcomer
+        age: 3
+        sex: F
+        type: Amateur
+        expected: {proficiency: Newcomer, age: Baby, type: Amateur}
+    -
+        proficiency: Bronze
+        age: 4
+        sex: F
+        type: Amateur
+        expected: {proficiency: Bronze, age: Baby, type: Amateur}
+    -
+        proficiency: Silver
+        age: 5
+        sex: F
+        type: Amateur
+        expected: {proficiency: Silver, age: Juvenile, type: Amateur}
+

@@ -5,7 +5,7 @@ domains:
     style:
         - American
         - International
-        - Fun Events
+        - Fun Select
     substyle:
         - Rhythm
         - Smooth
@@ -45,6 +45,7 @@ domains:
         - Adult Youngster
         - Senior Youngster
     type:
+        - Am-Am
         - Amateur
     tag:
         - Solo
@@ -97,7 +98,7 @@ players:
           - Amateur
     -
       style:
-          - Fun Events
+          - Fun Select
       proficiency:
           - Social
           - Newcomer
@@ -182,7 +183,7 @@ event-collections:
         type:
             Amateur: [Amateur]
     -
-        style: Fun Events
+        style: Fun Select
         event-tag: Qualifier
         age: {Adult Youngster: [Adult Youngster]}
         proficiency:
@@ -201,7 +202,7 @@ event-collections:
         type:
             Amateur: [Amateur]
     -
-        style: Fun Events
+        style: Fun Select
         event-tag: Qualifier
         age: {Senior Youngster: [Senior Youngster]}
         proficiency:
@@ -220,7 +221,7 @@ event-collections:
         type:
             Amateur: [Amateur]
     -
-        style: Fun Events
+        style: Fun Select
         event-tag: Qualifier
         age:
             Youngster: [Baby, Juvenile, Preteen 1,Preteen 2]

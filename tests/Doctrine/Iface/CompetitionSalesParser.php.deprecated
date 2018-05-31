@@ -82,7 +82,7 @@ class CompetitionSalesParser extends Builder
     {
         if($key != 'submissions') {
             throw new GeneralException($key, $keyPosition, 'expected "models"',
-                ExceptionCode::SUBMISSIONS);
+                ParticipantExceptionCode::SUBMISSIONS);
         }
         $submissions = [];
         list($submissionData, $submissionDataPosition, , )
@@ -98,6 +98,6 @@ class CompetitionSalesParser extends Builder
 
     private function buildSubmissions($data,$position)
     {
-        var_dump($data);die;
+
     }
 }

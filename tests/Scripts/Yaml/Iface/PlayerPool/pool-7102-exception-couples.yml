@@ -1,0 +1,28 @@
+comment:
+    - PlayerExceptionCode::COUPLES = 7102
+    - no couples at row:7, col:1 expected couples.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [Georgia DanceSport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
+genres: [Rhythm,Smooth,Latin,Standard]
+no couples:
+    -
+        lead: {proficiency: Newcomer, age: 3, sex: M, type: Amateur}
+        follow:
+            -
+                proficency: Newcomer
+                age: 3
+                sex: F
+                type: Amateur
+                expected: {proficiency: Newcomer, age: Baby, type: Amateur}
+            -
+                proficiency: Bronze
+                age: 4
+                sex: F
+                type: Amateur
+                expected: {proficiency: Bronze, age: Baby, type: Amateur}
+            -
+                proficiency: Silver
+                age: 5
+                sex: F
+                type: Amateur
+                expected: {proficiency: Silver, age: Juvenile, type: Amateur}

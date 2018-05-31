@@ -3,7 +3,7 @@ domains:
     style:
         - American
         - International
-        - Fun Events
+        - Fun Select
     substyle:
         - Rhythm
         - Smooth
@@ -165,7 +165,7 @@ events:
         type: 
             Amateur: [Amateur]
     -
-        style: Fun Events
+        style: Fun Select
         event-tag: Qualifier
         age: {Adult Child: [Adult Child]}
         proficiency:
@@ -184,7 +184,7 @@ events:
         type:
             Amateur: [Amateur]
     -
-        style: Fun Events
+        style: Fun Select
         event-tag: Qualifier
         age: {Senior Child: [Senior Child]}
         proficiency:
@@ -203,7 +203,7 @@ events:
         type:
             Amateur: [Amateur]
     -
-        style: Fun Events
+        style: Fun Select
         event-tag: Qualifier
         age:
             Youth: [Baby, Juvenile, Preteen 1,Preteen 2]

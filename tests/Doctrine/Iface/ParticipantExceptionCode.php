@@ -14,7 +14,7 @@
 namespace App\Tests\Doctrine\Iface;
 
 
-class ExceptionCode
+class ParticipantExceptionCode
 {
     const COMPETITION = 6002;
     const INVALID_COMPETITION= 6004;

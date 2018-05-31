@@ -55,6 +55,8 @@ domains:
         - Professional
         - Teacher
         - Student
+        - Pro-Am
+        - Pro-Pro
         - Teacher-Student
     tag:
         - Couple

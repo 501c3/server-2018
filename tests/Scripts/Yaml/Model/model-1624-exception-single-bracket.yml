@@ -6,7 +6,7 @@ domains:
     style:
         - American
         - International
-        - Fun Events
+        - Fun Select
     substyle:
         - Rhythm
         - Smooth
@@ -95,7 +95,7 @@ event-tags:
 
 event-collections:
     -
-        style: Fun Events
+        style: Fun Select
         event-tag: Qualifier
         age: {Adult Child: [Adult Child]}
         proficiency:

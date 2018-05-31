@@ -43,11 +43,15 @@ setups:
                 - Championship
         combinations:
             Professional:
+                Professional: Professional
                 Teacher: Professional
+            Teacher:
+                Student: Teacher-Student
             Amateur:
-                Teacher: Teacher
-                Student: Student
-
+                Amateur: Amateur
+                Student: Amateur
+            Student:
+                Student: Amateur
 mappings:
     genre: [American, Rhythm, Smooth, International, Latin, Standard]
     proficiency:
@@ -81,6 +85,3 @@ mappings:
             55-64: Senior 3
             65-74: Senior 4
             75-99: Senior 5
-
-
-

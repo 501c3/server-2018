@@ -14,7 +14,7 @@
 namespace App\Tests\Doctrine\Iface;
 
 
-use App\Doctrine\Iface\PlayerEvents;
+use App\Doctrine\Iface\Events;
 use App\Entity\Competition\Competition;
 use App\Entity\Competition\Event;
 use App\Entity\Competition\Iface;
@@ -42,7 +42,7 @@ class CompetitionSalesParserTest extends KernelTestCase
     /** @var CompetitionSalesParser*/
     private $competitionSalesParser;
 
-    /** @var PlayerEvents */
+    /** @var Events */
     private $playerEvents;
 
     /**
@@ -88,7 +88,7 @@ class CompetitionSalesParserTest extends KernelTestCase
         $modelCompetitionRepository = self::$entityManagerCompetition->getRepository(ModelCompetition::class);
         $playerRepository = self::$entityManagerCompetition->getRepository(Player::class);
         $eventRepository = self::$entityManagerCompetition->getRepository(Event::class);
-        $this->playerEvents = new PlayerEvents($competitionRepository,
+        $this->playerEvents = new Events($competitionRepository,
                                                 $ifaceRepository,
                                                 $modelCompetitionRepository,
                                                 $playerRepository,
@@ -158,7 +158,7 @@ class CompetitionSalesParserTest extends KernelTestCase
    public function testSetupSuccessful()
    {
        $yamlText = file_get_contents(
-           __DIR__ . '/../../Scripts/Yaml/Iface/participants-teams-amateur.yml' );
+           __DIR__ . '/../../Scripts/Yaml/Iface/player-pool.yml' );
        $this->competitionSalesParser->parse( $yamlText );
        $this->assertTrue(true);
    }

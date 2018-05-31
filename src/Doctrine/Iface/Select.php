@@ -22,7 +22,7 @@ use App\Repository\Competition\PlayerRepository;
 use App\Repository\Competition\ModelRepository;
 
 
-class PlayerEvents
+class Select
 {
     /**
      * @var CompetitionRepository

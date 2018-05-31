@@ -49,6 +49,24 @@ class ValueRepository extends ServiceEntityRepository
         return $result;
     }
 
+    public function fetchDomainValueHash()
+    {
+        $hash = [];
+        $values=$this->fetchAllDomainValues();
+        /** @var Value $value */
+        foreach($values as $value){
+            $domName = $value->getDomain()->getName();
+            $valName = $value->getName();
+            if(!isset($hash[$domName])) {
+                $hash[$domName]=[];
+            }
+            if(!isset($hash[$domName][$valName])) {
+                $hash[$domName][$valName]=$value;
+            }
+        }
+        return $hash;
+    }
+
     public function fetchAllGenreValues()
     {
         $qb=$this->createQueryBuilder('value');
@@ -58,6 +76,6 @@ class ValueRepository extends ServiceEntityRepository
             ->orWhere('domain.name="substyle"');
         $query=$qb->getQuery();
         $result=$query->getResult();
-
+        return $result;
     }
 }

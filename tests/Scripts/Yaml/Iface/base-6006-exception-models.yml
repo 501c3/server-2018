@@ -1,5 +1,5 @@
 comment:
-    - ExceptionCode::MODELS = 6006
+    - ParticipantExceptionCode::MODELS = 6006
     - no models at row:5, col:1 expected models.
 competition: Georgia DanceSport Competition and Medal Exams
-no models: [Georgia DanceSport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
+no model: Georgia DanceSport Amateur
