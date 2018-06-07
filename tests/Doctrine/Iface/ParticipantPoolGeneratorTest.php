@@ -15,6 +15,7 @@ namespace App\Tests\Doctrine\Iface;
 
 
 use App\Entity\Competition\Competition;
+use App\Entity\Competition\Iface;
 use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
@@ -74,9 +75,11 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
         self::initializeDatabase(self::$entityManagerCompetition,'competition-sequence.sql');
         $competitionRepository = self::$entityManagerCompetition->getRepository(Competition::class);
         $modelRepository = self::$entityManagerCompetition->getRepository(Model::class);
+        $ifaceRepository = self::$entityManagerCompetition->getRepository(Iface::class);
         $valueRepository = self::$entityManagerModels->getRepository(Value::class);
         $this->participantPoolGenerator = new ParticipantPoolGenerator($competitionRepository,
                                                                         $modelRepository,
+                                                                        $ifaceRepository,
                                                                         $valueRepository);
     }
 

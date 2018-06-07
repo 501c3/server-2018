@@ -30,7 +30,7 @@ class Model
 
 
     /**
-     * @var string
+     * @var array
      *
      * @ORM\Column(name="playerlookup", type="json", nullable=false)
      */
@@ -76,18 +76,18 @@ class Model
     /**
      * @return array
      */
-    public function getPlayerlookup(): array
+    public function getPlayerlookup():array
     {
-        return json_decode($this->playerlookup);
+        return $this->playerlookup;
     }
 
     /**
      * @param array $playerlookup
+     * @return Model
      */
-    public function setPlayerlookup(array $playerlookup): void
+    public function setPlayerlookup(array $playerlookup): Model
     {
-        $this->playerlookup = json_encode($playerlookup);
+        $this->playerlookup = $playerlookup;
+        return $this;
     }
-
-
 }

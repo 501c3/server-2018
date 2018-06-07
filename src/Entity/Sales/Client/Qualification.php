@@ -19,6 +19,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class Qualification
 {
+    const DOMAIN_NAME_TO_VALUE_ID = 0;
+    const DOMAIN_NAME_TO_VALUE_NAME = 1;
+
     private $collection;
 
     public function __construct()
@@ -28,56 +31,40 @@ class Qualification
 
     public function add(Value $value)
     {
-        $this->collection->set( $value->getDomain()->getName(), $value );
+        $domain = $value->getDomain()->getName();
+        $key = ($domain == 'style'|| $domain == 'substyle')?'genre':$domain;
+        $this->collection->set( $key,$value);
     }
 
-
-    public function set(ArrayCollection $collection)
+    public function set(array $values)
     {
-        $this->collection = $collection;
+        foreach($values as $value)
+        $this->add($value);
     }
 
-
-    public function match(array $description): bool
+    public function get(string $dom)
     {
-        foreach($description as $key=>$idName){
-            /** @var Value $value */
-            $value=$this->collection->get($key);
-            if(is_numeric($idName)) {
-               if($value->getid()!=intval($idName)){
-                   return false;
-               }
-            } else {
-               if($value->getName()!=$idName){
-                   return false;
-               }
+        return $this->collection->get($dom);
+    }
+
+    public function toArray(int $identifierSpec): array
+    {
+        /** @var \ArrayIterator $iterator */
+        $iterator=$this->collection->getIterator();
+        $iterator->rewind();
+        $result = [];
+        while($iterator->valid()){
+            $value = $iterator->current();
+            $key=$iterator->key();
+            switch($identifierSpec){
+                case self::DOMAIN_NAME_TO_VALUE_ID:
+                    $result[$key]=$value->getId();
+                case self::DOMAIN_NAME_TO_VALUE_NAME:
+                    $result[$key]=$value->getName();
             }
-
+            $iterator->next();
         }
-        return true;
+        return $result;
     }
 
-   public function toJson(bool $debug = false): string
-   {
-       return json_encode($this->toArray($debug));
-   }
-
-    /**
-     * @param bool $debug
-     * @return array
-     *
-     * $debug = true will return proper names instead of id.
-     */
-   public function toArray(bool $debug=false):array
-   {
-       $return=[];
-       $this->collection->first();
-       /** @var Value $value */
-       $value = $this->collection->current();
-       while($value){
-           $return[$value->getDomain()->getName()]=$debug?$value->getName():$value->getId();
-           $value = $this->collection->next();
-       }
-       return $return;
-   }
 }

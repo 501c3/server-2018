@@ -67,6 +67,17 @@ class ValueRepository extends ServiceEntityRepository
         return $hash;
     }
 
+    public function fetchAllValuesById()
+    {
+        $hash = [];
+        $values=$this->fetchAllDomainValues();
+        /** @var Value $value */
+        foreach($values as $value){
+           $hash[$value->getId()]= $value;
+        }
+        return $hash;
+    }
+
     public function fetchAllGenreValues()
     {
         $qb=$this->createQueryBuilder('value');

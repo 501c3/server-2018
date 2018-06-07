@@ -22,14 +22,14 @@ class Iface
     private $name;
 
     /**
-     * @var string|null
+     * @var array|null
      *
      * @ORM\Column(name="setup", type="json", nullable=true)
      */
     private $setup;
 
     /**
-     * @var string|null
+     * @var array|null
      *
      * @ORM\Column(name="mapping", type="json", nullable=true)
      */
@@ -70,7 +70,7 @@ class Iface
      */
     public function getSetup(): ?array
     {
-        return json_decode($this->setup);
+        return $this->setup;
     }
 
     /**
@@ -79,7 +79,7 @@ class Iface
      */
     public function setSetup(?array $setup): Iface
     {
-        $this->setup = json_encode($setup);
+        $this->setup = $setup;
         return $this;
     }
 
@@ -88,7 +88,8 @@ class Iface
      */
     public function getMapping(): ?array
     {
-        return json_decode($this->mapping);
+
+       return $this->mapping;
     }
 
     /**
@@ -97,7 +98,7 @@ class Iface
      */
     public function setMapping(?array $mapping): Iface
     {
-        $this->mapping = json_encode($mapping);
+        $this->mapping = $mapping;
         return $this;
     }
 

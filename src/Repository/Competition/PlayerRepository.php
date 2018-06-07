@@ -14,6 +14,7 @@
 namespace App\Repository\Competition;
 
 
+use App\Entity\Competition\Model;
 use App\Entity\Competition\Player;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;

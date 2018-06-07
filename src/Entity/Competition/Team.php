@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Team
+ * Player
  *
  * @ORM\Table(name="team")
  * @ORM\Entity(repositoryClass="App\Repository\Competition\TeamRepository")

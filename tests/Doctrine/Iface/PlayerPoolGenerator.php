@@ -31,6 +31,8 @@ class PlayerPoolGenerator extends BaseParser
 
     private $coupling = [];
 
+    private $solos = [];
+
     public function __construct(
         CompetitionRepository $competitionRepository,
         ModelRepository $modelRepository,
@@ -49,6 +51,11 @@ class PlayerPoolGenerator extends BaseParser
         return $this;
     }
 
+    /**
+     * @param string $yaml
+     * @return array
+     * @throws GeneralException
+     */
     public function parse(string $yaml)
     {
         $r = $this->fetchPhpArray($yaml);
@@ -68,9 +75,18 @@ class PlayerPoolGenerator extends BaseParser
                             key($r['data']),key($r['position']));
         $this->buildSolos($genres, next($r['data']),next($r['position']),
                                 key($r['data']),key($r['position']));
+        return ['couples'=>$this->coupling,
+                'solos'=>$this->solos];
     }
 
-
+    /**
+     * @param $data
+     * @param $position
+     * @param $key
+     * @param $keyPosition
+     * @return mixed
+     * @throws GeneralException
+     */
     public function fetchGenres($data,$position,$key,$keyPosition)
     {
         if($key!='genres') {
@@ -89,7 +105,14 @@ class PlayerPoolGenerator extends BaseParser
     }
 
 
-
+    /**
+     * @param array $genres
+     * @param array $data
+     * @param array $position
+     * @param string $key
+     * @param string $keyPosition
+     * @throws GeneralException
+     */
     public function buildCouples(array $genres, array $data,array $position,string $key, string $keyPosition) {
         if($key!='couples') {
             throw new GeneralException($key,$keyPosition, "expected \"couples\"" ,
@@ -104,19 +127,35 @@ class PlayerPoolGenerator extends BaseParser
         }
     }
 
-    public function buildSolos(array $genres, array $data, array $position, $key, $keyPosition)
+    /**
+     * @param array $genres
+     * @param array $data
+     * @param array $position
+     * @param string $key
+     * @param string $keyPosition
+     * @throws GeneralException
+     */
+    public function buildSolos(array $genres, array $data, array $position, string $key, string $keyPosition)
     {
         if($key!='solo') {
-            throw new GeneralException($key,$keyPosition, "expected \"couples\"" ,
-                PlayerExceptionCode::COUPLES_SOLO);
+            throw new GeneralException($key,$keyPosition, "expected \"solo\"" ,
+                PlayerExceptionCode::SOLO);
         }
         list($dataPart,$positionPart, , ) = $this->current($data,$position);
         while($dataPart) {
-            var_dump($dataPart);
+            foreach($genres as $genre){
+                array_push($this->solos,$this->fetchParticipantExpected($genre,$dataPart,$positionPart));
+            }
             list($dataPart, $positionPart, , ) = $this->next($data, $position);
         }
     }
 
+    /**
+     * @param string $genre
+     * @param $dataPart
+     * @param $positionPart
+     * @throws GeneralException
+     */
     public function buildPlayerCoupling(string $genre, $dataPart, $positionPart)
     {
 
@@ -136,7 +175,7 @@ class PlayerPoolGenerator extends BaseParser
        list($followParticipant,$followParticipantPosition, , )
            = $this->current($followData,$followDataPosition);
        while($followParticipant) {
-           $result = $this->fetchFollowerExpected($genre, $followParticipant, $followParticipantPosition);
+           $result = $this->fetchParticipantExpected($genre, $followParticipant, $followParticipantPosition);
            array_push($this->coupling, [ 'leader'=>$leader,
                                                 'follower'=>$result['participant'],
                                                 'expected'=>$result['expected']]);
@@ -147,6 +186,13 @@ class PlayerPoolGenerator extends BaseParser
     }
 
 
+    /**
+     * @param $genre
+     * @param $data
+     * @param $position
+     * @return array
+     * @throws GeneralException
+     */
     private function fetchParticipant($genre, $data, $position)
     {
         $expectedKeys = ['proficiency','age','sex','type','expected'];
@@ -205,6 +251,13 @@ class PlayerPoolGenerator extends BaseParser
         return $loc;
     }
 
+    /**
+     * @param $genre
+     * @param $data
+     * @param $position
+     * @return mixed
+     * @throws GeneralException
+     */
     private function fetchLeader($genre, $data, $position)
     {
         $loc=$this->fetchParticipant($genre, $data, $position);
@@ -222,8 +275,14 @@ class PlayerPoolGenerator extends BaseParser
 
     }
 
-
-    private function fetchFollowerExpected($genre, $data, $position)
+    /**
+     * @param $genre
+     * @param $data
+     * @param $position
+     * @return array
+     * @throws GeneralException
+     */
+    private function fetchParticipantExpected($genre, $data, $position)
     {
         $loc=$this->fetchParticipant($genre, $data, $position);
         $g = $loc['genre'];
@@ -231,16 +290,24 @@ class PlayerPoolGenerator extends BaseParser
         $a = $loc['age'];
         $s = $loc['sex'];
         $t = $loc['type'];
-        $e = $loc['expected'];
         $position = $loc['position'];
         if(!isset($this->participantPool[$g][$p][$a][$s][$t])) {
             $participant = "$g:$p:$a:$s:$t";
             throw new GeneralException($participant,$position,"is not defined",
                 PlayerExceptionCode::UNDEFINED);
         }
+
         return ['participant'=>$this->participantPool[$g][$p][$a][$s][$t], 'expected'=>$loc['expected']];
     }
 
+
+    /**
+     * @param $genre
+     * @param $data
+     * @param $position
+     * @return array
+     * @throws GeneralException
+     */
     private function fetchExpected($genre, $data, $position)
     {
         list($dataPart,$positionPart, $key, $keyPosition)
@@ -248,9 +315,9 @@ class PlayerPoolGenerator extends BaseParser
         $keys = ['proficiency','age','type'];
         $keyStr = join('","',$keys);
         $expected = [];
-        $expected['genre']=isset($this->domainValueHash['style'])?
-                                    $this->domainValueHash['style']:
-                                    $this->domainValueHash['substyle'];
+        $expected['genre']=isset($this->domainValueHash['style'][$genre])?
+                                    $this->domainValueHash['style'][$genre]:
+                                    $this->domainValueHash['substyle'][$genre];
         while($dataPart) {
             if(!in_array($key,$keys)) {
                 throw new GeneralException($key,$keyPosition,"expected \"$keyStr\"",
@@ -262,7 +329,7 @@ class PlayerPoolGenerator extends BaseParser
                         throw new GeneralException($dataPart,$positionPart,'is invalid proficiency',
                                     PlayerExceptionCode::INVALID_EXPECTED_PROFICIENCY);
                     }
-                    $expected['age']=$this->domainValueHash['proficiency'][$dataPart];
+                    $expected['proficiency']=$this->domainValueHash['proficiency'][$dataPart];
                     break;
                 case 'age':
                     if(!isset($this->domainValueHash['age'][$dataPart])) {

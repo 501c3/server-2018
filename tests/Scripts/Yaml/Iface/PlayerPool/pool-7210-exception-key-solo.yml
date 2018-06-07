@@ -1,12 +1,12 @@
 comment:
-    - PlayerExceptionCode::LEAD = 7202
-    - no lead at row:9, col:9 expected lead.
+    - PlayerExceptionCode::SOLO
+    - invalid at row:32, col:9 expected proficiency,age,sex,type,expected.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia DanceSport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 genres: [Rhythm,Smooth,Latin,Standard]
 couples:
     -
-        no lead: {proficiency: Newcomer, age: 3, sex: M, type: Amateur}
+        lead: {proficiency: Newcomer, age: 3, sex: M, type: Amateur}
         follow:
             -
                 proficiency: Newcomer
@@ -29,7 +29,7 @@ couples:
 solo:
     -
         proficiency: Newcomer
-        age: 3
+        invalid: 3
         sex: F
         type: Amateur
         expected: {proficiency: Newcomer, age: Baby, type: Amateur}

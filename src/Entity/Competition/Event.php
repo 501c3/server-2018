@@ -31,7 +31,7 @@ class Event
     private $tag;
 
     /**
-     * @var string
+     * @var array
      *
      * @ORM\Column(name="value", type="json", nullable=false)
      */
@@ -40,28 +40,27 @@ class Event
     /**
      * @var \App\Entity\Competition\Model
      *
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="NONE")
-     * @ORM\OneToOne(targetEntity="App\Entity\Competition\Model")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Competition\Model")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="model_id", referencedColumnName="id")
      * })
      */
     private $model;
 
+
     /**
      * @var Collection
      *
-     * @ORM\ManyToMany(targetEntity="App\Entity\Competition\Player", mappedBy="eventModel")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Competition\Player", mappedBy="event")
      */
-    private $playerModel;
+    private $player;
 
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->playerModel = new ArrayCollection();
+        $this->player = new ArrayCollection();
     }
 
     /**
@@ -105,7 +104,7 @@ class Event
      */
     public function getValue(): array
     {
-        return json_decode($this->value);
+        return $this->value;
     }
 
     /**
@@ -114,7 +113,7 @@ class Event
      */
     public function setValue(array $value): Event
     {
-        $this->value = json_encode($value);
+        $this->value = $value;
         return $this;
     }
 
@@ -139,20 +138,18 @@ class Event
     /**
      * @return Collection
      */
-    public function getPlayerModel(): Collection
+    public function getPlayer(): Collection
     {
-        return $this->playerModel;
+        return $this->player;
     }
 
     /**
-     * @param Collection $playerModel
+     * @param Collection $player
      * @return Event
      */
-    public function setPlayerModel(Collection $playerModel): Event
+    public function setPlayer(Collection $player): Event
     {
-        $this->playerModel = $playerModel;
+        $this->player = $player;
         return $this;
     }
-
-
 }

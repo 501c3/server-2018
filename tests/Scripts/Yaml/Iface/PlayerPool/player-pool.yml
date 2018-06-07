@@ -434,7 +434,7 @@ couples:
                 age: 9
                 sex: F
                 type: Student
-                expected: {proficiency: Full Bronze, age: Preteen 1, type: Amateur}
+                expected: {proficiency: Bronze, age: Preteen 1, type: Amateur}
             -
                 proficiency: Intermediate Silver
                 age: 10
@@ -482,7 +482,7 @@ couples:
                 age: 16
                 sex: F
                 type: Student
-                expected: {proficiency: Pre Gold, age: Youth, type: Amateur}
+                expected: {proficiency: Gold, age: Youth, type: Amateur}
             -
                 proficiency: Open Gold
                 age: 17
@@ -497,7 +497,7 @@ couples:
                 age: 19
                 sex: F
                 type: Student
-                expected: {proficiency: Pre Gold, age: Adult, type: Amateur}
+                expected: {proficiency: Gold, age: Adult, type: Amateur}
             -
                 proficiency: Open Gold
                 age: 34
@@ -559,3 +559,29 @@ couples:
                 sex: F
                 type: Student
                 expected: {proficiency: Novice, age: Senior 5, type: Amateur}
+solo:
+    -
+        proficiency: Bronze
+        age: 4
+        sex: F
+        type: Amateur
+        expected: {proficiency: Bronze, age: Baby, type: Amateur}
+    -
+        proficiency: Silver
+        age: 5
+        sex: F
+        type: Amateur
+        expected: {proficiency: Silver, age: Juvenile, type: Amateur}
+    -
+        proficiency: Bronze
+        age: 9
+        sex: M
+        type: Amateur
+        expected: {proficiency: Bronze, age: Preteen 1, type: Amateur}
+    -
+        proficiency: Silver
+        age: 12
+        sex: F
+        type: Amateur
+        expected: {proficiency: Silver, age: Junior 1, type: Amateur}
+

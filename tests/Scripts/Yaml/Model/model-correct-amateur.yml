@@ -5,7 +5,7 @@ domains:
     style:
         - American
         - International
-        - Fun Select
+        - Fun Events
     substyle:
         - Rhythm
         - Smooth
@@ -98,7 +98,7 @@ players:
           - Amateur
     -
       style:
-          - Fun Select
+          - Fun Events
       proficiency:
           - Social
           - Newcomer
@@ -183,9 +183,10 @@ event-collections:
         type:
             Amateur: [Amateur]
     -
-        style: Fun Select
+        style: Fun Events
         event-tag: Qualifier
-        age: {Adult Youngster: [Adult Youngster]}
+        age:
+            Adult Youngster: [Adult Youngster]
         proficiency:
             Parent Child:
                  Social:
@@ -202,9 +203,10 @@ event-collections:
         type:
             Amateur: [Amateur]
     -
-        style: Fun Select
+        style: Fun Events
         event-tag: Qualifier
-        age: {Senior Youngster: [Senior Youngster]}
+        age:
+            Senior Youngster: [Senior Youngster]
         proficiency:
             Grandparent Child:
                 Social:
@@ -221,7 +223,7 @@ event-collections:
         type:
             Amateur: [Amateur]
     -
-        style: Fun Select
+        style: Fun Events
         event-tag: Qualifier
         age:
             Youngster: [Baby, Juvenile, Preteen 1,Preteen 2]
@@ -264,7 +266,7 @@ event-collections:
                     eligible: [Bronze,Silver]
                     events: {Latin: [[Cha Cha,Samba,Rumba]], Standard: [[Waltz,Foxtrot,Quickstep]]}
                 Silver-Gold:
-                    eligible: [Newcomer,Bronze,Silver,Gold]
+                    eligible: [Bronze,Silver,Gold]
                     events: {Standard: [[Viennese Waltz]]}
                 Gold:
                     eligible: [Silver, Gold]

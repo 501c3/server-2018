@@ -28,7 +28,7 @@ couples:
                 expected: {proficiency: Silver, age: Juvenile, type: Amateur}
 solo:
     -
-        proficency: Newcomer
+        proficiency: Newcomer
         age: 3
         sex: F
         type: Amateur
@@ -45,4 +45,5 @@ solo:
         sex: F
         type: Amateur
         expected: {proficiency: Silver, age: Juvenile, type: Amateur}
+
 

@@ -34,6 +34,7 @@ services:
             - { name: doctrine.event_listener, event: prePersist }
             - { name: doctrine.event_listener, event: preUpdate }
 
+
     App\DataFixtures\ORM\:
         resource: '../src/DataFixtures/ORM'
         tags: ['doctrine.fixture.orm']

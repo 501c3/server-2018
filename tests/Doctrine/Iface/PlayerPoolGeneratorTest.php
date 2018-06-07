@@ -19,9 +19,12 @@ use App\Entity\Competition\Competition;
 use App\Entity\Competition\Iface;
 use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
+use App\Entity\Sales\Client\Participant;
+use App\Entity\Sales\Client\Qualification;
 use App\Repository\Competition\CompetitionRepository;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Util\Json;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -35,6 +38,7 @@ class PlayerPoolGeneratorTest extends KernelTestCase
 
     /** @var Classify */
     private static $classify;
+
 
     /**
      * @param EntityManagerInterface $entityManager
@@ -72,8 +76,13 @@ class PlayerPoolGeneratorTest extends KernelTestCase
         $ifaceRepository=$entityManagerCompetition->getRepository(Iface::class);
         $valueRepository=$entityManagerModels->getRepository(Value::class);
 
+        /** @var Competition $competition */
+        $competition = $competitionRepository->findOneBy(['name'=>'Georgia DanceSport Competition and Medal Exams']);
+
+
         $poolGenerator = new ParticipantPoolGenerator($competitionRepository,
                                                     $modelRepository,
+                                                    $ifaceRepository,
                                                     $valueRepository);
 
         $fileLocation = realpath( __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/participant-pool.yml' );
@@ -86,6 +95,7 @@ class PlayerPoolGeneratorTest extends KernelTestCase
 
 
         self::$classify = new Classify($competitionRepository,$modelRepository,$ifaceRepository,$valueRepository);
+        self::$classify->setCompetition($competition);
     }
 
 
@@ -178,6 +188,19 @@ class PlayerPoolGeneratorTest extends KernelTestCase
 
     /**
      * @expectedException \App\Exceptions\GeneralException
+     * @expectedExceptionMessage "not solo" at row:29, col:1 expected "solo".
+     * @expectedExceptionCode 7104
+     */
+    public function test7104ExceptionSolo()
+    {
+        $yamlText = file_get_contents(
+            __DIR__ . '/../../Scripts/Yaml/Iface/PlayerPool/pool-7104-exception-solo.yml');
+        self::$playerPool->parse($yamlText);
+    }
+
+
+    /**
+     * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "no lead" at row:9, col:9 expected "lead".
      * @expectedExceptionCode 7202
      */
@@ -210,6 +233,18 @@ class PlayerPoolGeneratorTest extends KernelTestCase
     {
         $yamlText = file_get_contents(
             __DIR__ . '/../../Scripts/Yaml/Iface/PlayerPool/pool-7210-exception-key.yml');
+        self::$playerPool->parse($yamlText);
+    }
+
+    /**
+     * @expectedException \App\Exceptions\GeneralException
+     * @expectedExceptionMessage "invalid" at row:32, col:9 expected "proficiency","age","sex","type","expected".
+     * @expectedExceptionCode 7210
+     */
+    public function test7210ExceptionKeySolo()
+    {
+        $yamlText = file_get_contents(
+            __DIR__ . '/../../Scripts/Yaml/Iface/PlayerPool/pool-7210-exception-key-solo.yml');
         self::$playerPool->parse($yamlText);
     }
 
@@ -309,18 +344,81 @@ class PlayerPoolGeneratorTest extends KernelTestCase
         self::$playerPool->parse($yamlText);
     }
 
-
-    public function testCouplesPlayer()
+    /**
+     * @throws \App\Exceptions\GeneralException
+     */
+    public function testCouplesSolo()
     {
         $yamlText = file_get_contents(__DIR__ . '/../../Scripts/Yaml/Iface/PlayerPool/player-pool.yml' );
         $results=self::$playerPool->parse($yamlText);
-        foreach($results as $coupling) {
-            $lead = $coupling['leader'];
-            $follow = $coupling['follower'];
-
-            $expected = $coupling['expected'];
+        $this->assertArrayHasKey('couples',$results);
+        $this->assertArrayHasKey('solos',$results);
+        foreach($results['couples'] as $couple) {
+            $this->assertArrayHasKey('leader',$couple);
+            $this->assertArrayHasKey('follower',$couple);
+            $this->assertArrayHasKey('expected',$couple);
+        }
+        foreach($results['solos'] as $solo){
+            $this->assertArrayHasKey('participant',$solo);
+            $this->assertArrayHasKey('expected',$solo);
         }
     }
 
+    private function expectedToJson($expected) {
+        $result = [];
+        /**
+         * @var string $domain
+         * @var  Value $value
+         */
+        foreach($expected as $domain=>$value){
+            $result[$domain]=$value->getName();
+        }
+        return json_encode($result);
+    }
 
+    /**
+     * @throws \App\Doctrine\Iface\ClassifyException
+     * @throws \App\Exceptions\GeneralException
+     */
+    public function testCouplesSoloClassification()
+    {
+        $yamlText = file_get_contents(__DIR__ . '/../../Scripts/Yaml/Iface/PlayerPool/player-pool.yml' );
+        $results=self::$playerPool->parse($yamlText);
+        foreach($results['couples'] as $couple) {
+            /** @var Participant $leader */
+            $leader = $couple['leader'];
+            /** @var Participant $follower */
+            $follower = $couple['follower'];
+            $expected = $couple['expected'];
+            $player = self::$classify->couple($leader, $follower);
+            /** @var Value $expectedGenre */
+            $expectedGenre = $expected['genre'];
+            /** @var Qualification $qualification */
+            $playerQualification=$player->getQualification($expectedGenre->getName())
+                                        ->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);
+            $actualJson=json_encode($playerQualification);
+            $expectedJson=$this->expectedToJson($expected);
+
+            $message = sprintf("Expected does not match actual for %s & %s.\nExpected: %s\n Actual: %s\n",
+                                $leader->getName(),$follower->getName(),$expectedJson,$actualJson);
+            $this->assertJsonStringEqualsJsonString($expectedJson,$actualJson,$message);
+        }
+        foreach($results['solos'] as $solo){
+            /** @var Participant $participant */
+            $participant = $solo['participant'];
+            $expected = $solo['expected'];
+            /** @var Value $expectedValue */
+            $expectedValue = $expected['genre'];
+            $player  = self::$classify->solo($participant);
+            /** @var Qualification $playerQualification */
+            $playerQualification=$player->getQualification($expectedValue->getName())
+                                        ->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);
+            /** @var Json $actualJson */
+            $actualJson = json_encode($playerQualification);
+            $expectedJson=$this->expectedToJson($expected);
+            $message = sprintf("Expected does not match actual %s.\nExpected: %s\nActual: %s\n",
+                                $participant->getName(), $expectedJson, $actualJson);
+            $this->assertJsonStringEqualsJsonString($expectedJson,$actualJson,$message);
+        }
+    }
 }

@@ -19,6 +19,7 @@ class PlayerExceptionCode
     const GENRES = 7002;
     const INVALID_GENRE = 7004;
     const COUPLES_SOLO = 7102;
+    const SOLO = 7104;
     const LEAD = 7202;
     const FOLLOW = 7204;
     const INVALID_PARTICIPANT = 7206;

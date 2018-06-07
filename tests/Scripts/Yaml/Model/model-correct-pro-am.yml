@@ -177,7 +177,7 @@ event-collections:
                         Rhythm: [[Cha Cha,Rumba,Swing]]
                         Smooth: [[Waltz,Tango,Foxtrot]]
                 Pre Gold:
-                    eligible: [Intermediate Silver,Open Silver,Pre Gold]
+                    eligible: [Full Silver,Open Silver,Pre Gold]
                     events:
                         Rhythm: [[Cha Cha,Rumba,Swing,Bolero]]
                         Smooth: [[Waltz,Tango,Foxtrot,Viennese Waltz]]
@@ -230,7 +230,7 @@ event-collections:
                     eligible: [Intermediate Bronze,Full Bronze,Open Bronze]
                     events: {Latin: [[Cha Cha,Rumba]], Standard: [[Waltz,Quickstep]]}
                 Pre Silver:
-                    eligible: [Pre Bronze]
+                    eligible: [Full Bronze,Open Bronze,Pre Silver]
                     events: {Latin: [[Samba,Cha Cha,Rumba]], Standard: [[Waltz,Foxtrot,Quickstep]]}
                 Intermediate Silver:
                     eligible: [Open Bronze,Pre Silver,Intermediate Silver]
@@ -251,7 +251,7 @@ event-collections:
                     eligible: [Pre Gold,Intermediate Gold,Full Gold]
                     events: {Latin: [[Samba,Cha Cha,Rumba,Jive]], Standard: [[Waltz,Tango,Foxtrot,Quickstep]]}
                 Open Gold:
-                    eligible: [Full Silver,Open Silver,Pre Gold]
+                    eligible: [Intermediate Gold,Full Gold,Open Gold]
                     events:
                         Latin: [[Samba,Cha Cha,Rumba,Paso Doble,Jive]]
                         Standard: [[Waltz,Tango,Viennese Waltz,Foxtrot,Quickstep]]

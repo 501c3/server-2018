@@ -14,10 +14,14 @@
 namespace App\Tests\Doctrine\Iface;
 
 
+use App\Entity\Competition\Iface;
+use App\Entity\Competition\Model;
+use App\Entity\Models\Value;
 use App\Entity\Sales\Client\Participant;
 use App\Exceptions\GeneralException;
 use App\Exceptions\ParticipantCheckException;
 use App\Repository\Competition\CompetitionRepository;
+use App\Repository\Competition\IfaceRepository;
 use App\Repository\Competition\ModelRepository;
 use App\Repository\Models\ValueRepository;
 
@@ -25,20 +29,31 @@ class ParticipantPoolGenerator extends BaseParser
 {
 
     /*
-     * $participants[genre][proficiency][age][type][sex]=Classify;
+     * $participants[genre][proficiency][age][tpe][sex]=Participant;
      */
     private $participants = [];
 
+    private $mappings;
+
     private $domainValueHash ;
+
+    private $valueById;
+    /**
+     * @var IfaceRepository
+     */
+    private $ifaceRepository;
 
     public function __construct(CompetitionRepository $competitionRepository,
                                 ModelRepository $modelRepository,
+                                IfaceRepository $ifaceRepository,
                                 ValueRepository $valueRepository)
     {
         parent::__construct( $competitionRepository,
                              $modelRepository,
                              $valueRepository );
         $this->domainValueHash = $valueRepository->fetchDomainValueHash();
+        $this->valueById = $valueRepository->fetchAllValuesById();
+        $this->ifaceRepository = $ifaceRepository;
     }
 
     /**
@@ -55,8 +70,11 @@ class ParticipantPoolGenerator extends BaseParser
         }
         list($competitionName, $competitionNamePosition, $competitionKey, $competitionKeyPosition)
             = $this->current($r['data'],$r['position']);
-        $this->fetchCompetition($competitionName, $competitionNamePosition,
-                                $competitionKey, $competitionKeyPosition);
+        $competition=$this->fetchCompetition($competitionName, $competitionNamePosition,
+                                            $competitionKey, $competitionKeyPosition);
+        /** @var Iface $iface */
+        $iface=$this->ifaceRepository->findOneBy(['competition'=>$competition]);
+        $this->mappings = $iface->getMapping();
         list($modelNames,$modelNamesPosition,$modelsKey,$modelsKeyPosition)
             = $this->next($r['data'],$r['position']);
         $this->fetchModels($modelNames,$modelNamesPosition,$modelsKey,$modelsKeyPosition);
@@ -99,7 +117,7 @@ class ParticipantPoolGenerator extends BaseParser
        $componentPosition = [];
        list($dataPart,$positionPart,$dataKey,$positionKey) = $this->current($data,$position);
        while($dataPart) {
-           $acceptedKeys = ['genres','proficiencies','ages','sex','type'];
+           $acceptedKeys = ['genres','proficiencies','ages','sex', "type"];
            if(!in_array($dataKey,$acceptedKeys)){
                $expected = join('","',$acceptedKeys);
                throw new GeneralException($dataKey,$positionKey,"expected \"$expected\"",
@@ -158,6 +176,96 @@ class ParticipantPoolGenerator extends BaseParser
     }
 
     /**
+     * @param int $proficiencyId
+     * @return Value
+     * @throws \Exception
+     */
+
+    private function classifyTypeA(int $proficiencyId):Value
+    {
+        /** @var Value $value */
+        $value = $this->valueById[$proficiencyId];
+        if($value->getDomain()->getName()!='proficiency'){
+            throw new \Exception("$proficiencyId does not correspond to an proficiency.",9000);
+        }
+        switch($value->getName()){
+            case 'Social':
+            case 'Newcomer':
+            case 'Pre Bronze':
+            case 'Intermediate Bronze':
+            case 'Full Bronze':
+            case 'Open Bronze':
+            case 'Bronze':
+            case 'Pre Silver':
+            case 'Intermediate Silver':
+            case 'Full Silver':
+            case 'Open Silver':
+            case 'Silver':
+            case 'Pre Gold':
+            case 'Intermediate Gold':
+            case 'Full Gold':
+            case 'Open Gold':
+            case 'Gold':
+            case 'Gold Star 1':
+            case 'Novice':
+            case 'Gold Star 2':
+            case 'Pre Championship':
+            case 'Championship':
+                return $this->domainValueHash['type']['Amateur'];
+            case 'Rising Star-Pro':
+            case 'Professional':
+                return $this->domainValueHash['type']['Professional'];
+            default:
+                throw new \Exception("$proficiencyId was not found from available list of proficiencies.",9000);
+        }
+    }
+
+    /**
+     * @param int $proficiencyId
+     * @return Value
+     * @throws \Exception
+     */
+    private function classifyTypeB(int $proficiencyId):Value
+    {
+        /** @var Value $value */
+        $value = $this->valueById[$proficiencyId];
+        if($value->getDomain()->getName()!='proficiency'){
+            throw new \Exception( "$proficiencyId does not correspond to a proficiency.", 9000 );
+        }
+        switch($value->getName()){
+            case 'Social':
+            case 'Newcomer':
+            case 'Pre Bronze':
+            case 'Intermediate Bronze':
+            case 'Full Bronze':
+            case 'Open Bronze':
+            case 'Bronze':
+            case 'Pre Silver':
+            case 'Intermediate Silver':
+            case 'Full Silver':
+            case 'Open Silver':
+            case 'Silver':
+            case 'Pre Gold':
+            case 'Intermediate Gold':
+            case 'Full Gold':
+            case 'Open Gold':
+            case 'Gold':
+            case 'Gold Star 1':
+            case 'Novice':
+            case 'Gold Star 2':
+            case 'Pre Championship':
+            case 'Championship':
+                return $this->domainValueHash['type']['Student'];
+            case 'Rising Star-Pro':
+            case 'Professional':
+                return $this->domainValueHash['type']['Teacher'];
+            default:
+                throw new \Exception("$proficiencyId was not found from available list.",9000);
+        }
+    }
+
+
+    /**
      * @param $component
      * @param $componentPosition
      * @param string $genre
@@ -207,22 +315,34 @@ class ParticipantPoolGenerator extends BaseParser
                if(!isset($this->participants[$genre][$proficiency][$nage][$s])){
                    $this->participants[$genre][$proficiency][$nage][$s]=[];
                }
+               /** @var string $type */
                if(!isset($this->participants[$genre][$proficiency][$nage][$s][$type])){
                    /** @var Participant $participant*/
-                   $participant = new Participant();
+                   $participant = new Participant($this->valueById);
                    $first = $genre.'-'.$proficiency.'-'.$nage;
                    $last  = $s.'-'.$type;
-                   $typeValue = $this->getDomainValue('type',$type);
                    $proficiencyValue = $this->getDomainValue('proficiency',$proficiency);
                    $genreValue = $this->hasDomainValue('style',$genre)?
                                             $this->getDomainValue('style',$genre):
                                             $this->getDomainValue('substyle', $genre);
+                   /** @var int $proficiencyId */
+                   $proficiencyId = $proficiencyValue->getId();
                    $participant->setFirst($first)
                        ->setLast($last)
                        ->setSex($s)
                        ->setYears($nage)
-                       ->setType($typeValue->getId(),$typeValue)
-                       ->addGenreProficiency($genreValue->getId(),$proficiencyValue->getId(),$genreValue,$proficiencyValue);
+                       ->addGenreProficiency($genreValue->getId(),$proficiencyId);
+                   $models=$this->fetchModels();
+                   /** @var Model $model */
+                   foreach($models as $model){
+                       $participant->addModel($model->getId(),$model);
+                   }
+                   /** @var Value $typeA */
+                   $typeA=$this->classifyTypeA($proficiencyId);
+                   $participant->setTypeA($typeA->getId());
+                   /** @var Value $typeB */
+                   $typeB=$this->classifyTypeB($proficiencyId);
+                   $participant->setTypeB($typeB->getId());
                    $this->participants[$genre][$proficiency][$nage][$s][$type]=$participant;
                }
            }

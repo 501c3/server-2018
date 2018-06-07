@@ -578,6 +578,7 @@ class SequenceBuilder extends Builder
             $em->persist($event);
             $this->competitionEvents[$modelId][$event->getId()]=$event;
         }
+
         $em->flush();
     }
 
@@ -626,15 +627,24 @@ class SequenceBuilder extends Builder
     private function buildPlayer(CompetitionModel $model, array $data):Player
     {
         $preJSON = $this->valuesToPreJSON($data['value']);
+        $playerPreJSON = [];
+        foreach($preJSON as $domain=>$value) {
+            if(in_array($domain,['style','substyle'])) {
+                $playerPreJSON['genre'] = $value;
+            }
+            else {
+                $playerPreJSON[$domain]=$value;
+            }
+        }
         $this->buildPlayerLookup($model->getId(),$data['id'],$data['value']);
         $events = $data['event'];
         $player = new Player();
         $player->setModel($model)
                 ->setId($data['id'])
-                ->setValue($preJSON);
+                ->setValue($playerPreJSON);
         foreach($events as $event){
             $competitionEvent = $this->competitionEvents[$model->getId()][$event['id']];
-            $player->getEventModel()->add($competitionEvent);
+            $player->getEvent()->add($competitionEvent);
         }
         return $player;
     }

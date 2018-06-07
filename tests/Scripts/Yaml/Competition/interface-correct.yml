@@ -41,6 +41,28 @@ setups:
                 - Novice
                 - Pre Championship
                 - Championship
+            Partner:
+                - Newcomer
+                - Bronze
+                - Silver
+                - Gold
+                - Novice
+                - Pre Championship
+                - Championship
+                - Pre Bronze
+                - Intermediate Bronze
+                - Full Bronze
+                - Open Bronze
+                - Pre Silver
+                - Intermediate Silver
+                - Full Silver
+                - Open Silver
+                - Pre Gold
+                - Intermediate Gold
+                - Full Gold
+                - Open Gold
+                - Gold Star 1
+                - Gold Star 2
         combinations:
             Professional:
                 Professional: Professional
@@ -50,8 +72,10 @@ setups:
             Amateur:
                 Amateur: Amateur
                 Student: Amateur
+                Partner: Partner
             Student:
                 Student: Amateur
+                Partner: Partner
 mappings:
     genre: [American, Rhythm, Smooth, International, Latin, Standard]
     proficiency:
@@ -70,6 +94,24 @@ mappings:
             Open Gold: Novice
             Gold Star 1: Pre Championship
             Gold Star 2: Championship
+        Student-Partner:
+            Pre Bronze: Pre Bronze
+            Intermediate Bronze: Bronze
+            Full Bronze: Bronze
+            Open Bronze: Bronze
+            Pre Silver: Silver
+            Intermediate Silver: Silver
+            Full Silver: Silver
+            Open Silver: Silver
+            Pre Gold: Gold
+            Intermediate Gold: Gold
+            Full Gold: Gold
+            Open Gold: Gold
+        Amateur-Partner:
+            Newcomer: Pre Bronze
+            Bronze: Bronze
+            Silver: Silver
+            Gold: Gold
     age:
         Amateur:
             1-4: Baby

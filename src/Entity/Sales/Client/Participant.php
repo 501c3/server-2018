@@ -32,8 +32,11 @@ class Participant implements \Serializable
     /** @var string */
     private $sex;
 
-    /** @var Value */
-    private $type;
+    /** @var int|Value */
+    private $typeA;
+
+    /** @var int|Value */
+    private $typeB;
 
     /** @var string */
     private $status;
@@ -41,21 +44,26 @@ class Participant implements \Serializable
     /** @var ArrayCollection|null*/
     private $genreProficiency;
 
-    /** @var ArrayCollection|null */
-    private $models;
-
     /** @var array|null  */
-    private $domainValueHash;
+    private $valueById;
+
+    /**@var array*/
+    private $modelById;
+
+    private $model=[];
+
 
     /**
-     * Classify constructor.
-     * @param array|null $domainValueHash
+     * Participant constructor.
+     * @param array $valueById
      */
-    public function __construct(array $domainValueHash=null)
+    public function __construct(array $valueById, array $modelById)
     {
-        $this->domainValueHash = $domainValueHash;
+        $this->valueById = $valueById;
+        $this->modelById = $modelById;
         $this->genreProficiency = new ArrayCollection();
         $this->models = new ArrayCollection();
+
     }
 
     /**
@@ -92,6 +100,11 @@ class Participant implements \Serializable
     {
         $this->last = $last;
         return $this;
+    }
+
+    public function getName() : string
+    {
+        return $this->first.' '.$this->last;
     }
 
     /**
@@ -133,34 +146,38 @@ class Participant implements \Serializable
     /**
      * @return Value
      */
-    public function getType(): Value
+    public function getTypeA(): Value
     {
-        return $this->type;
-    }
-
-    private function buildException(int $foundId, Value $value)
-    {
-        $person = $this->first.' '.$this->last;
-        $name = $value->getName();
-        $actualId = $value->getId();
-        return new ParticipantCheckException("For $person found $foundId but $actualId corresponds to $name,",9000);
+        return intval($this->typeA)?$this->valueById[$this->typeA]:$this->typeA;
     }
 
     /**
-     * @param int $type
-     * @param Value|null $value
-     * @return Participant
-     * @throws ParticipantCheckException
+     * @return Value
      */
-    public function setType(int $type, Value $value=null): Participant
+    public function getTypeB(): Value
     {
-        if($value) {
-            if($value->getId()!=$type) {
-                throw $this->buildException($type,$value);
-            }
-            $this->type = $value;
-        }
-        $this->type=$type;
+        return intval($this->typeB)?$this->valueById[$this->typeB]:$this->typeB;
+    }
+
+
+
+    /**
+     * @param int|Value $type
+     * @return Participant
+     */
+    public function setTypeA($type): Participant
+    {
+        $this->typeA=$type;
+        return $this;
+    }
+
+    /**
+     * @param int|Value $type
+     * @return Participant
+     */
+    public function setTypeB($type): Participant
+    {
+        $this->typeB=$type;
         return $this;
     }
 
@@ -185,30 +202,20 @@ class Participant implements \Serializable
     /**
      * @param int $genre
      * @param int $proficiency
-     * @param Value|null $genreValue
-     * @param Value|null $proficiencyValue
      * @return Participant
-     * @throws ParticipantCheckException
+
      */
-    public function addGenreProficiency(int $genre,int $proficiency,
-                                        Value $genreValue=null, Value $proficiencyValue=null) : Participant
+    public function addGenreProficiency(int $genre,int $proficiency) : Participant
     {
         $this->genreProficiency[$genre] = $proficiency;
-        if($genreValue) {
-            if(!isset($this->genreProficiency[$genreValue->getId()])){
-                throw $this->buildException($genre,$genreValue);
-            }
-        }
-        if($proficiencyValue){
-            if($this->genreProficiency[$genreValue->getId()]!=$proficiencyValue->getId()){
-                throw $this->buildException($proficiency,$proficiencyValue);
-            }
-        }
         return $this;
     }
 
-    public function getGenreProficiency()
+    public function getGenreProficiency($genreId=null)
     {
+        if($genreId) {
+            return $this->genreProficiency[$genreId];
+        }
         return $this->genreProficiency;
     }
 
@@ -218,18 +225,9 @@ class Participant implements \Serializable
      * @return Participant
      * @throws ParticipantCheckException
      */
-    public function addModel(int $modelId, Model $model=null): Participant
+    public function addModel(int $modelId): Participant
     {
-        if($model) {
-            if($modelId != $model->getId()) {
-                $person = $this->first.' '.$this->last;
-                $name = $model->getName();
-                $actualId = $model->getId();
-                throw new ParticipantCheckException(
-                    "For $person found $modelId but $actualId corresponds to $name,",9000);
-            }
-        }
-        $this->models->set($modelId,$model);
+        array_push($this->model, $modelId);
         return $this;
     }
 

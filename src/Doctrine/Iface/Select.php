@@ -14,60 +14,57 @@
 namespace App\Doctrine\Iface;
 
 
+use App\Entity\Competition\Competition;
 use App\Entity\Sales\Client\Participant;
-use App\Repository\Competition\CompetitionRepository;
-use App\Repository\Competition\EventRepository;
-use App\Repository\Competition\IfaceRepository;
-use App\Repository\Competition\PlayerRepository;
+use App\Entity\Sales\Client\Player;
+use App\Entity\Sales\Client\Qualification;
 use App\Repository\Competition\ModelRepository;
 
 
 class Select
 {
-    /**
-     * @var CompetitionRepository
-     */
-    private $competitionRepository;
-    /**
-     * @var IfaceRepository
-     */
-    private $ifaceRepository;
-    /**
-     * @var ModelRepository
-     */
-    private $modelRepository;
-    /**
-     * @var PlayerRepository
-     */
-    private $playerRepository;
-    /**
-     * @var EventRepository
-     */
-    private $eventRepository;
 
-    public function __construct(
-        CompetitionRepository $competitionRepository,
-        IfaceRepository $ifaceRepository,
-        ModelRepository $modelRepository,
-        PlayerRepository $playerRepository,
-        EventRepository $eventRepository
-    )
+    /** @var Classify */
+    private $classify;
+
+    private $modelById;
+
+    public function __construct(ModelRepository $modelRepository)
     {
-        $this->competitionRepository = $competitionRepository;
-        $this->ifaceRepository = $ifaceRepository;
-        $this->modelRepository = $modelRepository;
-        $this->playerRepository = $playerRepository;
-        $this->eventRepository = $eventRepository;
+        $this->modelById = $modelRepository->getModelById();
     }
 
-    public function couple(Participant $p1, Participant $p2) : array
+
+
+    public function setClassify(Classify $classify)
     {
-        return [];
+        $this->classify=$classify;
+        return $this;
     }
 
-    public function individual(Participant $p) : array
+    public function setCompetition(Competition $competition):Select
     {
-        return [];
+        $this->classify->setCompetition($competition);
+        return $this;
+    }
+
+
+
+
+    public function couple(Participant $p1, Participant $p2) : Player
+    {
+        /** @var Player $player */
+        $player=$this->classify->couple($p1,$p2);
+        /** @var Qualification $qualification */
+        foreach($player->getAllQualifications() as $qualification){
+            $description=$qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_ID);
+
+        }
+    }
+
+    public function solo(Participant $p) : array
+    {
+        $player=$this->classify->solo($p);
     }
 
 }

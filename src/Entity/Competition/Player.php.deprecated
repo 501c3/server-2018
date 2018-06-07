@@ -24,7 +24,7 @@ class Player
     private $id;
 
     /**
-     * @var array
+     * @var string
      *
      * @ORM\Column(name="value", type="json", nullable=false)
      */
@@ -33,7 +33,9 @@ class Player
     /**
      * @var Model
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Competition\Model")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="NONE")
+     * @ORM\OneToOne(targetEntity="App\Entity\Competition\Model")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="model_id", referencedColumnName="id")
      * })
@@ -43,8 +45,26 @@ class Player
     /**
      * @var Collection
      *
-     * @ORM\ManyToMany(targetEntity="App\Entity\Competition\Event", inversedBy="player")
-     * @ORM\JoinTable(name="player_has_event1",
+     * @ORM\ManyToMany(targetEntity="App\Entity\Competition\Event", inversedBy="playerModel")
+     * @ORM\JoinTable(name="player_has_event",
+     *   joinColumns={
+     *     @ORM\JoinColumn(name="player_model_id", referencedColumnName="model_id"),
+     *     @ORM\JoinColumn(name="player_id", referencedColumnName="id")
+     *   },
+     *   inverseJoinColumns={
+     *     @ORM\JoinColumn(name="event_model_id", referencedColumnName="model_id"),
+     *     @ORM\JoinColumn(name="event_id", referencedColumnName="id")
+     *   }
+     * )
+     */
+   private $eventModel;
+
+
+    /**
+     * @var Collection
+     *
+     * @ORM\ManyToMany(targetEntity="App\Entity\Competition\Event", inversedBy="playerModel")
+     * @ORM\JoinTable(name="player_has_event",
      *   joinColumns={
      *     @ORM\JoinColumn(name="player_id", referencedColumnName="id")
      *   },
@@ -53,14 +73,15 @@ class Player
      *   }
      * )
      */
-    private $event;
+
+
 
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->event = new ArrayCollection();
+        $this->events = new ArrayCollection();
     }
 
     /**
@@ -82,7 +103,7 @@ class Player
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getValue(): array
     {
@@ -90,10 +111,10 @@ class Player
     }
 
     /**
-     * @param array $value
+     * @param  $value
      * @return Player
      */
-    public function setValue(array $value): Player
+    public function setValue($value): Player
     {
         $this->value = $value;
         return $this;
@@ -120,18 +141,18 @@ class Player
     /**
      * @return Collection
      */
-    public function getEvent(): Collection
+    public function getEventModel(): Collection
     {
-        return $this->event;
+        return $this->eventModel;
     }
 
     /**
-     * @param Collection $event
+     * @param Collection $events
      * @return Player
      */
-    public function setEvent(Collection $event): Player
+    public function setEventModel(Collection $events): Player
     {
-        $this->event = $event;
+        $this->eventModel = $events;
         return $this;
     }
 

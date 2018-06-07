@@ -43,7 +43,7 @@ class Subevent
     private $eventId;
 
     /**
-     * @var string
+     * @var array
      *
      * @ORM\Column(name="value", type="json", nullable=false)
      */
@@ -162,7 +162,7 @@ class Subevent
      */
     public function getValue(): array
     {
-        return json_decode($this->value);
+        return $this->value;
     }
 
     /**
@@ -171,7 +171,7 @@ class Subevent
      */
     public function setValue($value): Subevent
     {
-        $this->value = json_encode($value);
+        $this->value = $value;
         return $this;
     }
 
