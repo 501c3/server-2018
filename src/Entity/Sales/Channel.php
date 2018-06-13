@@ -57,16 +57,16 @@ class Channel
     private $createdAt;
 
     /**
-     * @var json|null
+     * @var array
      *
-     * @ORM\Column(name="heading", type="json", nullable=true)
+     * @ORM\Column(name="heading", type="json", nullable=false)
      */
     private $heading;
 
     /**
      * @var string|null
      *
-     * @ORM\Column(name="logo", type="blob", length=65535, nullable=true)
+     * @ORM\Column(name="logo", type="blob", length=65535, nullable=false)
      */
     private $logo;
 
@@ -176,7 +176,7 @@ class Channel
     }
 
     /**
-     * @return json|null
+     * @return array
      */
     public function getHeading()
     {
@@ -184,10 +184,10 @@ class Channel
     }
 
     /**
-     * @param json|null $heading
+     * @param array $heading
      * @return Channel
      */
-    public function setHeading(string $heading): Channel
+    public function setHeading(array $heading): Channel
     {
         $this->heading = $heading;
         return $this;
@@ -228,6 +228,4 @@ class Channel
         $this->updatedAt = $updatedAt;
         return $this;
     }
-
-
 }

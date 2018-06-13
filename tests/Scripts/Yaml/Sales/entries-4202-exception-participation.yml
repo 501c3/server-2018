@@ -1,0 +1,20 @@
+comment:
+  - EntriesAssessExceptionCode::PARTICIPATION = 4102
+  - not participation at row:6, col:1 expected participation.
+channel: Georgia DanceSport
+competition: Georgia DanceSport Competition and Medal Exams
+not participation:
+    -
+        model: ISTD Medal Exams:
+        contact: {first: Professional_Pre Bronze_Gold, last: Adult_Under 6-Senior 50_Solo}
+        genre: Rhythm
+        lead: {proficiency: Professional, age: Adult, type: Teacher}
+        follow:
+            proficiencies: [Pre Bronze, Bronze, Silver, Gold]
+            ages: [Under 6,Under 8,Under 12,Junior 12-16,Adult 16-50,Senior 50]
+        events:
+            style: {American: [Rhythm]}
+            type: Solo
+            tag: One Dance Tests
+            chosen: all
+            assessed: 0

@@ -17,13 +17,17 @@ namespace App\Tests\Doctrine\Iface;
 use App\Entity\Competition\Iface;
 use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
-use App\Entity\Sales\Client\Participant;
+use App\Entity\Sales\Iface\Participant;
+use App\Entity\Sales\Tag;
 use App\Exceptions\GeneralException;
 use App\Exceptions\ParticipantCheckException;
 use App\Repository\Competition\CompetitionRepository;
 use App\Repository\Competition\IfaceRepository;
 use App\Repository\Competition\ModelRepository;
 use App\Repository\Models\ValueRepository;
+use App\Repository\Sales\FormRepository;
+use App\Repository\Sales\TagRepository;
+
 
 class ParticipantPoolGenerator extends BaseParser
 {
@@ -35,25 +39,36 @@ class ParticipantPoolGenerator extends BaseParser
 
     private $mappings;
 
-    private $domainValueHash ;
-
-    private $valueById;
     /**
      * @var IfaceRepository
      */
     private $ifaceRepository;
+    /**
+     * @var FormRepository
+     */
+    private $formRepository;
+
+
+    /** @var Tag */
+    private $participantTag;
+
 
     public function __construct(CompetitionRepository $competitionRepository,
                                 ModelRepository $modelRepository,
                                 IfaceRepository $ifaceRepository,
-                                ValueRepository $valueRepository)
+                                ValueRepository $valueRepository,
+                                FormRepository $formRepository,
+                                TagRepository $tagRepository)
     {
         parent::__construct( $competitionRepository,
                              $modelRepository,
                              $valueRepository );
-        $this->domainValueHash = $valueRepository->fetchDomainValueHash();
-        $this->valueById = $valueRepository->fetchAllValuesById();
+        //$this->domainValueHash = $valueRepository->fetchDomainValueHash();
+        //$this->valueById = $valueRepository->fetchAllValuesById();
         $this->ifaceRepository = $ifaceRepository;
+        $this->formRepository = $formRepository;
+        $this->participantTag = $tagRepository->fetch('participant');
+
     }
 
     /**
@@ -318,7 +333,10 @@ class ParticipantPoolGenerator extends BaseParser
                /** @var string $type */
                if(!isset($this->participants[$genre][$proficiency][$nage][$s][$type])){
                    /** @var Participant $participant*/
-                   $participant = new Participant($this->valueById);
+                   $participant = new Participant(  $this->valueById,
+                                                    $this->modelRepository->getModelById(),
+                                                    $this->formRepository,
+                                                    $this->participantTag);
                    $first = $genre.'-'.$proficiency.'-'.$nage;
                    $last  = $s.'-'.$type;
                    $proficiencyValue = $this->getDomainValue('proficiency',$proficiency);

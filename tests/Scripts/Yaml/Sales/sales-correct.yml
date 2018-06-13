@@ -1,5 +1,5 @@
 channel: Georgia DanceSport
-competition: Georgia DanceSport Competition
+competition: Georgia DanceSport Competition And Medal Exams
 logo: /home/mgarber/Dev2018/server/assets/images/dancers-icon.png
 venue: Ballroom Impact
 city: Sandy Springs
@@ -10,18 +10,20 @@ monitor:
     Steve Garber: 501c3.management@gmail.com
 inventory:
     participant:
-        Per Dance Child: {2018-06-01: 8.00, 2018-09-01: 10.00}
-        Per Dance Adult: {2018-06-01: 12.00, 2018-09-01: 15.00}
-        Maximum Child: {2018-06-01: 60.00, 2018-09-01: 80.00}
-        Maximum Adult: {2018-06-01: 90.00, 2018-09-01: 110.00}
+        Per Dance Child: {2018-07-01: 8.00, 2018-09-01: 10.00}
+        Per Dance Adult: {2018-07-01: 12.00, 2018-09-01: 15.00}
+        Exam Per Dance Child: {2018-07-01: 15.00, 2018-09-01: 20.00}
+        Exam Per Dance Adult: {2018-07-01: 20.00, 2018-09-01: 30.00}
+        Maximum Child: {2018-07-01: 60.00, 2018-09-01: 80.00}
+        Maximum Adult: {2018-07-01: 90.00, 2018-09-01: 110.00}
     extra:
-        Spectator Adult: {2018-06-01: 10.00}
-        Spectator Child: {2018-06-01: 7.00}
-        Printed Program: {2018-06-01: 7.00}
+        Spectator Adult: {2018-07-01: 15.00}
+        Spectator Child: {2018-07-01: 7.00}
+        Printed Program: {2018-07-01: 7.00}
     discount:
-        Early Bird: {2018-06-01: 0.30}
+        Early Bird: {2018-07-01: 0.20}
     penalty:
-        Late Competitor: {2018-09-01: 30.00}
+        Late Competitor: {2018-09-01: 45.00}
 processor:
     PayPal:
         test:
@@ -43,4 +45,4 @@ processor:
             service.EndPoint: https://api.paypal.com
             log.LogEnabled: true
             log.FileName : PayPal.log
-            log.LogLevel: FINE 
+            log.LogLevel: FINE

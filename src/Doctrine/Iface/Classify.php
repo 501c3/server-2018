@@ -12,38 +12,18 @@
  */
 
 namespace App\Doctrine\Iface;
-
-use App\Entity\Competition\Competition;
 use App\Entity\Competition\Iface;
 use App\Entity\Models\Value;
-use App\Entity\Sales\Client\ClientException;
-use App\Entity\Sales\Client\Participant;
-use App\Entity\Sales\Client\Player;
-use App\Entity\Sales\Client\Qualification;
-use App\Repository\Competition\CompetitionRepository;
-use App\Repository\Competition\IfaceRepository;
-use App\Repository\Competition\ModelRepository;
-use App\Repository\Models\ValueRepository;
+use App\Entity\Sales\Iface\Participant;
+use App\Entity\Sales\Iface\Player;
+use App\Entity\Sales\Iface\Qualification;
 
 
 class Classify
 {
-
-    /**
-     * @var CompetitionRepository
-     */
-    private $competitionRepository;
-    /**
-     * @var ModelRepository
-     */
-    private $modelRepository;
-
-    /**
-     * @var IfaceRepository
-     */
-    private $ifaceRepository;
-
     private $domainValueHash;
+
+    private $valueById;
 
     private $ageMappings;
 
@@ -88,29 +68,15 @@ class Classify
                           19=> [19=>'Adult']];
 
 
-    private $valueById;
 
     public function __construct(
-        CompetitionRepository $competitionRepository,
-        ModelRepository $modelRepository,
-        IfaceRepository $ifaceRepository,
-        ValueRepository $valueRepository
+        Iface $iface,
+        array $domainValueHash,
+        array $valueById
     )
     {
-        $this->competitionRepository = $competitionRepository;
-        $this->modelRepository = $modelRepository;
-        $this->ifaceRepository = $ifaceRepository;
-        $this->domainValueHash = $valueRepository->fetchDomainValueHash();
-        $this->valueById = $valueRepository->fetchAllValuesById();
-    }
-
-    /**
-     * @param Competition $competition
-     */
-    public function setCompetition(Competition $competition)
-    {
-        /** @var Iface $iface */
-        $iface = $this->ifaceRepository->findOneBy(['competition'=>$competition]);
+        $this->domainValueHash = $domainValueHash;
+        $this->valueById = $valueById;
         $mapping = $iface->getMapping();
         $this->ageMappings = $mapping['age'];
         $this->proficiencyMappings = $mapping['proficiency'];
@@ -353,20 +319,19 @@ class Classify
     /**
      * @param Participant $p1
      * @param Participant $p2
+     * @param Player|null $player
      * @return Player
      * @throws ClassifyException
-     * @throws ClientException
      */
-    public function couple(Participant $p1, Participant $p2) : Player
+    public function couple(Participant $p1, Participant $p2, Player $player) : Player
     {
         $genres = array_intersect(array_keys($p1->getGenreProficiency()->toArray()),
                                   array_keys($p1->getGenreProficiency()->toArray()));
         $typeValue = $this->coupleType($p1,$p2);
         $ageValue  = $this->coupleAge($p1,$p2,$typeValue);
-        $player = new Player();
         $player->addParticipant($p1);
         $player->addParticipant($p2);
-        foreach($genres as $genre) {
+        foreach($genres as $genre) {;
             /** @var Value $genreValue */
             $genreValue = $this->valueById[$genre];
             $genreName  = $genreValue->getName();
@@ -385,14 +350,13 @@ class Classify
 
     /**
      * @param Participant $p
+     * @param Player|null $player
      * @return Player
      * @throws ClassifyException
-     * @throws ClientException
      */
-    public function solo(Participant $p) : Player
+    public function solo(Participant $p, Player $player) : Player
     {
         $genres = array_keys($p->getGenreProficiency()->toArray());
-        $player = new Player();
         $player->addParticipant($p);
         $typeA = $p->getTypeA();
         if($typeA->getName()=='Professional'){

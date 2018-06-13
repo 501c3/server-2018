@@ -20,6 +20,25 @@ class TagRepository extends ServiceEntityRepository
         parent::__construct( $registry, Tag::class);
     }
 
+    /**
+     * @param string $tagName
+     * @return Tag|null|object
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function fetch(string $tagName){
+        $tag=$this->findOneBy(['name'=>$tagName]);
+        if(!$tag){
+            $tag = new Tag();
+            $tag->setName($tagName);
+            $em = $this->getEntityManager();
+            $em->persist($tag);
+            $em->flush();
+            return $tag;
+        }
+        return $tag;
+    }
+
     public function getEntityManager()
     {
         return parent::getEntityManager();

@@ -11,7 +11,7 @@
  * Time: 3:52 PM
  */
 
-namespace App\Entity\Sales\Client;
+namespace App\Entity\Sales\Iface;
 
 
 use App\Entity\Models\Value;

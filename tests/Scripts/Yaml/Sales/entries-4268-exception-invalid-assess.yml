@@ -1,0 +1,160 @@
+comment:
+  - EntriesAssesExceptionCode::INVALID_ASSESS = 4268
+  - Invalid Assess at row:20, col:21 is invalid.
+channel: Georgia DanceSport
+competition: Georgia DanceSport Competition and Medal Exams
+participation:
+    -
+        model: ISTD Medal Exams
+        contact: {first: Professional_Pre Bronze_Gold, last: Adult_Under 6-Senior 50_Solo}
+        genre: Rhythm
+        lead: {proficiency: Professional, age: Adult, type: Teacher}
+        follow:
+            proficiencies: [Pre Bronze, Bronze, Silver, Gold]
+            ages: [Under 6,Under 8,Under 12,Junior 12-16,Adult 16-50,Senior 50]
+        events:
+            style: American
+            type: Solo
+            tag: One Dance Tests
+            chosen: all
+            assess: Invalid Assess
+    -
+        model: ISTD Medal Exams
+        contact: {first: Pre Bronze_Pre Bronze:, last: Adult 16-50_Adult 16_50}
+        genre: Latin
+        lead: {proficiency: Pre Bronze, age: Adult 16-50, type: Student}
+        follow:
+            proficiencies: [Pre Bronze]
+            ages: [Adult 16-50]
+        events:
+            style: International
+            type: Couple
+            tag: Introductory Tests
+            chosen: one
+            assess: 0
+    -
+        model: ISTD Medal Exams
+        contact: {first: Bronze_Bronze, last: Senior 50_Senior 50}
+        genre: Smooth
+        lead: {proficiency: Bronze, age: Senior 50, type: Student}
+        follow:
+            proficiencies: [Bronze]
+            ages: [Senior 50]
+        events:
+            style: American
+            type: Couple
+            tag: Medal Series
+            chosen: one
+            assess: 0
+    -
+        model: ISTD Medal Exams
+        contact: {first: Silver_Silver, last: Junior 12-16_Junior 12-16}
+        genre: Standard
+        lead: {proficiency: Silver, age: Junior 12-16, type: Student}
+        follow:
+            proficiencies: [Silver]
+            ages: [Junior 12-16]
+        events:
+            style: International
+            type: Couple
+            tag: One Dance Tests
+            chosen: all
+            assess: 0
+    -
+        model: ISTD Medal Exams
+        contact: {first: Gold_Gold, last: Senior 50_Senior 50}
+        genre: Rhythm
+        lead: {proficiency: Gold, age: Senior 50, type: Student}
+        follow:
+            proficiencies: [Gold]
+            ages: [Senior 50]
+        events:
+            style: American
+            type: Couple
+            tag: Medal Series
+            chosen: all
+            assess: 0
+    -
+        model: Georgia DanceSport Amateur
+        contact: {first: Silver_Newcomer-Silver, last: Adult_Senior 3}
+        genre: Latin
+        lead: {proficiency: Silver, age: Adult, type: Student}
+        follow:
+            proficiencies: [Newcomer,Bronze,Silver]
+            ages: [Adult,Senior 1,Senior 2,Senior 3]
+        events:
+            style: International
+            type: Amateur
+            tag: Couple
+            chosen: One
+            assess: 0
+    -
+        model: Georgia DanceSport Amateur
+        contact: {first: Gold_Gold, last: Senior 5_Senior 5}
+        genre: Smooth
+        lead: {proficiency: Gold, age: Senior 5, type: Student}
+        follow:
+            proficiencies: [Senior 5]
+            ages: [Senior 5]
+        events:
+            style: {American: [Smooth]}
+            type: Amateur
+            tag: Couple
+            chosen: One
+            assess: 0
+    -
+        model: Georgia DanceSport Amateur
+        contact: {first: Pre Championship_Novice, last: Adult_Youth-Senior 2}
+        genre: Standard
+        lead: {proficiency: Pre Championship, age: Adult, type: Student}
+        follow:
+            proficiencies: [Pre Championship, Novice]
+            ages: [Youth, Adult, Senior 2]
+        events:
+            style: International
+            type: Amateur
+            tag: Couple
+            chosen: One
+            assess: 0
+    -
+        model: Georgia DanceSport Amateur
+        contact: {first: Championship_Pre Championship-Championship, last: Senior 3_Senior 3-Senior 5}
+        genre: Rhythm
+        lead: {proficiency: Championship, age: Senior 3, type: Student}
+        follow:
+            proficiencies: [Pre Championship,Championship]
+            ages: [Senior 3,Senior 4,Senior 5]
+        events:
+            style: American
+            type: Amateur
+            tag: Couple
+            chosen: One
+            assess: 0
+    -
+        model: Georgia DanceSport ProAm
+        contact: {first: Professional_Open Gold, last: Adult_Senior 2-Senior 5}
+        genre: Latin
+        lead: {proficiency: Professional, age: Adult, type: Teacher}
+        follow:
+            proficiencies: [Open Gold]
+            ages: [Senior 2,Senior 3,Senior 4,Senior 5]
+        events:
+            style: International
+            type: Teacher-Student
+            tag: Couple
+            chosen: One
+            assess: 0
+    -
+        model: Georgia DanceSport ProAm
+        contact: {first: Amateur, last: Adult}
+        genre: Standard
+        lead: {proficiency: Pre Championship, age: Adult, type: Teacher}
+        follow:
+            proficiencies: [Pre Bronze]
+            ages: [Baby,Juvenile,Preteen 1,Preteen 2]
+        events:
+            style: International
+            type: Teacher-Student
+            tag: Couple
+            chosen: One
+            assess: 0

@@ -192,6 +192,7 @@ class Value
     public function setEvent(Collection $event): Value
     {
         $this->event = $event;
+        return $this;
     }
 
     /**
@@ -208,6 +209,7 @@ class Value
     public function setModel(Collection $model): Value
     {
         $this->model = $model;
+        return $this;
     }
 
     /**
@@ -224,6 +226,7 @@ class Value
     public function setPlayer(Collection $player): Value
     {
         $this->player = $player;
+        return $this;
     }
 
     /**
@@ -240,6 +243,7 @@ class Value
     public function setSubevent(Collection $subevent): Value
     {
         $this->subevent = $subevent;
+        return $this;
     }
 
     public function __toString()

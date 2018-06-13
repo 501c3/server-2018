@@ -18,6 +18,7 @@ use App\Entity\Competition\Competition;
 use App\Entity\Competition\Iface;
 use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
+use App\Entity\Sales\Iface\Participant;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -87,6 +88,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "no competition" at row:4, col:1 expected "competition".
      * @expectedExceptionCode 6002
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
     public function test6002ExceptionCompetition()
     {
@@ -99,6 +103,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "Invalid Competition" at row:4, col:14 does not exist.
      * @expectedExceptionCode 6004
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
     public function test6004ExceptionInvalidCompetition()
     {
@@ -111,6 +118,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "no models" at row:5, col:1 expected "models".
      * @expectedExceptionCode 6006
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
     public function test6006ExceptionModels()
     {
@@ -124,6 +134,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "Invalid Model" at row:5, col:37 is invalid.
      * @expectedExceptionCode 6008
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
     public function test6008ExceptionInvalidModel()
     {
@@ -136,6 +149,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "not participant-pool" at row:6, col:1 expected "participant-pool".
      * @expectedExceptionCode 6010
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
     public function test6010ExceptionParticipantPool()
     {
@@ -148,6 +164,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "invalid key" at row:10, col:9 expected "genres","proficiencies","ages","sex","type".
      * @expectedExceptionCode 6100
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
     public function test6100ExceptionInvalidKey()
     {
@@ -161,6 +180,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "Invalid Genre" at row:8, col:25 is invalid.
      * @expectedExceptionCode 6102
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
     public function test6102ExceptionInvalidGenre()
     {
@@ -174,6 +196,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage  "1190" at row:16, col:15 invalid age range.
      * @expectedExceptionCode 6106
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
     public function test6104ExceptionInvalidRange()
     {
@@ -186,6 +211,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "11-3" at row:10, col:15 invalid age range.
      * @expectedExceptionCode 6106
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
     public function test6106ExceptionAgeRange()
     {
@@ -198,6 +226,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "L" at row:17, col:15 expected M and/or F.
      * @expectedExceptionCode 6108
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
      */
 
     public function test6108ExceptionInvalidSex()
@@ -211,6 +242,10 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "Invalid Type" at row:12, col:15 is invalid.
      * @expectedExceptionCode 6110
+     *
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
+
      */
     public function test6110ExceptionInvalidType()
     {
@@ -219,6 +254,10 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
         $this->participantPoolGenerator->parse($yamlText);
     }
 
+    /**
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\ParticipantCheckException
+     */
     public function testParticipantPoolGenerate()
     {
         $fileLocation = realpath( __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/participant-pool.yml' );
@@ -228,10 +267,16 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
             foreach($proficiencyList as $proficiency=>$ageList){
                 foreach($ageList as $age=>$sexList){
                     foreach($sexList as $sex=>$typeList){
+                        /**
+                         * @var string  $type
+                         * @var Participant $participant
+                         */
                         foreach($typeList as $type=>$participant){
+                            /** @var Value $genreValue */
                             $genreValue=isset(self::$domainValueHash['style'][$genre])?
                                 self::$domainValueHash['style'][$genre]:
                                 self::$domainValueHash['substyle'][$genre];
+                            /** @var Value $proficiencyValue */
                             $proficiencyValue = self::$domainValueHash['proficiency'][$proficiency];
                             $this->assertAttributeEquals($sex,'sex',$participant);
                             $this->assertAttributeEquals("$genre-$proficiency-$age",

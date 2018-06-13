@@ -3,6 +3,7 @@
 namespace App\Entity\Sales;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -64,7 +65,7 @@ class Form
     private $workarea;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var Collection
      *
      * @ORM\ManyToMany(targetEntity="App\Entity\Sales\Picture", mappedBy="form")
      */
@@ -77,5 +78,133 @@ class Form
     {
         $this->picture = new ArrayCollection();
     }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     * @return Form
+     */
+    public function setId(int $id): Form
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return json
+     */
+    public function getContent(): json
+    {
+        return $this->content;
+    }
+
+    /**
+     * @param json $content
+     * @return Form
+     */
+    public function setContent(json $content): Form
+    {
+        $this->content = $content;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    /**
+     * @param null|string $note
+     * @return Form
+     */
+    public function setNote(?string $note): Form
+    {
+        $this->note = $note;
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param \DateTime|null $updatedAt
+     * @return Form
+     */
+    public function setUpdatedAt(?\DateTime $updatedAt): Form
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    /**
+     * @return Tag
+     */
+    public function getTag(): Tag
+    {
+        return $this->tag;
+    }
+
+    /**
+     * @param Tag $tag
+     * @return Form
+     */
+    public function setTag(Tag $tag): Form
+    {
+        $this->tag = $tag;
+        return $this;
+    }
+
+    /**
+     * @return Workarea
+     */
+    public function getWorkarea(): Workarea
+    {
+        return $this->workarea;
+    }
+
+    /**
+     * @param Workarea $workarea
+     * @return Form
+     */
+    public function setWorkarea(Workarea $workarea): Form
+    {
+        $this->workarea = $workarea;
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getPicture(): Collection
+    {
+        return $this->picture;
+    }
+
+    /**
+     * @param Collection $picture
+     * @return Form
+     */
+    public function setPicture(Collection $picture): Form
+    {
+        $this->picture = $picture;
+        return $this;
+    }
+
+
 
 }

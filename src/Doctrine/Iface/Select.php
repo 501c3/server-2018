@@ -15,9 +15,9 @@ namespace App\Doctrine\Iface;
 
 
 use App\Entity\Competition\Competition;
-use App\Entity\Sales\Client\Participant;
-use App\Entity\Sales\Client\Player;
-use App\Entity\Sales\Client\Qualification;
+use App\Entity\Sales\Iface\Participant;
+use App\Entity\Sales\Iface\Player;
+use App\Entity\Sales\Iface\Qualification;
 use App\Repository\Competition\ModelRepository;
 
 
@@ -48,9 +48,6 @@ class Select
         return $this;
     }
 
-
-
-
     public function couple(Participant $p1, Participant $p2) : Player
     {
         /** @var Player $player */
@@ -58,7 +55,6 @@ class Select
         /** @var Qualification $qualification */
         foreach($player->getAllQualifications() as $qualification){
             $description=$qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_ID);
-
         }
     }
 

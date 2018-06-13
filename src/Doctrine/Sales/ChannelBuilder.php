@@ -319,11 +319,10 @@ class ChannelBuilder extends Builder
             throw new GeneralException($logoFile,$logoPos,"not found", SalesExceptionCode::LOGO);
        }
        $image='data:image/'.$imageFileType.';base64,'.$blob;
-       $headingJson=json_encode($heading, JSON_PRETTY_PRINT);
        $channel = new Channel();
        $channel->setName($channelName)
                 ->setSlug($this->slug($channelName))
-                ->setHeading($headingJson)
+                ->setHeading($heading)
                 ->setLogo($image)
                 ->setCreatedAt(new \DateTime('now'));
        $em=$this->channelRepository->getEntityManager();

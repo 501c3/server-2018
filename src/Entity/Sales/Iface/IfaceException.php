@@ -11,12 +11,12 @@
  * Time: 4:22 PM
  */
 
-namespace App\Entity\Sales\Client;
+namespace App\Entity\Sales\Iface;
 
 
 use Throwable;
 
-class ClientException extends \Exception
+class IfaceException extends \Exception
 {
     public function __construct(string $name , string $message, int $code = 0)
     {

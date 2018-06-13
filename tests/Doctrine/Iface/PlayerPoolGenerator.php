@@ -25,13 +25,13 @@ class PlayerPoolGenerator extends BaseParser
 
     private $models;
 
-    private $domainValueHash;
-
     private $participantPool;
 
     private $coupling = [];
 
     private $solos = [];
+
+
 
     public function __construct(
         CompetitionRepository $competitionRepository,
@@ -42,7 +42,7 @@ class PlayerPoolGenerator extends BaseParser
         parent::__construct($competitionRepository,
                             $modelRepository,
                             $valueRepository);
-        $this->domainValueHash=$valueRepository->fetchDomainValueHash();
+        //$this->domainValueHash=$valueRepository->fetchDomainValueHash();
     }
 
     public function setParticipantPool(array $participantPool)

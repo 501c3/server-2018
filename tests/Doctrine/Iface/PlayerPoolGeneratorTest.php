@@ -19,9 +19,14 @@ use App\Entity\Competition\Competition;
 use App\Entity\Competition\Iface;
 use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
-use App\Entity\Sales\Client\Participant;
-use App\Entity\Sales\Client\Qualification;
+use App\Entity\Sales\Form;
+use App\Entity\Sales\Iface\Participant;
+use App\Entity\Sales\Iface\Player;
+use App\Entity\Sales\Iface\Qualification;
+use App\Entity\Sales\Tag;
 use App\Repository\Competition\CompetitionRepository;
+use App\Repository\Sales\FormRepository;
+use App\Repository\Sales\TagRepository;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Util\Json;
@@ -36,9 +41,19 @@ class PlayerPoolGeneratorTest extends KernelTestCase
     /** @var PlayerPoolGenerator */
     private  static $playerPool;
 
+
     /** @var Classify */
     private static $classify;
 
+    private static $domainValueHash;
+
+    private static $valueById;
+
+    /** @var FormRepository */
+    private static $formRepository;
+
+    /** @var TagRepository */
+    private static $tagRepository;
 
     /**
      * @param EntityManagerInterface $entityManager
@@ -68,22 +83,26 @@ class PlayerPoolGeneratorTest extends KernelTestCase
         $kernel = self::bootKernel();
         $entityManagerModels = $kernel->getContainer()->get( 'doctrine.orm.models_entity_manager' );
         $entityManagerCompetition = $kernel->getContainer()->get('doctrine.orm.competition_entity_manager');
+        $entityManagerSales = $kernel->getContainer()->get('doctrine.orm.sales_entity_manager');
         self::initializeDatabase($entityManagerModels,'models.sql');
         self::initializeDatabase($entityManagerCompetition,'competition-interface.sql');
+        self::initializeDatabase($entityManagerSales,'sales-channel.sql');
         /** @var CompetitionRepository $competitionRepository */
         $competitionRepository=$entityManagerCompetition->getRepository(Competition::class);
         $modelRepository=$entityManagerCompetition->getRepository(Model::class);
         $ifaceRepository=$entityManagerCompetition->getRepository(Iface::class);
         $valueRepository=$entityManagerModels->getRepository(Value::class);
-
+        $formRepository=$entityManagerSales->getRepository(Form::class);
+        $tagRepository = $entityManagerSales->getRepository(Tag::class);
+        self::$domainValueHash = $valueRepository->fetchDomainValueHash();
+        self::$valueById = $valueRepository->fetchAllValuesById();
         /** @var Competition $competition */
-        $competition = $competitionRepository->findOneBy(['name'=>'Georgia DanceSport Competition and Medal Exams']);
-
-
         $poolGenerator = new ParticipantPoolGenerator($competitionRepository,
-                                                    $modelRepository,
-                                                    $ifaceRepository,
-                                                    $valueRepository);
+                                                      $modelRepository,
+                                                      $ifaceRepository,
+                                                      $valueRepository,
+                                                      $formRepository,
+                                                      $tagRepository);
 
         $fileLocation = realpath( __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/participant-pool.yml' );
         $yamlText =  file_get_contents($fileLocation);
@@ -93,9 +112,16 @@ class PlayerPoolGeneratorTest extends KernelTestCase
                                                     $valueRepository);
         self::$playerPool->setParticipantPool(self::$participantPool);
 
+        $competition = $competitionRepository->findOneBy(['name'=>'Georgia DanceSport Competition and Medal Exams']);
 
-        self::$classify = new Classify($competitionRepository,$modelRepository,$ifaceRepository,$valueRepository);
-        self::$classify->setCompetition($competition);
+        self::$formRepository=$entityManagerSales->getRepository(Form::class);
+        self::$tagRepository=$entityManagerSales->getRepository(Tag::class);
+
+        /** @var Iface $iface */
+        $iface = $ifaceRepository->findOneBy(['competition'=>$competition]);
+        self::$classify = new Classify( $iface,
+                                        $valueRepository->fetchDomainValueHash(),
+                                        $valueRepository->fetchAllValuesById());
     }
 
 
@@ -379,9 +405,12 @@ class PlayerPoolGeneratorTest extends KernelTestCase
     /**
      * @throws \App\Doctrine\Iface\ClassifyException
      * @throws \App\Exceptions\GeneralException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function testCouplesSoloClassification()
     {
+        $playerTag = self::$tagRepository->fetch('player');
         $yamlText = file_get_contents(__DIR__ . '/../../Scripts/Yaml/Iface/PlayerPool/player-pool.yml' );
         $results=self::$playerPool->parse($yamlText);
         foreach($results['couples'] as $couple) {
@@ -390,7 +419,8 @@ class PlayerPoolGeneratorTest extends KernelTestCase
             /** @var Participant $follower */
             $follower = $couple['follower'];
             $expected = $couple['expected'];
-            $player = self::$classify->couple($leader, $follower);
+            $scaffold=new Player(self::$formRepository,$playerTag);
+            $player = self::$classify->couple($leader, $follower, $scaffold);
             /** @var Value $expectedGenre */
             $expectedGenre = $expected['genre'];
             /** @var Qualification $qualification */
@@ -409,7 +439,8 @@ class PlayerPoolGeneratorTest extends KernelTestCase
             $expected = $solo['expected'];
             /** @var Value $expectedValue */
             $expectedValue = $expected['genre'];
-            $player  = self::$classify->solo($participant);
+            $scaffold = new Player(self::$formRepository, $playerTag);
+            $player  = self::$classify->solo($participant, $scaffold);
             /** @var Qualification $playerQualification */
             $playerQualification=$player->getQualification($expectedValue->getName())
                                         ->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);

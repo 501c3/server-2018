@@ -121,6 +121,10 @@ class EventSelectTest extends KernelTestCase
         $conn->query( $sql );
     }
 
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\ORM\ORMException
+     */
     public static function setUpBeforeClass()
     {
         (new Dotenv())->load( __DIR__ . '/../../../.env' );
@@ -148,18 +152,21 @@ class EventSelectTest extends KernelTestCase
         $this->assertTrue(true,'Connection successful');
     }
 
-
     public function testPlayerLookupVerify()
     {
         foreach(self::$playerLookup as $modelId=>$playerLookup){
             foreach($playerLookup as $genreId=>$forGenre){
+                /** @var Value $genre */
                 $genre = self::$valueById[$genreId];
                 $genreName= $genre->getDomain()->getName();
                 foreach($forGenre as $proficiencyId=>$forProficiency){
+                    /** @var Value $proficiency */
                     $proficiency = self::$valueById[$proficiencyId];
                     foreach($forProficiency as $ageId=>$forAge){
+                        /** @var Value $age */
                         $age = self::$valueById[$ageId];
                         foreach($forAge as $typeId=>$playerId){
+                            /** @var Value $type */
                             $type=self::$valueById[$typeId];
                             /** @var Player $player */
                             $player = self::$playerRepository->findOneBy(['id'=>$playerId]);
@@ -184,14 +191,17 @@ class EventSelectTest extends KernelTestCase
         }
     }
 
-
+    /**
+     * @param Player $player
+     * @throws \Exception
+     */
     private function assertPlayerEventFieldsOK(Player $player)
     {
         $missing = function ($cls, $id, $field) {
             return sprintf( '%s:%d missing %s', $cls, $id, $field );
         };
-        $want = function ($expect, $found) {
-            return sprintf( 'Event:%d wanted %s, found %s', $expect, $found, $expect, $found );
+        $want = function ($id, $expect, $found) {
+            return sprintf( 'Event:%d wanted %s, found %s', $id, $expect, $found );
         };
         $p = $player->getValue();
         $playerId = $player->getId();
@@ -222,6 +232,7 @@ class EventSelectTest extends KernelTestCase
                     break;
                 case 'Fun Events':
                     $this->assertEquals( 'Fun Events', $e['style'], $want( $id, $p['genre'], 'Fun Events' ) );
+                    break;
                 case 'Novelty':
                     $this->assertEquals( 'Fun Events', $e['style'], $want( $id, $p['genre'], 'Fun Events' ) );
                     break;
@@ -233,16 +244,12 @@ class EventSelectTest extends KernelTestCase
     }
 
 
-
+    /**
+     * @param Player $player
+     * @throws \Exception
+     */
     private function assertPlayerEventProficienciesOK(Player $player)
     {
-        $missing = function ($cls, $id, $field) {
-            return sprintf( '%s:%d missing %s', $cls, $id, $field );
-        };
-        $want = function ($expect, $found) {
-            return sprintf( 'Event:%d wanted %s, found %s', $expect, $found, $expect, $found );
-        };
-
         $eventProficienciesFn = function(string $modelName,array $p){
             switch($modelName){
                 case 'ISTD Medal Exams':
@@ -251,6 +258,8 @@ class EventSelectTest extends KernelTestCase
                     return self::PLAYER_EVENT_AMATEUR[$p['proficiency']];
                 case 'Georgia DanceSport ProAm':
                     return self::PLAYER_EVENT_PROAM[$p['proficiency']];
+                default:
+                    return null;
             }
         };
 
@@ -274,35 +283,38 @@ class EventSelectTest extends KernelTestCase
         }
     }
 
-
-    public function assertPlayerEventAgesOK(Player $player)
+    /**
+     * @param Player $player
+     */
+    public function assertPlayerEventAgesOK(Player $player):void
     {
         $p = $player->getValue();
         $playerId = $player->getId();
         $model = $player->getModel();
         $events = self::$eventRepository->fetchEventsPreJSON( $model, $player);
-        foreach($events as $id=>$e){
-            foreach($events as $id=>$e) {
-                switch($model->getName()){
-                    case 'ISTD Medal Exams':
-                        $acceptedAges = self::PLAYER_EVENT_AGES_ISTD[$p['age']];
-                        $unacceptableAges = array_diff(array_keys($acceptedAges),$acceptedAges);
-                        $message = sprintf('Player:%d does not have permission to enter Event:%d',$playerId,$id);
-                        $this->assertTrue(in_array($e['age'],$acceptedAges),$message);
-                        $this->assertFalse(in_array($e['age'],$unacceptableAges,$message));
-                        break;
-                    case 'Georgia DanceSport Amateur':
-                    case 'Georgia DanceSport ProAm':
-                        $acceptedAges = self::PLAYER_EVENT_AGES_USA[$p['age']];
-                        $unacceptableAges = array_diff(array_keys($acceptedAges),$acceptedAges);
-                        $message = sprintf('Player:%d does not have permission to enter Event:%d',$playerId,$id);
-                        $this->assertTrue(in_array($e['age'],$acceptedAges),$message);
-                        $this->assertFalse(in_array($e['age'],$unacceptableAges,$message));
-                }
+        foreach($events as $id=>$e) {
+            switch($model->getName()){
+                case 'ISTD Medal Exams':
+                    $acceptedAges = self::PLAYER_EVENT_AGES_ISTD[$p['age']];
+                    $unacceptableAges = array_diff(array_keys($acceptedAges),$acceptedAges);
+                    $message = sprintf('Player:%d does not have permission to enter Event:%d',$playerId,$id);
+                    $this->assertTrue(in_array($e['age'],$acceptedAges),$message);
+                    $this->assertFalse(in_array($e['age'],$unacceptableAges,$message));
+                    break;
+                case 'Georgia DanceSport Amateur':
+                case 'Georgia DanceSport ProAm':
+                    $acceptedAges = self::PLAYER_EVENT_AGES_USA[$p['age']];
+                    $unacceptableAges = array_diff(array_keys($acceptedAges),$acceptedAges);
+                    $message = sprintf('Player:%d does not have permission to enter Event:%d',$playerId,$id);
+                    $this->assertTrue(in_array($e['age'],$acceptedAges),$message);
+                    $this->assertFalse(in_array($e['age'],$unacceptableAges,$message));
             }
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testPlayerEventVerify()
     {
         $players=self::$playerRepository->findAll();

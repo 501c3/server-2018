@@ -23,7 +23,6 @@ use App\Utils\YamlPosition;
 
 class BaseParser
 {
-    private $domainValueHash = [];
 
     private $lineCount;
 
@@ -45,6 +44,18 @@ class BaseParser
      */
     private $linesToReport;
 
+    protected $startTime;
+
+    protected $domainValueHash = [];
+
+    protected $valueById=[];
+
+    /**
+     * BaseParser constructor.
+     * @param CompetitionRepository $competitionRepository
+     * @param ModelRepository $modelRepository
+     * @param ValueRepository $valueRepository
+     */
     protected function __construct(
         CompetitionRepository $competitionRepository,
         ModelRepository $modelRepository,
@@ -62,17 +73,33 @@ class BaseParser
                 $this->domainValueHash[$domName]=[];
             }
             $this->domainValueHash[$domName][$value->getName()]=$value;
+            $this->valueById[$value->getId()]=$value;
         }
     }
 
+    /**
+     * @param string $domain
+     * @param string $value
+     * @return bool
+     */
     protected function hasDomainValue(string $domain, string $value) {
         return isset($this->domainValueHash[$domain][$value]);
     }
 
+    /**
+     * @param string $domain
+     * @param string $value
+     * @return mixed
+     */
     protected function getDomainValue(string $domain,string $value) {
         return $this->domainValueHash[$domain][$value];
     }
 
+    /**
+     * @param string $yaml
+     * @return array
+     * @throws \Exception
+     */
     protected function fetchPhpArray(string $yaml)
     {
         $r=YamlPosition::parse($yaml);
@@ -80,6 +107,11 @@ class BaseParser
         return $r;
     }
 
+    /**
+     * @param mixed ...$params
+     * @return null|object
+     * @throws GeneralException
+     */
     protected function fetchCompetition(...$params)
     {
         list($name, $namePosition, $key, $keyPosition) = $params;
@@ -96,6 +128,11 @@ class BaseParser
         return $competition;
     }
 
+    /**
+     * @param mixed ...$params
+     * @return array
+     * @throws GeneralException
+     */
     protected function fetchModels(...$params)
     {
         if(count($params)==0){
@@ -197,8 +234,4 @@ class BaseParser
         }
         return null;
     }
-
-
-
-
 }

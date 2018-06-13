@@ -11,15 +11,19 @@
  * Time: 3:42 PM
  */
 
-namespace App\Entity\Sales\Client;
+namespace App\Entity\Sales\Iface;
 
-use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
-use App\Exceptions\ParticipantCheckException;
+use App\Entity\Sales\Form;
+use App\Entity\Sales\Tag;
+use App\Repository\Sales\FormRepository;
+use App\Repository\Sales\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
-class Participant implements \Serializable
+class Participant
 {
+    private $id;
+
     /** @var string */
     private $first;
 
@@ -32,10 +36,16 @@ class Participant implements \Serializable
     /** @var string */
     private $sex;
 
-    /** @var int|Value */
+    /**
+     * @var int|Value
+     * Professional or Amateur
+     */
     private $typeA;
 
-    /** @var int|Value */
+    /**
+     * @var int|Value
+     * Teacher or Student
+     */
     private $typeB;
 
     /** @var string */
@@ -50,20 +60,30 @@ class Participant implements \Serializable
     /**@var array*/
     private $modelById;
 
-    private $model=[];
-
+    private $models=[];
+    /**
+     * @var FormRepository
+     */
+    private $formRepository;
+    /**
+     * @var Tag
+     */
+    private $tag;
 
     /**
      * Participant constructor.
      * @param array $valueById
+     * @param array $modelById
+     * @param FormRepository $formRepository
+     * @param Tag $tag
      */
-    public function __construct(array $valueById, array $modelById)
+    public function __construct(array $valueById,array $modelById,FormRepository $formRepository,Tag $tag)
     {
         $this->valueById = $valueById;
         $this->modelById = $modelById;
         $this->genreProficiency = new ArrayCollection();
-        $this->models = new ArrayCollection();
-
+        $this->formRepository = $formRepository;
+        $this->tag = $tag;
     }
 
     /**
@@ -221,49 +241,87 @@ class Participant implements \Serializable
 
     /**
      * @param int $modelId
-     * @param Model|null $model
      * @return Participant
-     * @throws ParticipantCheckException
      */
     public function addModel(int $modelId): Participant
     {
-        array_push($this->model, $modelId);
+        array_push($this->models, $modelId);
         return $this;
     }
 
-    /**
-     * String representation of object
-     * @link http://php.net/manual/en/serializable.serialize.php
-     * @return string the string representation of the object or null
-     * @since 5.1.0
-     */
-    public function serialize()
+    private function preCreate()
     {
-        $str=  json_encode(['first'=>$this->first,
-                            'last' => $this->last,
-                            'sex'=>$this->sex,
-                            'genreProficiency'=>$this->genreProficiency->toArray(),
-                            'models'=> $this->models->toArray()]);
-        return $str;
+        return ['first'=>$this->first,
+                'last' => $this->last,
+                'sex'=>$this->sex,
+                'typeA'=>$this->typeA,
+                'typeB'=>$this->typeB,
+                'genreProficiency'=>$this->genreProficiency->toArray(),
+                'models'=> $this->models->toArray()];
+    }
+
+    private function preUpdate()
+    {
+        return ['id'=>$this->id,
+                'first'=>$this->first,
+                'last' => $this->last,
+                'sex'=>$this->sex,
+                'typeA'=>$this->typeA,
+                'typeB'=>$this->typeB,
+                'genreProficiency'=>$this->genreProficiency->toArray(),
+                'models'=> $this->models->toArray()];
+    }
+
+
+    /**
+     * @param array $participant
+     * @return int
+     *
+     * input: participant data
+     * return: form.id
+     *
+     */
+    public function create(array $participant): int
+    {
+        $em=$this->formRepository->getEntityManager();
+        /** @var Form $form */
+        $form = new Form();
+        $form->setTag($this->tag)
+             ->setContent($participant);
+        $em->persist($form);
+        $em->flush();
+        return $form->getId();
     }
 
     /**
-     * Constructs the object
-     * @link http://php.net/manual/en/serializable.unserialize.php
-     * @param string $serialized <p>
-     * The string representation of the object.
-     * </p>
-     * @return void
-     * @since 5.1.0
+     * setup information
+     * @param int|null $id
+     * @return array
      */
-    public function unserialize($serialized)
+    public function read(int $id=null)
     {
-        $arr=json_decode($serialized);
-        $this->first=$arr['first'];
-        $this->last=$arr['last'];
-        $this->years=intval($arr['years']);
-        $this->sex=$arr['sex'];
-        $this->genreProficiency = new ArrayCollection($arr['genreProficiency']);
-        $this->models = new ArrayCollection($arr['models']);
+        return $id?$this->preUpdate():[];
     }
+
+    /**
+     * @param array $participant
+     * input: participant data to replace at id
+     * return form.id
+     */
+    public function update(array $participant): int
+    {
+        return 0;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function delete(int $id)
+    {
+        return 0;
+    }
+
+
 }
+
+

@@ -25,7 +25,7 @@ class ModelRepository extends ServiceEntityRepository
         parent::__construct( $registry, Model::class);
     }
 
-    public function getModelById()
+    public function getModelById() : array
     {
         $result = [];
         $models = $this->findAll();
@@ -33,6 +33,7 @@ class ModelRepository extends ServiceEntityRepository
         foreach ($models as $model) {
             $result[$model->getId()]=$model;
         }
+        return $result;
     }
 
     public function getEntityManager()

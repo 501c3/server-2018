@@ -14,8 +14,6 @@
 namespace App\Doctrine\Iface;
 
 
-use Throwable;
-
 class ClassifyException extends \Exception
 {
   const CODE = 8000 ;
