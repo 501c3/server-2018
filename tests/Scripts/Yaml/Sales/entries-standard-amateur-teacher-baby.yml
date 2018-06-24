@@ -1,0 +1,20 @@
+comment:
+  - EntriesAssesExceptionCode
+  -
+channel: Georgia DanceSport
+competition: Georgia DanceSport Competition and Medal Exams
+participation:
+    -
+        model: Georgia DanceSport ProAm
+        contact: {first: Amateur, last: Adult}
+        genre: Standard
+        lead: {proficiency: Pre Championship, age: Adult, type: Teacher}
+        follow:
+            proficiencies: [Pre Bronze]
+            ages: [Baby,Juvenile,Preteen 1,Preteen 2]
+        events:
+            style: International
+            type: Teacher-Student
+            tag: Couple
+            chosen: one
+            assess: 0

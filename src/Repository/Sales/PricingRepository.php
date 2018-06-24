@@ -2,9 +2,12 @@
 
 namespace App\Repository\Sales;
 
+use App\Entity\Sales\Channel;
+use App\Entity\Sales\Inventory;
 use App\Entity\Sales\Pricing;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\Query\Expr\OrderBy;
 
 
 /**
@@ -18,6 +21,36 @@ class PricingRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct( $registry, Pricing::class );
+    }
+
+
+
+    public function fetchPricing(Channel $channel,Inventory $inventory,\DateTime $dateTime)
+    {
+        $qb = $this->createQueryBuilder('pricing')
+                ->select('pricing','inventory','channel')
+                ->leftJoin('pricing.channel','channel')
+                ->leftJoin('pricing.inventory','inventory')
+                ->where('channel=:channel')
+                ->andWhere('pricing.startAt>=:startAt')
+                ->andWhere('inventory=:inventory')
+                ->orderBy('pricing.startAt','DESC');
+        $query = $qb->getQuery();
+        $result=$query->setParameter(':channel',$channel);
+        return $query->getSingleResult();
+    }
+
+
+    public function fetchAllPricing(Channel $channel, array $inventoryList, \DateTime $dateTime)
+    {
+        $result= [];
+        foreach($inventoryList as $inventory)
+        {
+            /** @var Pricing $price */
+            $price=$this->fetchPricing($channel,$inventory,$dateTime);
+            $result[$price->getInventory()->getId()] = [strval($price->getPrice())];
+        }
+        return $result;
     }
 
     public function getEntityManager()

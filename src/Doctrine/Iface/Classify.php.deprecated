@@ -14,9 +14,16 @@
 namespace App\Doctrine\Iface;
 use App\Entity\Competition\Iface;
 use App\Entity\Models\Value;
+use App\Entity\Sales\Form;
 use App\Entity\Sales\Iface\Participant;
 use App\Entity\Sales\Iface\Player;
 use App\Entity\Sales\Iface\Qualification;
+use App\Entity\Sales\Tag;
+use App\Entity\Sales\Workarea;
+use App\Repository\Competition\EventRepository;
+use App\Repository\Competition\PlayerRepository;
+use App\Repository\Sales\FormRepository;
+
 
 
 class Classify
@@ -66,13 +73,41 @@ class Classify
                           35=> [30=>'Senior 1',
                                 19=>'Adult'],
                           19=> [19=>'Adult']];
+    /**
+     * @var FormRepository
+     */
+    private $formRepository;
 
+    /**
+     * @var PlayerRepository
+     */
+    private $playerRepository;
+    /**
+     * @var EventRepository
+     */
+    private $eventRepository;
+    /**
+     * @var array
+     */
+    private $modelById;
+
+    /** @var Tag */
+    private $participantTag;
+
+    /** @var Tag  */
+    private $playerTag;
 
 
     public function __construct(
         Iface $iface,
         array $domainValueHash,
-        array $valueById
+        array $valueById,
+        array $modelById,
+        Tag $participantTag,
+        Tag $playerTag,
+        FormRepository $formRepository,
+        PlayerRepository $playerRepository,
+        EventRepository $eventRepository
     )
     {
         $this->domainValueHash = $domainValueHash;
@@ -80,6 +115,13 @@ class Classify
         $mapping = $iface->getMapping();
         $this->ageMappings = $mapping['age'];
         $this->proficiencyMappings = $mapping['proficiency'];
+
+        $this->formRepository = $formRepository;
+        $this->playerRepository = $playerRepository;
+        $this->eventRepository = $eventRepository;
+        $this->participantTag = $participantTag;
+        $this->playerTag = $playerTag;
+        $this->modelById = $modelById;
     }
 
 
@@ -117,8 +159,16 @@ class Classify
      * @param Participant $p2
      * @return Participant
      */
-    private function elder(Participant $p1, Participant $p2):Participant
+    private function elder(Participant $p1, Participant $p2):?Participant
     {
+
+        if($p1->getTypeA()->getName() == 'Professional' || $p2->getTypeA()->getName() == 'Professional') {
+            return null;
+        }
+        if($p1->getTypeB()->getName() == 'Teacher' || $p2->getTypeA()->getName() == 'Teacher') {
+            return null;
+        }
+        // Otherwise they are both students or both amateurs
         return $p1->getYears()>=$p2->getYears()?$p1:$p2;
     }
 
@@ -127,8 +177,14 @@ class Classify
      * @param Participant $p2
      * @return Participant
      */
-    private function younger(Participant $p1, Participant $p2):Participant
+    private function younger(Participant $p1, Participant $p2):?Participant
     {
+        if($p1->getTypeA()->getName() == 'Professional' || $p2->getTypeA()->getName() == 'Professional') {
+            return null;
+        }
+        if($p1->getTypeB()->getName() == 'Teacher' || $p2->getTypeA()->getName() == 'Teacher') {
+            return null;
+        }
         return $p1->getYears()<$p2->getYears()?$p1:$p2;
     }
 
@@ -189,83 +245,58 @@ class Classify
      */
     private function coupleAge(Participant $p1, Participant $p2, Value $type):?Value
     {
+        $mappings = $this->ageMappings['Amateur'];
+        $typeName = $type->getName();
+        if(is_null($p1->getYears()) && is_null($p2->getYears())){
+            return null;
+        } else if (is_null($p1->getYears())) {
+            $years = $p2->getYears();
+            $value = $this->valueById[$mappings[$years]];
+            return $value;
+        } else if (is_null($p2->getYears())) {
+            $years = $p1->getYears();
+            $value = $this->valueById[$mappings[$years]];
+            return $value;
+        }
         $elder = $this->elder($p1,$p2);
         $younger = $this->younger($p1,$p2);
-        $elderAge = $elder->getYears();
-        $youngerAge = $younger->getYears();
-        $mappings = $this->ageMappings[$type->getName()];
-        $typeName = $type->getName();
-        if($elderAge-$youngerAge>=40 && $youngerAge<19){
-            switch($typeName){
-                case 'Amateur':
+        $student = $this->student($p1,$p2);
+        $elderAge = $elder&&$younger?$elder->getYears():null;
+        $youngerAge = $elder&&$younger?$younger->getYears():null;
+        switch($typeName) {
+            case 'Amateur' :
+                if($elderAge<19 && $youngerAge<19) {
+                    $ageId = $mappings[$elderAge];
+                    /** @var Value $value */
+                    $value = $this->valueById[$ageId];
+                    if ($value->getDomain()->getName() != 'age') {
+                        throw new ClassifyException( "Age classification error." .
+                            "Cannot locate age value for id=$ageId", 9000 );
+                    }
+                    return $value;
+                }
+                if($elderAge>=$youngerAge+40 && $youngerAge<19){
                     return $this->domainValueHash['age']['Senior Youngster'];
-                case 'Teacher Student':
-                    /** @var Value $value */
-                    $value = $this->valueById[$mappings[$youngerAge]];
-                    if($value->getDomain()->getName()<>'age') {
-                        $valueId = $mappings[$youngerAge];
-                        throw new ClassifyException("Age classification error.",
-                            "$valueId does not correspond to an age value.",9000);
-                    }
-                    return $value;
-                default:
-                    throw new ClassifyException("Classification failure",
-                        "\"$typeName\" found.  Should be \"Amateur\" or \"Teacher Student\"",9000);
-            }
-        }
-        if($elderAge-$youngerAge>=20 && $youngerAge<19){
-            switch($typeName){
-                case 'Amateur':
+                }
+                if($elderAge>=$youngerAge+20 && $youngerAge<19){
                     return $this->domainValueHash['age']['Adult Youngster'];
-                case 'Teacher Student':
-                    /** @var Value $value */
-                    $value = $this->valueById[$mappings[$youngerAge]];
-                    if($value->getDomain()->getName()<>'age') {
-                        $valueId = $mappings[$youngerAge];
-                        throw new ClassifyException("Age classification error.",
-                            "$valueId does not correspond to an age value.",9000);
-                    }
+                }
+                if($elderAge>=19 && $youngerAge<19 ){
+                    $value = $this->domainValueHash['age']['Adult'];
                     return $value;
-                default:
-                    throw new ClassifyException("Age classification error.",
-                        "expected Amateur or Teacher Student.",9000);
+                }
 
-            }
-        }
-        if($elderAge<19 && $youngerAge<19) {
-            $ageId = $mappings[$elderAge];
-            /** @var Value $value */
-            $value = $this->valueById[$ageId];
-            if($value->getDomain()->getName()!='age'){
-                throw new ClassifyException("Age classification error.".
-                    "Cannot locate age value for id=$ageId",9000);
-            }
-            return $value;
-        }
+                return $this->ageAmateurAdultCouple($elder,$younger);
 
-        if($elderAge>=19 && $youngerAge<19 && $type->getName()=='Amateur'){
-            $value = $this->domainValueHash['age']['Adult'];
-            return $value;
-        }
+            case 'Teacher-Student':
+                return $this->valueById[$mappings[$student->getYears()]];
 
-        if($elderAge>=19 && $youngerAge>=19){
-            switch($typeName) {
-                case 'Amateur':
-                    return $this->ageAmateurAdultCouple($elder,$younger);
-                case 'Teacher Student':
-                    $student = $this->student($p1,$p2);
-                    $years = $student->getYears();
-                    $value = $this->valueById[$this->ageMappings[$years]];
-                    return $value;
-                case 'Professional':
-                    return null;
-                default:
-                    throw new ClassifyException("Type missing.",'  Expected "Amateur" or "Teacher Student"',9000);
-            }
+            case 'Professional':
+                return null;
+            default:
+                $message=sprintf('Failed to consider age for %s and %s',$p1->getName(),$p2->getName());
+                throw new ClassifyException("Age",$message, 9000);
         }
-        $message=sprintf('Failed to consider age for %s and %s',$p1->getName(),$p2->getName());
-        //var_dump($p1->getTypeA()->getName(), $p1->getTypeB()->getName(),$type->getName(),$type->getName());die;
-        throw new ClassifyException("Age",$message, 9000);
     }
 
     /**
@@ -319,16 +350,26 @@ class Classify
     /**
      * @param Participant $p1
      * @param Participant $p2
-     * @param Player|null $player
+     * @param Workarea|null $workarea
      * @return Player
      * @throws ClassifyException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function couple(Participant $p1, Participant $p2, Player $player) : Player
+    public function couple(Participant $p1, Participant $p2, Workarea $workarea=null) : Player
     {
-        $genres = array_intersect(array_keys($p1->getGenreProficiency()->toArray()),
-                                  array_keys($p1->getGenreProficiency()->toArray()));
+        $genres = array_intersect(array_keys($p1->getGenreProficiency()),
+                                  array_keys($p2->getGenreProficiency()));
         $typeValue = $this->coupleType($p1,$p2);
         $ageValue  = $this->coupleAge($p1,$p2,$typeValue);
+        $player = new Player($this->domainValueHash,
+                             $this->valueById,
+                             $this->modelById,
+                             $this->participantTag,
+                             $this->playerTag,
+                             $this->formRepository,
+                             $this->playerRepository,
+                             $this->eventRepository);
         $player->addParticipant($p1);
         $player->addParticipant($p2);
         foreach($genres as $genre) {;
@@ -345,16 +386,25 @@ class Classify
             $qualification->set([$genreValue,$proficiencyValue,$ageValue,$typeValue]);
             $player->addQualification($qualification);
         }
+        /** @var Form $form */
+        $form=$this->formRepository->fetchForm($p1->getId());
+        $workarea = $workarea?$form->getWorkarea():$workarea;
+        if($workarea) {
+            $player->createInDb($workarea);
+        }
         return $player;
     }
 
     /**
      * @param Participant $p
      * @param Player|null $player
+     * @param Workarea|null $workarea
      * @return Player
      * @throws ClassifyException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function solo(Participant $p, Player $player) : Player
+    public function solo(Participant $p, Player $player, Workarea $workarea=null) : Player
     {
         $genres = array_keys($p->getGenreProficiency()->toArray());
         $player->addParticipant($p);
@@ -395,6 +445,10 @@ class Classify
             $qualification = new Qualification();
             $qualification->set([$genreValue,$proficiencyValue,$ageValue,$typeValue]);
             $player->addQualification($qualification);
+        }
+
+        if($workarea) {
+            $player->createInDb($workarea);
         }
         return $player;
     }

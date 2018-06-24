@@ -1,0 +1,20 @@
+comment:
+  -
+  -
+channel: Georgia DanceSport
+competition: Georgia DanceSport Competition and Medal Exams
+participation:
+    -
+        model: ISTD Medal Exams
+        contact: {first: Pre Bronze, last: Under_6}
+        genre: Standard
+        lead: {proficiency: Pre Bronze, age: Under 6, type: Student}
+        follow:
+            proficiencies: [Pre Bronze]
+            ages: [Under 6]
+        events:
+            style: International
+            type: Couple
+            tag: One Dance Tests
+            chosen: all
+            assess: 0

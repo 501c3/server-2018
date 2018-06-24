@@ -129,15 +129,6 @@ INSERT INTO `settings` VALUES (1,1,6,'\"{\\\"mode\\\":\\\"sandbox\\\",\\\"acct1.
 /*!40000 ALTER TABLE `settings` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `tag`
---
-
-LOCK TABLES `tag` WRITE;
-/*!40000 ALTER TABLE `tag` DISABLE KEYS */;
-INSERT INTO `tag` VALUES (1,'monitor'),(2,'monitor'),(3,'monitor'),(4,'monitor'),(5,'monitor'),(6,'monitor'),(7,'monitor');
-/*!40000 ALTER TABLE `tag` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `workarea`

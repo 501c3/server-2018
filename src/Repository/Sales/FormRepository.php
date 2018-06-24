@@ -3,6 +3,8 @@
 namespace App\Repository\Sales;
 
 use App\Entity\Sales\Form;
+use App\Entity\Sales\Tag;
+use App\Entity\Sales\Workarea;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
@@ -17,6 +19,63 @@ class FormRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct( $registry, Form::class );
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function read($id) {
+        $qb=$this->createQueryBuilder('form');
+        $qb->select('form','workarea','channel')
+            ->leftJoin('form.workarea','workarea')
+            ->leftJoin('workarea.channel', 'channel')
+            ->where('form.id=:id');
+        $query=$qb->getQuery();
+        $query->setParameter(':id',$id);
+        return $query->getSingleResult();
+    }
+
+    public function fetchList(Workarea $workarea,$tag)
+    {
+        $qb=$this->createQueryBuilder('form');
+        $qb->select('form','workarea')
+            ->leftJoin('form.workarea','workarea')
+            ->leftJoin('form.tag','tag')
+            ->where('workarea=:workarea')
+            ->andWhere('tag=:tag');
+        $query=$qb->getQuery();
+        $query->setParameter(':workarea',$workarea)
+                ->setParameter(':tag',$tag);
+        return $query->getResult();
+    }
+
+    public function fetchForm($id)
+    {
+        $qb=$this->createQueryBuilder('form');
+        $qb->select('form','workarea')
+            ->leftJoin('form.workarea','workarea')
+            ->where('form.id=:id');
+        $query=$qb->getQuery();
+        $query->setParameter(':id',$id);
+        return $query->getSingleResult();
+    }
+
+    public function getCount(Tag $tag = null)
+    {
+        $qb = $this->createQueryBuilder('form');
+        $qb->select('COUNT(form)');
+        if($tag) {
+            $qb->where('form.tag=:tag');
+        }
+        $query=$qb->getQuery();
+        if($tag) {
+            $query->setParameter(':tag',$tag);
+        }
+        $count=$query->getSingleScalarResult();
+        return $count;
     }
 
     public function getEntityManager()

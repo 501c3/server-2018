@@ -20,6 +20,8 @@ class InventoryRepository extends ServiceEntityRepository
         parent::__construct( $registry, Inventory::class );
     }
 
+
+
     public function getEntityManager()
     {
         return parent::getEntityManager();

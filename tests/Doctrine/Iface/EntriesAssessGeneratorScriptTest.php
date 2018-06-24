@@ -13,9 +13,11 @@
 
 namespace App\Tests\Doctrine\Sales;
 
-
 use App\Entity\Competition\Competition;
+use App\Entity\Competition\Event;
+use App\Entity\Competition\Iface;
 use App\Entity\Competition\Model;
+use App\Entity\Competition\Player;
 use App\Entity\Models\Value;
 use App\Entity\Sales\Channel;
 use App\Entity\Sales\Contact;
@@ -23,20 +25,28 @@ use App\Entity\Sales\Form;
 use App\Entity\Sales\Tag;
 use App\Entity\Sales\Workarea;
 use App\Repository\Competition\CompetitionRepository;
+use App\Repository\Competition\EventRepository;
+use App\Repository\Competition\IfaceRepository;
 use App\Repository\Competition\ModelRepository;
+use App\Repository\Competition\PlayerRepository;
 use App\Repository\Models\ValueRepository;
 use App\Repository\Sales\ChannelRepository;
 use App\Repository\Sales\ContactRepository;
 use App\Repository\Sales\FormRepository;
+use App\Repository\Sales\Iface\ParticipantRepository;
+use App\Repository\Sales\Iface\PlayerRepository as IfacePlayerRepository;
 use App\Repository\Sales\TagRepository;
 use App\Repository\Sales\WorkareaRepository;
 use App\Tests\Doctrine\Iface\EntriesAssessGenerator;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Dotenv\Dotenv;
 
-class EntriesAssessExceptionTest extends KernelTestCase
+class EntriesAssessGeneratorScriptTest extends KernelTestCase
 {
     /** @var EntriesAssessGenerator */
     private static $entriesAssessGenerator;
@@ -44,7 +54,7 @@ class EntriesAssessExceptionTest extends KernelTestCase
     /**
      * @param EntityManagerInterface $entityManager
      * @param $dataFile
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     private static function initializeDatabase(EntityManagerInterface $entityManager, $dataFile)
     {
@@ -59,7 +69,9 @@ class EntriesAssessExceptionTest extends KernelTestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public static function setUpBeforeClass()
     {
@@ -87,6 +99,33 @@ class EntriesAssessExceptionTest extends KernelTestCase
         $modelRepository = $entityManagerCompetition->getRepository(Model::class);
         /** @var ValueRepository $valueRepository */
         $valueRepository = $entityManagerModels->getRepository(Value::class);
+        /** @var PlayerRepository $playerRepository */
+        $playerRepository = $entityManagerCompetition->getRepository(Player::class);
+        /** @var EventRepository $eventRepository */
+        $eventRepository = $entityManagerCompetition->getRepository(Event::class);
+       /** @var IfaceRepository $ifaceRepository */
+        $ifaceRepository = $entityManagerCompetition->getRepository(Iface::class);
+
+
+        /** @var Channel $channel */
+        $channel=$channelRepository->findOneBy(['name'=>'Georgia DanceSport']);
+
+        $ifaceParticipantRepository = new ParticipantRepository($valueRepository,
+                                                                $modelRepository,
+                                                                $formRepository,
+                                                                $tagRepository);
+
+
+        $ifacePlayerRepository  = new IfacePlayerRepository($valueRepository,
+                                                            $modelRepository,
+                                                            $tagRepository,
+                                                            $formRepository,
+                                                            $competitionRepository,
+                                                            $ifaceRepository,
+                                                            $playerRepository,
+                                                            $eventRepository);
+        $ifacePlayerRepository->initClassifier($channel);
+
         self::$entriesAssessGenerator
             = new EntriesAssessGenerator($channelRepository,
                                          $contactRepository,
@@ -95,8 +134,9 @@ class EntriesAssessExceptionTest extends KernelTestCase
                                          $tagRepository ,
                                          $competitionRepository,
                                          $modelRepository,
-                                         $valueRepository);
-
+                                         $valueRepository,
+                                         $ifaceParticipantRepository,
+                                         $ifacePlayerRepository);
     }
 
     public function testConnect()
@@ -111,8 +151,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4002ExceptionChannel()
     {
@@ -128,8 +168,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4004ExceptionInvalidChannel()
     {
@@ -145,8 +185,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4202ExceptionParticipation()
     {
@@ -163,8 +203,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4212ExceptionKeysContact()
     {
@@ -182,8 +222,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4212ExceptionKeysEvents()
     {
@@ -201,8 +241,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4212ExceptionKeysFollow()
     {
@@ -219,8 +259,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4212ExceptionKeysGenre()
     {
@@ -237,8 +277,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4212ExceptionKeysLead()
     {
@@ -255,8 +295,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4212ExceptionKeysModel()
     {
@@ -272,8 +312,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4216ExceptionFirst()
     {
@@ -289,8 +329,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4218ExceptionLast()
     {
@@ -306,8 +346,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4220ExceptionProficiency()
     {
@@ -324,8 +364,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4222ExceptionAge()
     {
@@ -342,8 +382,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4224ExceptionType()
     {
@@ -360,8 +400,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4226ExceptionInvalidProficiency()
     {
@@ -377,8 +417,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4226ExceptionInvalidProficiencyFollow()
     {
@@ -394,8 +434,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4228ExceptionInvalidAge()
     {
@@ -411,8 +451,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4228ExceptionInvalidAgeFollow()
     {
@@ -429,8 +469,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4230ExceptionInvalidType()
     {
@@ -446,8 +486,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4232ExceptionProficiencies()
     {
@@ -463,8 +503,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4234ExceptionAges()
     {
@@ -480,8 +520,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4240ExceptionInvalidModel()
     {
@@ -496,8 +536,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      * @expectedExceptionCode 4242
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4242ExceptionStyle(){
         $yamlText = file_get_contents(
@@ -512,8 +552,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4244ExceptionTypeEvent(){
         $yamlText = file_get_contents(
@@ -529,8 +569,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4246ExceptionTag()
     {
@@ -546,8 +586,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4248ExceptionChosen()
     {
@@ -563,8 +603,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4250ExceptionAssess()
     {
@@ -579,8 +619,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      * @expectedExceptionCode 4260
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4260ExceptionInvalidStyle()
     {
@@ -597,8 +637,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4262ExceptionInvalidTypeEvent()
     {
@@ -614,8 +654,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4264ExceptionInvalidTag()
     {
@@ -631,8 +671,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      *
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4266ExceptionInvalidChosen()
     {
@@ -647,8 +687,8 @@ class EntriesAssessExceptionTest extends KernelTestCase
      * @expectedExceptionCode 4268
      * @throws \App\Exceptions\GeneralException
      * @throws \App\Exceptions\MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function test4268ExceptionInvalidAssess()
     {
@@ -658,10 +698,12 @@ class EntriesAssessExceptionTest extends KernelTestCase
     }
 
 
-
-
-
-
+    /**
+     * @throws \App\Exceptions\GeneralException
+     * @throws \App\Exceptions\MissingException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
     public function testCorrect()
     {
         $yamlText = file_get_contents(

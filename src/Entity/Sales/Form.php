@@ -24,7 +24,7 @@ class Form
     private $id;
 
     /**
-     * @var json
+     * @var array
      *
      * @ORM\Column(name="content", type="json", nullable=false)
      */
@@ -98,18 +98,18 @@ class Form
     }
 
     /**
-     * @return json
+     * @return array
      */
-    public function getContent(): json
+    public function getContent(): array
     {
         return $this->content;
     }
 
     /**
-     * @param json $content
+     * @param array $content
      * @return Form
      */
-    public function setContent(json $content): Form
+    public function setContent(array $content): Form
     {
         $this->content = $content;
         return $this;

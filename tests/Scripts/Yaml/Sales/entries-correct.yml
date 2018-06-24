@@ -13,7 +13,7 @@ participation:
             proficiencies: [Pre Bronze, Bronze, Silver, Gold]
             ages: [Under 6,Under 8,Under 12,Junior 12-16,Adult 16-50,Senior 50]
         events:
-            style: American
+            style: International
             type: Solo
             tag: One Dance Tests
             chosen: all
@@ -86,7 +86,7 @@ participation:
             style: International
             type: Amateur
             tag: Couple
-            chosen: One
+            chosen: one
             assess: 0
     -
         model: Georgia DanceSport Amateur
@@ -97,10 +97,10 @@ participation:
             proficiencies: [Gold]
             ages: [Senior 5]
         events:
-            style: {American: [Smooth]}
+            style: American
             type: Amateur
             tag: Couple
-            chosen: One
+            chosen: one
             assess: 0
     -
         model: Georgia DanceSport Amateur
@@ -114,7 +114,7 @@ participation:
             style: International
             type: Amateur
             tag: Couple
-            chosen: One
+            chosen: one
             assess: 0
     -
         model: Georgia DanceSport Amateur
@@ -128,7 +128,7 @@ participation:
             style: American
             type: Amateur
             tag: Couple
-            chosen: One
+            chosen: one
             assess: 0
     -
         model: Georgia DanceSport ProAm
@@ -142,7 +142,7 @@ participation:
             style: International
             type: Teacher-Student
             tag: Couple
-            chosen: One
+            chosen: one
             assess: 0
     -
         model: Georgia DanceSport ProAm
@@ -156,5 +156,5 @@ participation:
             style: International
             type: Teacher-Student
             tag: Couple
-            chosen: One
+            chosen: one
             assess: 0

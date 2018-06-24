@@ -18,6 +18,26 @@ class ModelRepository extends ServiceEntityRepository
         parent::__construct( $registry, Model::class);
     }
 
+    public function fetchModelsById()
+    {
+        $models=$this->findAll();
+        $result=[];
+        foreach($models as $model) {
+            $result[$model->getId()]=$model;
+        }
+        return $result;
+    }
+
+    public function fetchModelsByName()
+    {
+        $models=$this->findAll();
+        $result=[];
+        foreach($models as $model) {
+            $result[$model->getName()]=$model;
+        }
+        return $result;
+    }
+
     public function getEntityManager()
     {
         return parent::getEntityManager();

@@ -11,7 +11,7 @@
  * Time: 11:54 AM
  */
 
-namespace App\Doctrine\Iface;
+namespace App\Exceptions;
 
 
 class ClassifyException extends \Exception

@@ -37,6 +37,12 @@ class ContactRepository extends ServiceEntityRepository
         return $query->getSingleResult();
     }
 
+    public function getCount() {
+        $qb = $this->createQueryBuilder('contact');
+        $count = $qb->select('COUNT(contact)')->getQuery()->getSingleScalarResult();
+        return $count;
+    }
+
     public function getEntityManager()
     {
         return parent::getEntityManager();

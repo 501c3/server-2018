@@ -13,15 +13,13 @@
 
 namespace App\Entity\Sales\Iface;
 
+use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
-use App\Entity\Sales\Form;
-use App\Entity\Sales\Tag;
-use App\Repository\Sales\FormRepository;
-use App\Repository\Sales\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 class Participant
 {
+    /** @var int */
     private $id;
 
     /** @var string */
@@ -37,13 +35,13 @@ class Participant
     private $sex;
 
     /**
-     * @var int|Value
+     * @var Value        var_dump($values);die;
      * Professional or Amateur
      */
     private $typeA;
 
     /**
-     * @var int|Value
+     * @var Value
      * Teacher or Student
      */
     private $typeB;
@@ -51,39 +49,32 @@ class Participant
     /** @var string */
     private $status;
 
-    /** @var ArrayCollection|null*/
+    private $genres;
+
     private $genreProficiency;
 
-    /** @var array|null  */
-    private $valueById;
+    private $models;
 
-    /**@var array*/
-    private $modelById;
-
-    private $models=[];
-    /**
-     * @var FormRepository
-     */
-    private $formRepository;
-    /**
-     * @var Tag
-     */
-    private $tag;
-
-    /**
-     * Participant constructor.
-     * @param array $valueById
-     * @param array $modelById
-     * @param FormRepository $formRepository
-     * @param Tag $tag
-     */
-    public function __construct(array $valueById,array $modelById,FormRepository $formRepository,Tag $tag)
+    public function __construct()
     {
-        $this->valueById = $valueById;
-        $this->modelById = $modelById;
+        $this->genres = new ArrayCollection();
         $this->genreProficiency = new ArrayCollection();
-        $this->formRepository = $formRepository;
-        $this->tag = $tag;
+        $this->models = new ArrayCollection();
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getId():?int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): Participant
+    {
+        $this->id = $id;
+        return $this;
     }
 
     /**
@@ -130,7 +121,7 @@ class Participant
     /**
      * @return int
      */
-    public function getYears(): int
+    public function getYears(): ?int
     {
         return $this->years;
     }
@@ -168,7 +159,7 @@ class Participant
      */
     public function getTypeA(): Value
     {
-        return intval($this->typeA)?$this->valueById[$this->typeA]:$this->typeA;
+        return $this->typeA;
     }
 
     /**
@@ -176,26 +167,26 @@ class Participant
      */
     public function getTypeB(): Value
     {
-        return intval($this->typeB)?$this->valueById[$this->typeB]:$this->typeB;
+        return $this->typeB;
     }
 
 
 
     /**
-     * @param int|Value $type
+     * @param Value $type
      * @return Participant
      */
-    public function setTypeA($type): Participant
+    public function setTypeA(Value $type): Participant
     {
         $this->typeA=$type;
         return $this;
     }
 
     /**
-     * @param int|Value $type
+     * @param Value $type
      * @return Participant
      */
-    public function setTypeB($type): Participant
+    public function setTypeB(Value $type): Participant
     {
         $this->typeB=$type;
         return $this;
@@ -220,108 +211,112 @@ class Participant
     }
 
     /**
-     * @param int $genre
-     * @param int $proficiency
+     * @param Value $genre
+     * @param Value $proficiency
      * @return Participant
 
      */
-    public function addGenreProficiency(int $genre,int $proficiency) : Participant
+    public function addGenreProficiency(Value $genre,Value $proficiency) : Participant
     {
-        $this->genreProficiency[$genre] = $proficiency;
+        $this->genres->set($genre->getName(),$genre);
+        $this->genreProficiency->set($genre->getName(),$proficiency);
         return $this;
     }
 
-    public function getGenreProficiency($genreId=null)
+    public function addModel(Model $model): Participant
     {
-        if($genreId) {
-            return $this->genreProficiency[$genreId];
+        $this->models->set($model->getName(),$model);
+        return $this;
+    }
+
+    public function fetchModelKeys():array
+    {
+        return $this->models->getKeys();
+    }
+
+    public function fetchModelIds():array
+    {
+        $values = $this->models->getValues();
+        return $values;
+    }
+
+    public function fetchGenreProficiency(Value $genre)
+    {
+        return $this->genreProficiency->get($genre->getName());
+    }
+
+    public function fetchGenreNames() {
+        return $this->genreProficiency->getKeys();
+    }
+
+    private function getGenreProficiency(bool $toClient)
+    {
+        $genreProficiency = [];
+        /** @var \ArrayIterator $iter */
+        $iterator=$this->genres->getIterator();
+        /** @var Value $genreValue */
+        while($genreValue=$iterator->current()) {
+            $genreName = $iterator->key();
+            /** @var Value $proficiencyValue */
+            $proficiencyValue = $this->genreProficiency->get($genreName);
+            $genreProficiency[$toClient?$genreValue->getId():$genreValue->getName()]
+                =$toClient?$proficiencyValue->getId():$proficiencyValue->getName();
+            $iterator->next();
         }
-        return $this->genreProficiency;
+        return $genreProficiency;
     }
 
-    /**
-     * @param int $modelId
-     * @return Participant
-     */
-    public function addModel(int $modelId): Participant
+
+    public function getModels()
     {
-        array_push($this->models, $modelId);
-        return $this;
+        return $this->models;
     }
 
-    private function preCreate()
+    public function getModelIds(bool $toArray)
     {
+        $models = [];
+        $iterator = $this->models->getIterator();
+        while($model=$iterator->current()) {
+            $modelName = $iterator->key();
+            /** @var Model $modelObject */
+            $modelObject = $this->models->get($modelName);
+            $models[]= $toArray?$modelObject->getId():$modelObject->getName();
+            $iterator->next();
+        }
+        return $models;
+    }
+
+
+    public function hasId()
+    {
+        return $this->id?true:false;
+    }
+
+    public function toArray()
+    {
+
         return ['first'=>$this->first,
-                'last' => $this->last,
+                'last'=>$this->last,
                 'sex'=>$this->sex,
-                'typeA'=>$this->typeA,
-                'typeB'=>$this->typeB,
-                'genreProficiency'=>$this->genreProficiency->toArray(),
-                'models'=> $this->models->toArray()];
+                'years'=>$this->years,
+                'typeA'=>$this->typeA->getId(),
+                'typeB'=>$this->typeB->getId(),
+                'models'=>$this->getModelIds(true),
+                'genreProficiency'=>$this->getGenreProficiency(true)];
+
     }
 
-    private function preUpdate()
-    {
+    public function describe() {
         return ['id'=>$this->id,
                 'first'=>$this->first,
-                'last' => $this->last,
+                'last'=>$this->last,
                 'sex'=>$this->sex,
-                'typeA'=>$this->typeA,
-                'typeB'=>$this->typeB,
-                'genreProficiency'=>$this->genreProficiency->toArray(),
-                'models'=> $this->models->toArray()];
+                'years'=>$this->years,
+                'typeA'=>$this->typeA->getName(),
+                'typeB'=>$this->typeB->getName(),
+                'models'=>$this->getModelIds(false),
+                'genreProficiency'=>$this->getGenreProficiency(false)];
     }
-
-
-    /**
-     * @param array $participant
-     * @return int
-     *
-     * input: participant data
-     * return: form.id
-     *
-     */
-    public function create(array $participant): int
-    {
-        $em=$this->formRepository->getEntityManager();
-        /** @var Form $form */
-        $form = new Form();
-        $form->setTag($this->tag)
-             ->setContent($participant);
-        $em->persist($form);
-        $em->flush();
-        return $form->getId();
-    }
-
-    /**
-     * setup information
-     * @param int|null $id
-     * @return array
-     */
-    public function read(int $id=null)
-    {
-        return $id?$this->preUpdate():[];
-    }
-
-    /**
-     * @param array $participant
-     * input: participant data to replace at id
-     * return form.id
-     */
-    public function update(array $participant): int
-    {
-        return 0;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function delete(int $id)
-    {
-        return 0;
-    }
-
-
 }
 
 

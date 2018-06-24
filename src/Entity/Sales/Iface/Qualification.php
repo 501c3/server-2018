@@ -59,6 +59,7 @@ class Qualification
             switch($identifierSpec){
                 case self::DOMAIN_NAME_TO_VALUE_ID:
                     $result[$key]=$value->getId();
+                    break;
                 case self::DOMAIN_NAME_TO_VALUE_NAME:
                     $result[$key]=$value->getName();
             }

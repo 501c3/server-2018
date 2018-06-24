@@ -15,11 +15,11 @@ namespace App\Tests\Doctrine\Iface;
 
 
 use App\Entity\Competition\Competition;
+use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
 use App\Entity\Sales\Channel;
 use App\Entity\Sales\Contact;
 use App\Entity\Sales\Iface\Participant;
-use App\Entity\Sales\Iface\Qualification;
 use App\Entity\Sales\Workarea;
 use App\Exceptions\GeneralException;
 use App\Exceptions\MissingException;
@@ -29,8 +29,12 @@ use App\Repository\Models\ValueRepository;
 use App\Repository\Sales\ChannelRepository;
 use App\Repository\Sales\ContactRepository;
 use App\Repository\Sales\FormRepository;
+use App\Repository\Sales\Iface\ParticipantRepository;
+use App\Repository\Sales\Iface\PlayerRepository;
 use App\Repository\Sales\TagRepository;
 use App\Repository\Sales\WorkareaRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 
 
 class EntriesAssessGenerator extends BaseParser
@@ -84,7 +88,25 @@ class EntriesAssessGenerator extends BaseParser
 
     private $contactCount=0;
 
-    private $contactParticipantPlayer =[];
+    private $participantCount = 0;
+
+    private $playerCount = 0;
+
+    private $participation = [];
+
+
+    /**
+     * @var Classify
+     */
+    private $classify;
+    /**
+     * @var PlayerRepository
+     */
+    private $playerRepository;
+    /**
+     * @var ParticipantRepository
+     */
+    private $participantRepository;
 
     /**
      * EntriesAssessGenerator constructor.
@@ -96,6 +118,10 @@ class EntriesAssessGenerator extends BaseParser
      * @param CompetitionRepository $competitionRepository
      * @param ModelRepository $modelRepository
      * @param ValueRepository $valueRepository
+     * @param ParticipantRepository $participantRepository
+     * @param PlayerRepository $playerRepository
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function __construct(
        ChannelRepository $channelRepository,
@@ -105,7 +131,9 @@ class EntriesAssessGenerator extends BaseParser
        TagRepository $tagRepository,
        CompetitionRepository $competitionRepository,
        ModelRepository $modelRepository,
-       ValueRepository $valueRepository)
+       ValueRepository $valueRepository,
+       ParticipantRepository $participantRepository,
+       PlayerRepository $playerRepository)
    {
        parent::__construct( $competitionRepository, $modelRepository, $valueRepository);
        $this->channelRepository = $channelRepository;
@@ -114,14 +142,21 @@ class EntriesAssessGenerator extends BaseParser
        $this->formRepository = $formRepository;
        $this->tagRepository = $tagRepository;
        $this->modelRepository=$modelRepository;
+       $this->playerRepository = $playerRepository;
+       /** @var Channel $channel */
+       $channel = $this->channelRepository->findOneBy(['name'=>'Georgia DanceSport']);
+       $this->playerRepository->initClassifier($channel);
+       $this->participantRepository = $participantRepository;
    }
 
     /**
      * @param string $yaml
      * @throws GeneralException
      * @throws MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Doctrine\Iface\ClassifyException
+     * @throws \Exception
      */
     public function parse(string $yaml)
     {
@@ -142,6 +177,26 @@ class EntriesAssessGenerator extends BaseParser
         $this->buildParticipation($data,$dataPosition,$key,$keyPosition);
     }
 
+
+    public function getParticipantCount()
+    {
+        return $this->participantCount;
+    }
+
+    public function getPlayerCount()
+    {
+        return $this->playerCount;
+    }
+
+    public function getContactCount()
+    {
+        return $this->contactCount;
+    }
+
+    public function getParticipation()
+    {
+        return $this->participation;
+    }
 
     /**
      * @param string $name
@@ -172,8 +227,9 @@ class EntriesAssessGenerator extends BaseParser
      * @param $keyPosition
      * @throws GeneralException
      * @throws MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
      */
     private function buildParticipation($data,$position,$key,$keyPosition)
     {
@@ -191,10 +247,12 @@ class EntriesAssessGenerator extends BaseParser
     /**
      * @param $data
      * @param $position
+     * @return void
      * @throws GeneralException
      * @throws MissingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
      */
     private function buildParticipationParts($data,$position)
     {
@@ -215,32 +273,60 @@ class EntriesAssessGenerator extends BaseParser
         reset($data);reset($positionData);
         $diff=array_diff($validKeys,array_keys($positionData));
         if(count($diff)){
-            $allKeys = array_keys($data);
             $locations = array_keys($position);
             throw new MissingException($diff,$locations,EntriesAssessExceptionCode::MISSING_PARTICIPATION_KEYS);
         }
         $result=$this->buildContactPlayers($data,$positionData);
+        return $result;
     }
 
     /**
      * @param $data
      * @param $position
      * @throws GeneralException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
      */
-    private function buildContactPlayers($data,$position) {
-
-        $participants = [];
+    private function buildContactPlayers($data,$position)
+    {
         $model = $this->chooseModel($data,$position);
         $contact = $this->buildContact($data,$position);
-        $leader = $this->buildLeader($model->getId(),$data,$position);
-        $followers=$this->buildFollowers($model->getId(),$data,$position);
+        $participation['contact'] = $contact;
+        $participation['participants'] = [];
+        $participation['players']=[];
+        $workarea = $contact->getWorkarea()->first();
+        $leader = $this->buildLeader($workarea, $model->getId(),$data,$position);
+        $following=$this->buildFollowers($workarea, $model->getId(),$data,$position);
+        array_push($participation['participants'],$leader);
+        foreach($following as $record) {
+            $follower = $record['follower'];
+            $selection = $record['selections'];
+            array_push($participation['participants'], $follower);
+            $player = $this->buildPlayer($leader,$follower);
+            //var_dump($player->describe());die('@306 in EntriesAssessGenerator');
+            $choices = $player->getEventChoices();
+            /** @var array $allKeys */
+            if($selection['chosen']=='all'){
+                //TODO: Choose all
+            } else if ($selection['chosen']=='one') {
+                $key = array_pop($allKeys);
+                $arr = [$key];
+                $player->updateInDb(['id'=>$player->getId(),
+                                     'selections'=>$arr]);
+            }
+            array_push($participation['players'],$player);
 
-        //TODO: pair followers with contact and add to the database
-
+        }
+        array_push($this->participation, $participation);
     }
 
+    /**
+     * @param $data
+     * @param $position
+     * @return null|object
+     * @throws GeneralException
+     */
     private function chooseModel($data,$position) {
         $modelName=$data['model'];
         $modelPosition=$position['model'];
@@ -257,8 +343,8 @@ class EntriesAssessGenerator extends BaseParser
      * @param array $position
      * @return Contact
      * @throws GeneralException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     private function buildContact(array $data,array $position)
     {
@@ -275,12 +361,7 @@ class EntriesAssessGenerator extends BaseParser
                 EntriesAssessExceptionCode::KEY_LAST);
         }
         $tag = $this->tagRepository->fetch('competition');
-        $workarea = new Workarea();
-        $workarea->setChannel($this->channel)
-                 ->setTag($tag);
-        $em=$this->workareaRepository->getEntityManager();
-        $em->persist($workarea);
-        $em->flush();
+        $workarea = $this->workareaRepository->fetch($this->channel,$tag);
         $this->contactCount++;
         $cnt = str_pad($this->contactCount,'0',STR_PAD_LEFT);
         $contact=new Contact();
@@ -301,14 +382,14 @@ class EntriesAssessGenerator extends BaseParser
     }
 
     /**
+     * @param Workarea $workarea
      * @param int $modelId
      * @param array $data
      * @param array $position
+     * @return Participant
      * @throws GeneralException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    private function buildLeader(int $modelId, array $data,array $position)
+    private function buildLeader(Workarea $workarea, int $modelId, array $data,array $position):Participant
     {
 
         list($proficiency,$proficiencyPosition,$key,$keyPosition)
@@ -339,69 +420,50 @@ class EntriesAssessGenerator extends BaseParser
             throw new GeneralException($type,$typePosition,"is invalid",
                                 EntriesAssessExceptionCode::INVALID_TYPE);
         }
-        $tag = $this->tagRepository->fetch('participant');
         $genre = $data['genre'];
-        //$qualification = $this->buildQualification($genre,$proficiency,$age,$type);
-        $leader = new Participant($this->valueById,
-                                  $this->modelRepository->getModelById(),
-                                  $this->formRepository,
-                                  $tag);
-        /** @var Value $genreValue */
-        $genreValue = isset($this->domainValueHash['style'][$genre])?
-                        $this->domainValueHash['style'][$genre]:
-                        $this->domainValueHash['substyle'][$genre];
-        /** @var Value $proficiencyValue */
-        $proficiencyValue = $this->domainValueHash['proficiency'][$proficiency];
-        $years = self::YEARS[$age];
-        $typeA = $this->domainValueHash['proficiency'][$proficiency]=='Professional'?
-                 $this->domainValueHash['type']['Professional']:
-                 $this->domainValueHash['type']['Amateur'];
-        $typeB = $this->domainValueHash['type'][$type];
-        $leader->setFirst($genre.'-'.$proficiency)
-                ->setLast($age.'-'.$type.'-'.'M')
-                ->setSex('M')
-                ->setTypeA($typeA->getId())
-                ->setTypeB($typeB->getId())
-                ->addModel($modelId);
-        switch($typeA->getName()){
-            case 'Amateur':
-                switch($typeB->getName()){
-                    case 'Student':
-                        $leader->setYears(self::YEARS[$age])
-                            ->addGenreProficiency($genreValue->getId(),$proficiencyValue->getId());
-                }
-                break;
-        }
-    }
 
-    /**
-     * @param string $genre
-     * @param string $proficiency
-     * @param string $age
-     * @param string $type
-     * @return Qualification
-     */
-    private function buildQualification(string $genre, string $proficiency, string $age, string $type) {
+        /** @var Value $typeA */
+        $typeA = $proficiency=='Professional'?
+            $this->domainValueHash['type']['Professional']:
+            $this->domainValueHash['type']['Amateur'];
+
         $genreValue = isset($this->domainValueHash['style'][$genre])?
             $this->domainValueHash['style'][$genre]:
             $this->domainValueHash['substyle'][$genre];
-        $proficiencyValue = $this->domainValueHash['proficiency'][$proficiency];
-        $ageValue = $this->domainValueHash['age'][$age];
-        $typeValue = $this->domainValueHash['type'][$type];
-        $qualification = new Qualification();
-        $qualification->set([$genreValue,$proficiencyValue,$ageValue,$typeValue]);
-        return $qualification;
+        $model=$this->modelRepository->findOneBy(['id'=>$modelId]);
+
+        $leader = new Participant();
+        $leader->setFirst($genre.'-'.$proficiency)
+                ->setLast($age.'-'.$type.'-'.'M')
+                ->setSex('M')
+                ->setTypeA($typeA)
+                ->setTypeB($this->domainValueHash['type'][$type])
+                ->addModel($model)
+                ->addGenreProficiency($genreValue,$this->domainValueHash['proficiency'][$proficiency]);
+
+        switch($typeA->getName()){
+            case 'Amateur':
+                $leader->setYears(self::YEARS[$age]);
+        }
+
+        $this->participantRepository->save($workarea,$leader);
+        $this->participantCount++;
+        return $leader;
     }
 
+
     /**
+     * @param Workarea $workarea
      * @param int $modelId
      * @param array $data
      * @param array $position
+     * @return array
      * @throws GeneralException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    private function buildFollowers(int $modelId, array $data,array $position)
+    private function buildFollowers(Workarea $workarea,
+                                    int $modelId,
+                                    array $data,
+                                    array $position):array
     {
         list($proficiencies,$proficienciesPosition,$key,$keyPosition)
             = $this->current($data['follow'],$position['follow']);
@@ -415,18 +477,21 @@ class EntriesAssessGenerator extends BaseParser
             throw new GeneralException($key,$keyPosition,'expected "ages"',
                         EntriesAssessExceptionCode::AGES);
         }
-        $this->buildFollowersIteration(
-                        $modelId,
-                        $data['genre'],
-                        $proficiencies,
-                        $proficienciesPosition,
-                        $ages,
-                        $agesPosition,
-                        $data['events'],
-                        $position['events']);
+        $followersAndSelections = $this->buildFollowersIteration(
+                                            $workarea,
+                                            $modelId,
+                                            $data['genre'],
+                                            $proficiencies,
+                                            $proficienciesPosition,
+                                            $ages,
+                                            $agesPosition,
+                                            $data['events'],
+                                            $position['events']);
+        return $followersAndSelections;
     }
 
     /**
+     * @param Workarea $workarea
      * @param int $modelId
      * @param string $genre
      * @param array $proficiencies
@@ -437,19 +502,17 @@ class EntriesAssessGenerator extends BaseParser
      * @param array $eventsPosition
      * @return array
      * @throws GeneralException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    private function buildFollowersIteration(int $modelId,
+    private function buildFollowersIteration(Workarea $workarea,
+                                             int $modelId,
                                              string $genre,
                                              array $proficiencies,
                                              array $proficienciesPosition,
                                              array $ages,
                                              array $agesPosition,
                                              array $events,
-                                             array $eventsPosition)
+                                             array $eventsPosition):array
     {
-
         $followers = [];
         list($proficiency,$proficiencyPosition,,)
             =$this->current($proficiencies,$proficienciesPosition);
@@ -464,7 +527,7 @@ class EntriesAssessGenerator extends BaseParser
                     throw new GeneralException($age,$agePosition,"is invalid",
                         EntriesAssessExceptionCode::INVALID_AGE);
                 }
-                $follower = $this->buildSingleFollower($modelId,$genre,$proficiency,$age);
+                $follower = $this->buildSingleFollower($workarea, $modelId,$genre,$proficiency,$age);
                 $selections = $this->eventSelection($events,$eventsPosition);
                 $followers[]=['follower'=>$follower,'selections'=>$selections];
                 list($age,$agePosition,,) = $this->next($ages,$agesPosition);
@@ -472,9 +535,16 @@ class EntriesAssessGenerator extends BaseParser
             list($proficiency,$proficiencyPosition,,)
                 = $this->next($proficiencies,$proficienciesPosition);
         }
+
         return $followers;
     }
 
+    /**
+     * @param $data
+     * @param $position
+     * @return mixed
+     * @throws GeneralException
+     */
     private function eventSelection($data, $position)
     {
         list($style,$stylePosition,$key,$keyPosition)=
@@ -483,10 +553,13 @@ class EntriesAssessGenerator extends BaseParser
             throw new GeneralException($key,$keyPosition,'expected "style"',
                         EntriesAssessExceptionCode::STYLE);
         }
+        //TODO: Delete
+        //var_dump(array_keys($this->domainValueHash['style']),$style);
         if(!isset($this->domainValueHash['style'][$style])) {
             throw new GeneralException($style,$stylePosition,'is invalid',
                              EntriesAssessExceptionCode::INVALID_STYLE);
         }
+
         list($type,$typePosition,$key,$keyPosition)
             =$this->next($data,$position);
         if($key!='type') {
@@ -500,8 +573,7 @@ class EntriesAssessGenerator extends BaseParser
         list($tag,$tagPosition,$key,$keyPosition)
             =$this->next($data,$position);
         if($key!='tag') {
-            throw new GeneralException($key,$keyPosition,'expected "tag"',
-                                EntriesAssessExceptionCode::TAG);
+            throw new GeneralException($key,$keyPosition,'expected "tag"', EntriesAssessExceptionCode::TAG);
         }
         if(!isset($this->domainValueHash['tag'][$tag])) {
             throw new GeneralException($tag,$tagPosition, "is invalid",
@@ -532,15 +604,14 @@ class EntriesAssessGenerator extends BaseParser
     }
 
     /**
+     * @param Workarea $workarea
      * @param int $modelId
      * @param string $genre
      * @param string $proficiency
      * @param string $age
      * @return Participant
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    private function buildSingleFollower(int $modelId,string $genre,string $proficiency,string $age)
+    private function buildSingleFollower(Workarea $workarea, int $modelId,string $genre,string $proficiency,string $age)
     {
         /** @var Value $genreValue */
         $genreValue = isset($this->domainValueHash['style'][$genre])?
@@ -552,19 +623,35 @@ class EntriesAssessGenerator extends BaseParser
         $typeAValue = $this->domainValueHash['type']['Amateur'];
         /** @var Value $typeBValue */
         $typeBValue = $this->domainValueHash['type']['Student'];
-        $follower = new Participant($this->valueById,
-                                    $this->modelRepository->getModelById(),
-                                    $this->formRepository,
-                                    $this->tagRepository->fetch('participant'));
-
+        /** @var Model $model */
+        $model = $this->modelRepository->find($modelId);
+        /** @var Participant $follower */
+        $follower = new Participant();
         $follower->setFirst($proficiency)
-                    ->setLast($age)
-                    ->setSex('F')
-                    ->setTypeA($typeAValue->getId())
-                    ->setTypeB($typeBValue->getId())
-                    ->setYears(self::YEARS[$age])
-                    ->addModel($modelId);
-        $follower->addGenreProficiency($genreValue->getId(),$proficiencyValue->getId());
+                ->setLast($age)
+                ->setSex('F')
+                ->setYears(self::YEARS[$age])
+                ->setTypeA($typeAValue)
+                ->setTypeB($typeBValue)
+                ->addModel($model)
+                ->addGenreProficiency($genreValue,$proficiencyValue);
+        $this->participantRepository->save($workarea,$follower);
+        $this->participantCount++;
         return $follower;
     }
+
+    /**
+     * @param Participant $p1
+     * @param Participant $p2
+     * @return \App\Entity\Sales\Iface\Player
+     * @throws \App\Exceptions\ClassifyException
+     */
+
+    private function buildPlayer(Participant $p1, Participant $p2)
+    {
+        $player=$this->playerRepository->fetchPlayer($p1,$p2);
+
+        $this->playerCount++;
+        return $player;
+     }
 }
