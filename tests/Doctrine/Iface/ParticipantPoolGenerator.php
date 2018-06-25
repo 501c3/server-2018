@@ -14,89 +14,75 @@
 namespace App\Tests\Doctrine\Iface;
 
 
-use App\Entity\Competition\Iface;
+
 use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
 use App\Entity\Sales\Iface\Participant;
-use App\Entity\Sales\Tag;
 use App\Exceptions\GeneralException;
-use App\Exceptions\ParticipantCheckException;
 use App\Repository\Competition\CompetitionRepository;
 use App\Repository\Competition\IfaceRepository;
 use App\Repository\Competition\ModelRepository;
 use App\Repository\Models\ValueRepository;
-use App\Repository\Sales\FormRepository;
-use App\Repository\Sales\TagRepository;
+
 
 
 class ParticipantPoolGenerator extends BaseParser
 {
 
-    /*
-     * $participants[genre][proficiency][age][tpe][sex]=Participant;
-     */
-    private $participants = [];
-
-    private $mappings;
 
     /**
      * @var IfaceRepository
      */
-    private $ifaceRepository;
-    /**
-     * @var FormRepository
-     */
-    private $formRepository;
+    protected $ifaceRepository;
 
+    protected $modelByName = [];
 
-    /** @var Tag */
-    private $participantTag;
-
+    protected $pools = ['medal' => [],
+        'amateur' => [],
+        'proam' => [],
+        'medal-amateur' => [],
+        'medal-proam' => [],
+        'amateur-proam' => [],
+        'medal-amateur-proam' => []];
 
     public function __construct(CompetitionRepository $competitionRepository,
                                 ModelRepository $modelRepository,
                                 IfaceRepository $ifaceRepository,
-                                ValueRepository $valueRepository,
-                                FormRepository $formRepository,
-                                TagRepository $tagRepository)
+                                ValueRepository $valueRepository)
     {
         parent::__construct( $competitionRepository,
-                             $modelRepository,
-                             $valueRepository );
-        //$this->domainValueHash = $valueRepository->fetchDomainValueHash();
-        //$this->valueById = $valueRepository->fetchAllValuesById();
+            $modelRepository,
+            $valueRepository );
         $this->ifaceRepository = $ifaceRepository;
-        $this->formRepository = $formRepository;
-        $this->participantTag = $tagRepository->fetch('participant');
-
+        $modelList = $modelRepository->findAll();
+        /** @var Model $model */
+        foreach ($modelList as $model) {
+            $this->modelByName[$model->getName()] = $model;
+        }
     }
 
     /**
      * @param string $yaml
      * @return array
      * @throws GeneralException
-     * @throws ParticipantCheckException
+     * @throws \Exception
      */
     public function parse(string $yaml)
     {
-        $r = $this->fetchPhpArray($yaml);
-        if(key($r['data'])=='comment'){
-            next($r['data']); next($r['position']);
+        $r = $this->fetchPhpArray( $yaml );
+        if (key( $r['data'] ) == 'comment') {
+            next( $r['data'] );
+            next( $r['position'] );
         }
-        list($competitionName, $competitionNamePosition, $competitionKey, $competitionKeyPosition)
-            = $this->current($r['data'],$r['position']);
-        $competition=$this->fetchCompetition($competitionName, $competitionNamePosition,
-                                            $competitionKey, $competitionKeyPosition);
-        /** @var Iface $iface */
-        $iface=$this->ifaceRepository->findOneBy(['competition'=>$competition]);
-        $this->mappings = $iface->getMapping();
-        list($modelNames,$modelNamesPosition,$modelsKey,$modelsKeyPosition)
-            = $this->next($r['data'],$r['position']);
-        $this->fetchModels($modelNames,$modelNamesPosition,$modelsKey,$modelsKeyPosition);
-        list($participantPool,$participantPoolPositions,$participantPoolKey,$participantPoolKeyPosition)
-            = $this->next($r['data'],$r['position']);
-        $this->buildParticipantPool($participantPool,$participantPoolPositions,$participantPoolKey, $participantPoolKeyPosition);
-        return $this->participants;
+        list( $competitionName, $competitionNamePosition, $competitionKey, $competitionKeyPosition )
+            = $this->current( $r['data'], $r['position'] );
+        $this->fetchCompetition( $competitionName, $competitionNamePosition,
+            $competitionKey, $competitionKeyPosition );
+
+        list( $participantPool, $participantPoolPositions, $participantPoolKey, $participantPoolKeyPosition )
+            = $this->next( $r['data'], $r['position'] );
+        $this->buildParticipantPool( $participantPool, $participantPoolPositions, $participantPoolKey, $participantPoolKeyPosition );
+        return $this->pools;
     }
 
     /**
@@ -105,18 +91,17 @@ class ParticipantPoolGenerator extends BaseParser
      * @param string $key
      * @param string $keyPosition
      * @throws GeneralException
-     * @throws ParticipantCheckException
      */
-    private function buildParticipantPool(array $data,array $positions,string $key,string $keyPosition)
+    private function buildParticipantPool(array $data, array $positions, string $key, string $keyPosition)
     {
-        if($key!='participant-pool') {
-            throw new GeneralException($key, $keyPosition, 'expected "participant-pool"',
-                ParticipantExceptionCode::PARTICIPANT_POOL);
+        if ($key != 'participant-pool') {
+            throw new GeneralException( $key, $keyPosition, 'expected "participant-pool"',
+                ParticipantExceptionCode::PARTICIPANT_POOL );
         }
-        list($batch,$batchPosition, , ) = $this->current($data,$positions);
-        while($batch) {
-            $this->buildParticipantBatch($batch,$batchPosition);
-            list($batch,$batchPosition, , ) = $this->next($data,$positions);
+        list( $batch, $batchPosition, , ) = $this->current( $data, $positions );
+        while ($batch) {
+            $this->buildParticipantBatch( $batch, $batchPosition );
+            list( $batch, $batchPosition, , ) = $this->next( $data, $positions );
         }
     }
 
@@ -124,246 +109,261 @@ class ParticipantPoolGenerator extends BaseParser
      * @param $data
      * @param $position
      * @throws GeneralException
-     * @throws ParticipantCheckException
      */
-    private function buildParticipantBatch($data,$position)
+    private function buildParticipantBatch($data, $position)
     {
-       $component = [];
-       $componentPosition = [];
-       list($dataPart,$positionPart,$dataKey,$positionKey) = $this->current($data,$position);
-       while($dataPart) {
-           $acceptedKeys = ['genres','proficiencies','ages','sex', "type"];
-           if(!in_array($dataKey,$acceptedKeys)){
-               $expected = join('","',$acceptedKeys);
-               throw new GeneralException($dataKey,$positionKey,"expected \"$expected\"",
-                   ParticipantExceptionCode::INVALID_KEY);
-           }
-           $component[$dataKey]=$dataPart;
-           $componentPosition[$dataKey]=$positionPart;
-           list($dataPart,$positionPart,$dataKey,$positionKey) = $this->next($data,$position);
-       }
-       $this->layerGenre($component,$componentPosition);
+        $component = [];
+        $componentPosition = [];
+        list( $dataPart, $positionPart, $dataKey, $positionKey ) = $this->current( $data, $position );
+        while ($dataPart) {
+            $acceptedKeys = ['models', 'genres', 'proficiencies', 'ages', 'sex', "typeA", "typeB"];
+            if (!in_array( $dataKey, $acceptedKeys )) {
+                $expected = join( '","', $acceptedKeys );
+                throw new GeneralException( $dataKey, $positionKey, "expected \"$expected\"",
+                    ParticipantExceptionCode::INVALID_KEY );
+            }
+            $component[$dataKey] = $dataPart;
+            $componentPosition[$dataKey] = $positionPart;
+            list( $dataPart, $positionPart, $dataKey, $positionKey ) = $this->next( $data, $position );
+        }
+        list( $poolName, $models ) = $this->selectPools( $component['models'], $componentPosition['models'] );
+        $this->layerTypeABSex( $poolName, $models, $component, $componentPosition );
+        //$this->layerGenre($poolName,$models,$component,$componentPosition);
     }
 
     /**
+     * @param $models
+     * @param $modelPositions
+     * @return array|null
+     * @throws GeneralException
+     */
+    private function selectPools($models, $modelPositions)
+    {
+        $collection = [];
+        list( $singleModel, $singleModelPosition, , ) = $this->current( $models, $modelPositions );
+        while ($singleModel) {
+            if (!isset( $this->modelByName[$singleModel] )) {
+                throw new GeneralException( $singleModel, $singleModelPosition, "invalid model",
+                    ParticipantExceptionCode::INVALID_MODEL );
+            }
+            $modelObj = $this->modelByName[$singleModel];
+            $collection[$singleModel] = $modelObj;
+            list( $singleModel, $singleModelPosition ) = $this->next( $models, $modelPositions );
+        }
+        if (isset( $collection["ISTD Medal Exams"] )
+            && isset( $collection["Georgia DanceSport Amateur"] )
+            && isset( $collection["Georgia DanceSport ProAm"] )) {
+            return ['medal-amateur-proam', $collection];
+        }
+        if (isset( $collection["ISTD Medal Exams"] )
+            && isset( $collection["Georgia DanceSport Amateur"] )) {
+            return ['medal-amateur', $collection];
+        }
+        if (isset( $collection["ISTD Medal Exams"] )
+            && isset( $collection["Georgia DanceSport ProAm"] )) {
+            return ['medal-proam', $collection];
+        }
+        if (isset( $collection["Georgia DanceSport Amateur"] )
+            && isset( $collection["Georgia DanceSport ProAm"] )) {
+            return ['amateur-proam', $collection];
+        }
+        if (isset( $collection["ISTD Medal Exams"] )) {
+            return ['medal', $collection];
+        }
+        if (isset( $collection["Georgia DanceSport Amateur"] )) {
+            return ['amateur', $collection];
+        }
+        if (isset( $collection['Georgia DanceSport ProAm'] )) {
+            return ['proam', $collection];
+        }
+        return null;
+    }
+
+//    private function highModel(array $collection) {
+//        if (isset($collection['Georgia DanceSport ProAm'])) {
+//            return $collection['Georgia DanceSport ProAm'];
+//        }
+//        if (isset($collection['Georgia DanceSport Amateur'])) {
+//            return $collection['Georgia DanceSport Amateur'];
+//        }
+//        if (isset($collection['ISTD Medal Exams'])) {
+//            return $collection['ISTD Medal Exams'];
+//        }
+//        return null;
+//    }
+
+
+    /**
+     * @param $poolName
+     * @param $models
      * @param $component
      * @param $componentPosition
      * @throws GeneralException
-     * @throws ParticipantCheckException
      */
-    private function layerGenre($component, $componentPosition)
+    private function layerTypeABSex($poolName, $models, $component, $componentPosition)
     {
-        $positionGenre = current($componentPosition['genres']);
-        foreach($component['genres'] as $genre) {
-            if(!$this->hasDomainValue('style',$genre) && !$this->hasDomainValue('substyle',$genre)){
-                throw new GeneralException($genre,$positionGenre, "is invalid",
-                    ParticipantExceptionCode::INVALID_GENRE);
+        $typeA = $component['typeA'];
+        $typeAPosition = $componentPosition['typeA'];
+        $typeB = $component['typeB'];
+        $typeBPosition = $componentPosition['typeB'];
+        if (!isset( $this->domainValueHash['type'][$typeA] )) {
+            throw new GeneralException( $typeA, $typeAPosition, "invalid type.",
+                ParticipantExceptionCode::INVALID_TYPE );
+        }
+        if (!isset( $this->domainValueHash['type'][$typeB] )) {
+            throw new GeneralException( $typeB, $typeBPosition, "invalid type.",
+                ParticipantExceptionCode::INVALID_TYPE );
+        }
+        if (!isset( $this->pools[$poolName][$typeA] )) {
+            $this->pools[$poolName][$typeA] = [];
+        }
+        if (!isset( $this->pools[$poolName][$typeA][$typeB] )) {
+            $this->pools[$poolName][$typeA][$typeB] = [];
+        }
+        foreach ($component['sex'] as $idx => $sex) {
+            if (!in_array( $sex, ['M', 'F'] )) {
+                throw new GeneralException( $component['sex'][$idx], $componentPosition['sex'][$idx],
+                    "expected 'M','F'", ParticipantExceptionCode::INVALID_SEX );
             }
-            if(!isset($this->participants[$genre])){
-                $this->participants[$genre]=[];
+            if (!isset( $this->pools[$poolName][$typeA][$typeB][$sex] )) {
+                $this->pools[$poolName][$typeA][$typeB][$sex] = [];
             }
-            $this->layerProficiency($component, $componentPosition, $genre);
-            $positionGenre = next($componentPosition['genres']);
+            $this->layerGenre( $poolName, $models,
+                $component, $componentPosition,
+                $typeA, $typeB, $sex );
+        }
+
+
+    }
+
+    /**
+     * @param string $poolName
+     * @param array $models
+     * @param array $component
+     * @param array $componentPosition
+     * @param string $typeA
+     * @param string $typeB
+     * @param string $sex
+     * @throws GeneralException
+     */
+    private function layerGenre(string $poolName, array $models,
+                                array $component, array $componentPosition,
+                                string $typeA, string $typeB, string $sex)
+    {
+        $positionGenre = current( $componentPosition['genres'] );
+        foreach ($component['genres'] as $genre) {
+            if (!$this->hasDomainValue( 'style', $genre ) && !$this->hasDomainValue( 'substyle', $genre )) {
+                throw new GeneralException( $genre, $positionGenre, "is invalid",
+                    ParticipantExceptionCode::INVALID_GENRE );
+            }
+            if (!isset( $this->pools[$poolName][$typeA][$typeB][$sex][$genre] )) {
+                $this->pools[$poolName][$typeA][$typeB][$sex][$genre] = [];
+            }
+            $this->layerProficiency( $poolName, $models,
+                $component, $componentPosition,
+                $typeA, $typeB, $sex, $genre );
+            $positionGenre = next( $componentPosition['genres'] );
         }
     }
 
     /**
-     * @param $component
-     * @param $componentPosition
+     * @param string $poolName
+     * @param array $models
+     * @param array $component
+     * @param array $componentPosition
+     * @param string $typeA
+     * @param string $typeB
+     * @param string $sex
      * @param string $genre
      * @throws GeneralException
-     * @throws ParticipantCheckException
      */
-    private function layerProficiency($component,$componentPosition, string $genre)
+    private function layerProficiency(string $poolName, array $models,
+                                      array $component, array $componentPosition,
+                                      string $typeA, string $typeB, string $sex, string $genre)
     {
-        $positionProficiency = current($componentPosition['proficiencies']);
-        foreach($component['proficiencies'] as $proficiency) {
-            if(!$this->hasDomainValue('proficiency',$proficiency)) {
-                throw new GeneralException($proficiency,$positionProficiency, "is invalid",
-                    ParticipantExceptionCode::INVALID_PROFICIENCY);
+        $positionProficiency = current( $componentPosition['proficiencies'] );
+        foreach ($component['proficiencies'] as $proficiency) {
+            if (!$this->hasDomainValue( 'proficiency', $proficiency )) {
+                throw new GeneralException( $proficiency, $positionProficiency, "is invalid",
+                    ParticipantExceptionCode::INVALID_PROFICIENCY );
             }
-            if(!isset($this->participants[$genre][$proficiency])) {
-                $this->participants[$genre][$proficiency]=[];
+            if (!isset( $this->participants[$genre][$proficiency] )) {
+                $this->pools[$poolName][$typeA][$typeB][$sex][$genre][$proficiency] = [];
             }
-            $this->layerAge($component,$componentPosition, $genre, $proficiency);
-            $positionProficiency = next($componentPosition['proficiencies']);
-        }
-    }
-
-    /**
-     * @param int $proficiencyId
-     * @return Value
-     * @throws \Exception
-     */
-
-    private function classifyTypeA(int $proficiencyId):Value
-    {
-        /** @var Value $value */
-        $value = $this->valueById[$proficiencyId];
-        if($value->getDomain()->getName()!='proficiency'){
-            throw new \Exception("$proficiencyId does not correspond to an proficiency.",9000);
-        }
-        switch($value->getName()){
-            case 'Social':
-            case 'Newcomer':
-            case 'Pre Bronze':
-            case 'Intermediate Bronze':
-            case 'Full Bronze':
-            case 'Open Bronze':
-            case 'Bronze':
-            case 'Pre Silver':
-            case 'Intermediate Silver':
-            case 'Full Silver':
-            case 'Open Silver':
-            case 'Silver':
-            case 'Pre Gold':
-            case 'Intermediate Gold':
-            case 'Full Gold':
-            case 'Open Gold':
-            case 'Gold':
-            case 'Gold Star 1':
-            case 'Novice':
-            case 'Gold Star 2':
-            case 'Pre Championship':
-            case 'Championship':
-                return $this->domainValueHash['type']['Amateur'];
-            case 'Rising Star-Pro':
-            case 'Professional':
-                return $this->domainValueHash['type']['Professional'];
-            default:
-                throw new \Exception("$proficiencyId was not found from available list of proficiencies.",9000);
-        }
-    }
-
-    /**
-     * @param int $proficiencyId
-     * @return Value
-     * @throws \Exception
-     */
-    private function classifyTypeB(int $proficiencyId):Value
-    {
-        /** @var Value $value */
-        $value = $this->valueById[$proficiencyId];
-        if($value->getDomain()->getName()!='proficiency'){
-            throw new \Exception( "$proficiencyId does not correspond to a proficiency.", 9000 );
-        }
-        switch($value->getName()){
-            case 'Social':
-            case 'Newcomer':
-            case 'Pre Bronze':
-            case 'Intermediate Bronze':
-            case 'Full Bronze':
-            case 'Open Bronze':
-            case 'Bronze':
-            case 'Pre Silver':
-            case 'Intermediate Silver':
-            case 'Full Silver':
-            case 'Open Silver':
-            case 'Silver':
-            case 'Pre Gold':
-            case 'Intermediate Gold':
-            case 'Full Gold':
-            case 'Open Gold':
-            case 'Gold':
-            case 'Gold Star 1':
-            case 'Novice':
-            case 'Gold Star 2':
-            case 'Pre Championship':
-            case 'Championship':
-                return $this->domainValueHash['type']['Student'];
-            case 'Rising Star-Pro':
-            case 'Professional':
-                return $this->domainValueHash['type']['Teacher'];
-            default:
-                throw new \Exception("$proficiencyId was not found from available list.",9000);
+            $this->layerAge( $poolName, $models,
+                            $component, $componentPosition,
+                            $typeA, $typeB, $sex,
+                            $genre, $proficiency );
+            $positionProficiency = next( $componentPosition['proficiencies'] );
         }
     }
 
 
     /**
+     * @param string $poolName
+     * @param array $models
      * @param $component
      * @param $componentPosition
+     * @param string $typeA
+     * @param string $typeB
+     * @param string $sex
      * @param string $genre
      * @param string $proficiency
      * @throws GeneralException
-     * @throws ParticipantCheckException
      */
-    private function layerAge($component, $componentPosition, string $genre, string $proficiency)
+    private function layerAge(string $poolName, array $models,
+                              $component, $componentPosition,
+                              string $typeA, string $typeB, string $sex,
+                              string $genre, string $proficiency)
     {
-       $ages = $component['ages'];
-       $agePosition = $componentPosition['ages'];
-       $sex = $component['sex'];
-       $sexPosition = $componentPosition['sex'];
-       $type = $component['type'];
-       $typePosition = $componentPosition['type'];
-       if(strpos($ages,'-')==0) {
-           throw new GeneralException($ages, $agePosition, "invalid age range",
-               ParticipantExceptionCode::INVALID_RANGE);
-       }
-       list($low,$high) = explode('-',$ages);
-       if(!(is_numeric($low) && is_numeric($high))) {
-           throw new GeneralException($ages, $agePosition, "invalid age range",
-                    ParticipantExceptionCode::INVALID_RANGE);
-       }
-       $nlow = intval($low); $nhigh = intval($high);
-       if (!(is_int($nlow) && is_int($nhigh) && ($nlow<=$nhigh))) {
-          throw new GeneralException($ages, $agePosition, "invalid age range",
-              ParticipantExceptionCode::INVALID_RANGE);
-       }
-       foreach($sex as $idx=>$s){
-          if(!in_array($s,['M','F'])) {
-              $position = $sexPosition[$idx];
-              throw new GeneralException($s,$position, "expected M and/or F",
-                  ParticipantExceptionCode::INVALID_SEX);
-          }
-       }
-       if(!$this->hasDomainValue('type',$type)) {
-           throw new GeneralException($type, $typePosition, "is invalid",
-                        ParticipantExceptionCode::INVALID_TYPE);
-       }
+        $ages = $component['ages'];
+        $agesPosition = $componentPosition['ages'];
+        if (strpos( $ages, '-' ) == 0) {
+            throw new GeneralException( $ages, $agesPosition, "invalid age range",
+                ParticipantExceptionCode::INVALID_RANGE );
+        }
+        list( $low, $high ) = explode( '-', $ages );
+        if (!(is_numeric( $low ) && is_numeric( $high ))) {
+            throw new GeneralException( $ages, $agesPosition, "invalid age range",
+                ParticipantExceptionCode::INVALID_RANGE );
+        }
+        $nlow = intval( $low );
+        $nhigh = intval( $high );
+        if (!(is_int( $nlow ) && is_int( $nhigh ) && ($nlow <= $nhigh))) {
+            throw new GeneralException( $ages, $agesPosition, "invalid age range",
+                ParticipantExceptionCode::INVALID_RANGE );
+        }
 
-       for($nage=$nlow;$nage<=$nhigh;$nage++){
-           if(!isset($this->participants[$genre][$proficiency][$nage])) {
-               $this->participants[$genre][$proficiency][$nage]=[];
-           }
-           foreach($sex as $s){
-               if(!isset($this->participants[$genre][$proficiency][$nage][$s])){
-                   $this->participants[$genre][$proficiency][$nage][$s]=[];
-               }
-               /** @var string $type */
-               if(!isset($this->participants[$genre][$proficiency][$nage][$s][$type])){
-                   /** @var Participant $participant*/
-                   $participant = new Participant(  $this->valueById,
-                                                    $this->modelRepository->getModelById(),
-                                                    $this->formRepository,
-                                                    $this->participantTag);
-                   $first = $genre.'-'.$proficiency.'-'.$nage;
-                   $last  = $s.'-'.$type;
-                   $proficiencyValue = $this->getDomainValue('proficiency',$proficiency);
-                   $genreValue = $this->hasDomainValue('style',$genre)?
-                                            $this->getDomainValue('style',$genre):
-                                            $this->getDomainValue('substyle', $genre);
-                   /** @var int $proficiencyId */
-                   $proficiencyId = $proficiencyValue->getId();
-                   $participant->setFirst($first)
-                       ->setLast($last)
-                       ->setSex($s)
-                       ->setYears($nage)
-                       ->addGenreProficiency($genreValue->getId(),$proficiencyId);
-                   $models=$this->fetchModels();
-                   /** @var Model $model */
-                   foreach($models as $model){
-                       $participant->addModel($model->getId(),$model);
-                   }
-                   /** @var Value $typeA */
-                   $typeA=$this->classifyTypeA($proficiencyId);
-                   $participant->setTypeA($typeA->getId());
-                   /** @var Value $typeB */
-                   $typeB=$this->classifyTypeB($proficiencyId);
-                   $participant->setTypeB($typeB->getId());
-                   $this->participants[$genre][$proficiency][$nage][$s][$type]=$participant;
-               }
-           }
-       }
+        for ($nage = $nlow; $nage <= $nhigh; $nage++) {
+            /** @var string $type */
+            if (!isset( $this->pools[$poolName][$typeA][$typeB][$sex][$genre][$proficiency][$nage] )) {
+                /** @var Participant $participant */
+                $participant = new Participant();
+                $first = $genre . '-' . $proficiency;
+                $last = $typeA.'-'.$sex.$nage;
+                /** @var Value $proficiencyValue */
+                $proficiencyValue = $this->getDomainValue( 'proficiency', $proficiency );
+                $genreValue = $this->hasDomainValue( 'style', $genre ) ?
+                    $this->getDomainValue( 'style', $genre ) :
+                    $this->getDomainValue( 'substyle', $genre );
+
+                $participant->setFirst( $first )
+                    ->setLast( $last )
+                    ->setSex( $sex )
+                    ->setYears( $nage )
+                    ->addGenreProficiency( $genreValue, $proficiencyValue );;
+                /** @var Model $model */
+                foreach ($models as $model) {
+                    $participant->addModel( $model );
+                }
+                /** @var Value $typeAValue */
+                $typeAValue = $this->getDomainValue( 'type', $typeA );
+                $participant->setTypeA( $typeAValue );
+                /** @var Value $typeBValue */
+                $typeBValue = $this->getDomainValue( 'type', $typeB );
+                $participant->setTypeB( $typeBValue );
+                $this->pools[$poolName][$typeA][$typeB][$sex][$genre][$proficiency][$nage] = $participant;
+            }
+        }
     }
 }

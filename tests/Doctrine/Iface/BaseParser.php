@@ -46,9 +46,11 @@ class BaseParser
 
     protected $startTime;
 
-    protected $domainValueHash = [];
+    protected $domainValueHash;
 
-    protected $valueById=[];
+    protected $valueById;
+
+    protected $modelsById;
 
     /**
      * BaseParser constructor.
@@ -63,18 +65,9 @@ class BaseParser
     {
         $this->competitionRepository = $competitionRepository;
         $this->modelRepository = $modelRepository;
-        $values=$valueRepository->fetchAllDomainValues();
-        /** @var Value $value */
-        foreach($values as $value)
-        {
-            $domain = $value->getDomain();
-            $domName = $domain->getName();
-            if(!isset($this->domainValueHash[$domName])){
-                $this->domainValueHash[$domName]=[];
-            }
-            $this->domainValueHash[$domName][$value->getName()]=$value;
-            $this->valueById[$value->getId()]=$value;
-        }
+        $this->domainValueHash = $valueRepository->fetchDomainValueHash();
+        $this->valueById=$valueRepository->fetchAllValuesById();
+        $this->modelsById=$modelRepository->fetchModelById();
     }
 
     /**
@@ -218,7 +211,6 @@ class BaseParser
             $this->eventDispatcher->dispatch('status.update',$event);
         }
     }
-
 
 
     protected function getStatusObject(int $status, int $progress=0)

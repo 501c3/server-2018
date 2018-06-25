@@ -249,18 +249,19 @@ class Player
             $iterator->next();
         }
         $iteratorModel = $this->qualifications->getIterator();
-
+        $model=$this->models->get($iteratorModel->key());
+        $modelName = $model->getName();
         $modelQualifications = [];
         /** @var  ArrayCollection $arrayCollectionModel */
         while($arrayCollectionModel=$iteratorModel->current()){
             $iteratorQualification = $arrayCollectionModel->getIterator();
-            if(!isset($modelQualifications[$iteratorModel->key()])) {
-                $modelQualifications[$iteratorModel->key()]=[];
+            if(!isset($modelQualifications[$modelName])) {
+                $modelQualifications[$modelName]=[];
             }
             /** @var Qualification $qualification */
             while($qualification = $iteratorQualification->current()) {
                 $genreValue=$qualification->get('genre');
-                $modelQualifications[$iteratorModel->key()][$genreValue->getName()]
+                $modelQualifications[$modelName][$genreValue->getName()]
                     =$qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);
                 $iteratorQualification->next();
             }

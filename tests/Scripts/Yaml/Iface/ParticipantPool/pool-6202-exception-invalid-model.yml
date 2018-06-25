@@ -4,7 +4,7 @@ comment:
 competition: Georgia DanceSport Competition and Medal Exams
 participant-pool:
     -
-        models: [ISTD Medal Exams]
+        models: [Invalid model]
         genres: [Rhythm,Smooth,Latin,Standard]
         proficiencies: [Pre Bronze, Bronze,Silver,Gold]
         ages: 3-90
@@ -113,10 +113,9 @@ participant-pool:
         typeA: Professional
         typeB: Student
     -
-        models: [Georgia DanceSport Amateur]
+
         genres: [Fun Events]
         proficiencies: [Social]
         ages: 3-90
         sex: [M,F]
-        typeA: Amateur
-        typeB: Student
+        type: Amateur

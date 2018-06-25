@@ -22,6 +22,7 @@ use App\Entity\Sales\Channel;
 use App\Entity\Sales\Contact;
 use App\Entity\Sales\Form;
 use App\Entity\Sales\Iface\Participant;
+use App\Entity\Sales\Iface\Player as IfacePlayer;
 use App\Entity\Sales\Tag;
 use App\Entity\Sales\Workarea;
 use App\Exceptions\GeneralException;
@@ -68,9 +69,10 @@ class EntriesClassifyRepositoryTest extends KernelTestCase
     /** @var ParticipantRepository */
     private static $ifaceParticipantRepository;
 
-    /** @var PlayerRepository */
+    /** @var IfacePlayerRepository */
     private static $ifacePlayerRepository;
 
+    /** @var WorkareaRepository */
     private static $workareaRepository;
 
     private static $domainValueHash;
@@ -151,7 +153,7 @@ class EntriesClassifyRepositoryTest extends KernelTestCase
                                                                 self::$tagRepository);
 
 
-        /** @var IfacePlayerRepository ifacePlayerRepository */
+        /** @var IfacePlayerRepository */
         self::$ifacePlayerRepository  = new IfacePlayerRepository(
                                                 $valueRepository,
                                                 $modelRepository,
@@ -167,7 +169,8 @@ class EntriesClassifyRepositoryTest extends KernelTestCase
         self::$entriesAssessGenerator
             = new EntriesAssessGenerator($channelRepository,
                                         self::$contactRepository,
-                                        self::$workareaRepository,                                        self::$formRepository,
+                                        self::$workareaRepository,
+                                        self::$formRepository,
                                         self::$tagRepository ,
                                         $competitionRepository,
                                         $modelRepository,
@@ -274,7 +277,7 @@ class EntriesClassifyRepositoryTest extends KernelTestCase
 
     /**
      * @throws GeneralException
-     * @throws MissingException var_dump(self::$modelsByName);die;
+     * @throws MissingException 
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -337,44 +340,628 @@ class EntriesClassifyRepositoryTest extends KernelTestCase
 
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @param Workarea $workarea
+     * @param string $model
+     * @param string $genre
+     * @param string $leadProficiency
+     * @param string $followProficiency
+     * @param int $leadAge
+     * @param int $followAge
+     * @return array
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function testContactISTDParticipantCouple()
+    private function leaderFollower(Workarea $workarea,
+                                        string $model,
+                                        string $genre,
+                                        string $leadProficiency,
+                                        string $followProficiency,
+                                        int $leadAge,
+                                        int $followAge)
     {
         $repository = self::$formRepository;
-        $contact=$this->generateContact('Mark','Garber');
-        $workarea=$contact->getWorkarea()->first();
         /**
          * @var Participant $leader
          * @var Participant $follower
          */
         list($leader,$follower)
             =$this->generateSaveCouple($workarea,
-                           'ISTD Medal Exams',
-                           'Latin',
-                   'Pre Bronze',
-                        5,
-                  'Pre Bronze',
-                      4);
-
+            $model,
+            $genre,
+            $leadProficiency,
+            $leadAge,
+            $followProficiency,
+            $followAge);
         $cnt=$repository->createQueryBuilder('form')
-                        ->select('count(form.id)')
-                        ->getQuery()
-                        ->getSingleScalarResult();
+            ->select('count(form.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
         $this->assertEquals(2, $cnt);
-        $this->assertArraySubset(
-            ['id'=>1,'first'=>"M5",'last'=>'Latin-Pre Bronze',
-                'sex'=>'M','years'=>5,'typeA'=>'Amateur','typeB'=>'Student',
-                'models'=>['ISTD Medal Exams']],$leader->describe());
-        $this->assertArraySubset(
-            ['id'=>2,'first'=>"F4",'last'=>'Latin-Pre Bronze',
-                'sex'=>'F','years'=>4,'typeA'=>'Amateur','typeB'=>'Student',
-                'models'=>['ISTD Medal Exams']],$follower->describe());
+        return [$leader,$follower];
+    }
 
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     */
+    public function testContactISTDParticipantCoupleBabyPreBronze()
+    {
+        $contact=$this->generateContact('Mark','Garber');
+        $workarea=$contact->getWorkarea()->first();
+        /**
+         * @var Participant $leader
+         * @var Participant $follower
+         */
+        list($leader,$follower) = $this->leaderFollower(
+            $workarea,'ISTD Medal Exams','Latin',
+            'Pre Bronze','Pre Bronze',5,4);
+
+
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>5,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Latin'=>'Pre Bronze']],
+            $leader->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>4,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Latin'=>'Pre Bronze']],
+            $follower->describe());
+
+        /** @var IfacePlayer $createdPlayer */
         $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $leader,$follower);
+        /** @var IfacePlayer $retrievedPlayer */
         $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+    }
+
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     */
+    public function testContactISTDParticipantCoupleUnder8Bronze()
+    {
+
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+        /**
+         * @var Participant $leader
+         * @var Participant $follower
+         */
+        list($leader,$follower) = $this->leaderFollower(
+            $workarea,'ISTD Medal Exams','Standard',
+            'Pre Bronze','Bronze',6,7);
+
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>6,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Standard'=>'Pre Bronze']],
+            $leader->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>7,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Standard'=>'Bronze']],
+            $follower->describe());
+
+
+        /** @var IfacePlayer $createdPlayer */
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $leader,$follower);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+        $description=$retrievedPlayer->describe();
+        $qualifications = $description['qualifications'];
+        $expectedQualifications
+            =
+            ['ISTD Medal Exams' =>
+                [
+                'Standard' =>
+                    [
+                        'genre' => "Standard",
+                        'proficiency' =>"Bronze",
+                        'age' =>"Under 8",
+                        'type' =>"Couple"
+                    ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function testContactISTDParticipantCoupleUnder12Silver()
+    {
+
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+        /**
+         * @var Participant $leader
+         * @var Participant $follower
+         */
+        list($leader,$follower) = $this->leaderFollower(
+            $workarea,'ISTD Medal Exams','Standard',
+            'Bronze','Silver',11,10);
+
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>11,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Standard'=>'Bronze']],
+            $leader->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>10,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Standard'=>'Silver']],
+            $follower->describe());
+
+
+        /** @var IfacePlayer $createdPlayer */
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $leader,$follower);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+        $description=$retrievedPlayer->describe();
+        $qualifications = $description['qualifications'];
+        $expectedQualifications
+            =
+            ['ISTD Medal Exams' =>
+                [
+                    'Standard' =>
+                        [
+                            'genre' => "Standard",
+                            'proficiency' =>"Silver",
+                            'age' =>"Under 12",
+                            'type' =>"Couple"
+                        ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function testContactISTDParticipantCoupleAdult16To50Gold()
+    {
+
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+        /**
+         * @var Participant $leader
+         * @var Participant $follower
+         */
+        list($leader,$follower) = $this->leaderFollower(
+            $workarea,'ISTD Medal Exams','Smooth',
+            'Gold','Silver',19,49);
+
+
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>19,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Smooth'=>'Gold']],
+            $leader->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>49,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Smoth'=>'Silver']],
+            $follower->describe());
+
+
+        /** @var IfacePlayer $createdPlayer */
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $leader,$follower);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+        $description=$retrievedPlayer->describe();
+        //var_dump($description);die;
+        $qualifications = $description['qualifications'];
+        $expectedQualifications
+            =
+            ['ISTD Medal Exams' =>
+                [
+                    'Smooth' =>
+                        [
+                            'genre' => "Smooth",
+                            'proficiency' =>"Gold",
+                            'age' =>"Adult 16-50",
+                            'type' =>"Couple"
+                        ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function testContactISTDParticipantCoupleAdult16To50Silver()
+    {
+
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+        /**
+         * @var Participant $leader
+         * @var Participant $follower
+         */
+        list($leader,$follower) = $this->leaderFollower(
+            $workarea,'ISTD Medal Exams','Rhythm',
+            'Bronze','Silver',35,61);
+
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>35,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Rhythm'=>'Bronze']],
+            $leader->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>61,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['ISTD Medal Exams'], 'genreProficiency'=>['Rhythm'=>'Silver']],
+            $follower->describe());
+
+
+        /** @var IfacePlayer $createdPlayer */
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $leader,$follower);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+        $description=$retrievedPlayer->describe();
+        //var_dump($description);die;
+        $qualifications = $description['qualifications'];
+        $expectedQualifications
+            =
+            ['ISTD Medal Exams' =>
+                [
+                    'Rhythm' =>
+                        [
+                            'genre' => "Rhythm",
+                            'proficiency' =>"Silver",
+                            'age' =>"Adult 16-50",
+                            'type' =>"Couple"
+                        ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+    }
+
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function testGADSAmContactAmateurNewcomerCoupleBaby()
+    {
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+
+        /**
+         * @var Participant $leader
+         * @var Participant $follower
+         */
+        list($leader,$follower) = $this->leaderFollower(
+            $workarea,'Georgia DanceSport Amateur','Latin',
+            'Newcomer','Newcomer',3,4);
+
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>3,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport Amateur'], 'genreProficiency'=>['Latin'=>'Newcomer']],
+            $leader->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>4,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport Amateur'], 'genreProficiency'=>['Latin'=>'Newcomer']],
+            $follower->describe());
+
+
+        /** @var IfacePlayer $createdPlayer */
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $leader,$follower);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+
+        $description=$retrievedPlayer->describe();
+        $qualifications = $description['qualifications'];
+
+        $expectedQualifications
+            =
+            ['Georgia DanceSport Amateur' =>
+                [
+                    'Latin' =>
+                        [
+                            'genre' => "Latin",
+                            'proficiency' =>"Newcomer",
+                            'age' =>"Baby",
+                            'type' =>"Amateur"
+                        ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+    }
+
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function testGADSAmSilverYouthCouple()
+    {
+
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+
+        /**
+         * @var Participant $leader
+         * @var Participant $follower
+         */
+        list($leader,$follower) = $this->leaderFollower(
+            $workarea,'Georgia DanceSport Amateur','Standard',
+            'Bronze','Silver',18,14);
+
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>18,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport Amateur'], 'genreProficiency'=>['Standard'=>'Bronze']],
+            $leader->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>14,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport Amateur'], 'genreProficiency'=>['Standard'=>'Silver']],
+            $follower->describe());
+
+
+        /** @var IfacePlayer $createdPlayer */
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $leader,$follower);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+
+        $description=$retrievedPlayer->describe();
+        $qualifications = $description['qualifications'];
+
+        $expectedQualifications
+            =
+            ['Georgia DanceSport Amateur' =>
+                [
+                    'Standard' =>
+                        [
+                            'genre' => "Standard",
+                            'proficiency' =>"Silver",
+                            'age' =>"Youth",
+                            'type' =>"Amateur"
+                        ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+    }
+
+
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function testGADSAmNoviceSenior4SmoothCouple()
+    {
+
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+
+        /**
+         * @var Participant $leader
+         * @var Participant $follower
+         */
+        list($leader,$follower) = $this->leaderFollower(
+            $workarea,'Georgia DanceSport Amateur','Smooth',
+            'Novice','Silver',65,60);
+
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>65,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport Amateur'], 'genreProficiency'=>['Smooth'=>'Novice']],
+            $leader->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>60,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport Amateur'], 'genreProficiency'=>['Smooth'=>'Silver']],
+            $follower->describe());
+
+
+        /** @var IfacePlayer $createdPlayer */
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $leader,$follower);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+
+        $description=$retrievedPlayer->describe();
+        $qualifications = $description['qualifications'];
+
+        $expectedQualifications
+            =
+            ['Georgia DanceSport Amateur' =>
+                [
+                    'Smooth' =>
+                        [
+                            'genre' => "Smooth",
+                            'proficiency' =>"Novice",
+                            'age' =>"Senior 4",
+                            'type' =>"Amateur"
+                        ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function testGADSAmSenior1ChampionshipCouple()
+    {
+
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+
+        /**
+         * @var Participant $leader
+         * @var Participant $follower
+         */
+
+        list($leader,$follower) = $this->leaderFollower(
+            $workarea,'Georgia DanceSport Amateur','Smooth',
+            'Championship','Pre Championship',45,30);
+
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>45,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport Amateur'], 'genreProficiency'=>['Smooth'=>'Championship']],
+            $leader->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>30,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport Amateur'], 'genreProficiency'=>['Smooth'=>'Pre Championship']],
+            $follower->describe());
+
+
+        /** @var IfacePlayer $createdPlayer */
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $leader,$follower);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+
+        $description=$retrievedPlayer->describe();
+        $qualifications = $description['qualifications'];
+
+        $expectedQualifications
+            =
+            ['Georgia DanceSport Amateur' =>
+                [
+                    'Smooth' =>
+                        [
+                            'genre' => "Smooth",
+                            'proficiency' =>"Championship",
+                            'age' =>"Senior 1",
+                            'type' =>"Amateur"
+                        ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+    }
+
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     */
+    public function testGADSProAmAmateurTeacherSilverPreteen()
+    {
+        /** @var Contact $contact */
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+
+
+        $teacher = $this->generateParticipant('Georgia DanceSport ProAm','Smooth','Pre Championship',
+            30,'M','Amateur','Teacher');
+        $student = $this->generateParticipant('Georgia DanceSport ProAm','Smooth','Pre Silver',
+            10,'F','Amateur','Student');
+        self::$ifaceParticipantRepository->save($workarea,$teacher);
+        self::$ifaceParticipantRepository->save($workarea, $student);
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>30,'typeA'=>'Amateur','typeB'=>'Teacher',
+                'models'=>['Georgia DanceSport ProAm'], 'genreProficiency'=>['Smooth'=>'Pre Championship']],
+            $teacher->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>10,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport ProAm'], 'genreProficiency'=>['Smooth'=>'Pre Silver']],
+            $student->describe());
+
+
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $teacher, $student);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+
+        $description=$retrievedPlayer->describe();
+        $qualifications = $description['qualifications'];
+
+        $expectedQualifications
+            =
+            ['Georgia DanceSport ProAm' =>
+                [
+                    'Smooth' =>
+                        [
+                            'genre' => "Smooth",
+                            'proficiency' =>"Pre Silver",
+                            'age' =>"Preteen 2",
+                            'type' =>"Teacher-Student"
+                        ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
+        $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
+
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \App\Exceptions\ClassifyException
+     */
+    public function testGADSProAmProTeacherOpenGoldSenior4()
+    {
+        /** @var Contact $contact */
+        $contact=$this->generateContact('Mark','Garber');
+        /** @var Workarea $workarea */
+        $workarea=$contact->getWorkarea()->first();
+
+
+        $teacher = $this->generateParticipant('Georgia DanceSport ProAm','Rhythm','Professional',
+            30,'M','Amateur','Teacher');
+        $student = $this->generateParticipant('Georgia DanceSport ProAm','Rhythm','Open Gold',
+            64,'F','Amateur','Student');
+        self::$ifaceParticipantRepository->save($workarea,$teacher);
+        self::$ifaceParticipantRepository->save($workarea, $student);
+        $this->assertArraySubset(
+            ['id'=>1,'sex'=>'M','years'=>30,'typeA'=>'Amateur','typeB'=>'Teacher',
+                'models'=>['Georgia DanceSport ProAm'], 'genreProficiency'=>['Rhythm'=>'Professional']],
+            $teacher->describe());
+        $this->assertArraySubset(
+            ['id'=>2,'sex'=>'F','years'=>64,'typeA'=>'Amateur','typeB'=>'Student',
+                'models'=>['Georgia DanceSport ProAm'], 'genreProficiency'=>['Rhythm'=>'Open Gold']],
+            $student->describe());
+
+
+        $createdPlayer=self::$ifacePlayerRepository->createAux($workarea, $teacher, $student);
+        /** @var IfacePlayer $retrievedPlayer */
+        $retrievedPlayer=self::$ifacePlayerRepository->read($createdPlayer->getId());
+
+        $description=$retrievedPlayer->describe();
+        $qualifications = $description['qualifications'];
+
+        $expectedQualifications
+            =
+            ['Georgia DanceSport ProAm' =>
+                [
+                    'Rhythm' =>
+                        [
+                            'genre' => "Rhythm",
+                            'proficiency' =>"Open Gold",
+                            'age' =>"Senior 3",
+                            'type' =>"Teacher-Student"
+                        ]
+                ]
+            ];
+        $this->assertArraySubset($expectedQualifications,$qualifications);
         $this->assertArraySubset($createdPlayer->toArray(),$retrievedPlayer->toArray());
     }
 

@@ -203,6 +203,7 @@ class PlayerRepository
         /** @var Player $player */
         $player = is_null($p2)?$this->classify->solo($p1):$this->classify->couple($p1,$p2);
         $modelGenreKeys = $player->getModelGenreKeys();
+
         foreach($modelGenreKeys as $modelId=>$genreKeys) {
             /** @var Model $model */
             $model=$this->modelRepository->findOneBy(['id'=>$modelId]);

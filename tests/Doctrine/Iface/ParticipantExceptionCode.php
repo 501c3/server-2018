@@ -19,7 +19,7 @@ class ParticipantExceptionCode
     const COMPETITION = 6002;
     const INVALID_COMPETITION= 6004;
     const MODELS = 6006;
-    const INVALID_MODEL = 6008;
+    //const INVALID_MODEL = 6008;
     const PARTICIPANT_POOL = 6010;
     const INVALID_KEY = 6100;
     const INVALID_GENRE = 6102;
@@ -27,4 +27,5 @@ class ParticipantExceptionCode
     const INVALID_RANGE = 6106;
     const INVALID_SEX = 6108;
     const INVALID_TYPE = 6110;
+    const INVALID_MODEL = 6202;
 }
