@@ -1,0 +1,15 @@
+comment:
+    - InterfaceExceptionCode::PROFICIENCIES_KEYWORD=4410
+    - not_proficiencies at row:15, col:25 expected proficiencies.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [ISTD Medal Exams,Georgia Dancesport Amateur,Georgia DanceSport ProAm]
+setups:
+    participant-form:
+        typeA: ['Professional','Amateur']
+        typeB: ['Teacher','Student']
+        proficiency-dropdown:
+            Professional:
+                Teacher:
+                    ISTD Medal Exams:
+                        genres: [Rhythm,Smooth,Latin,Standad]
+                        not_proficiencies: [Professional]

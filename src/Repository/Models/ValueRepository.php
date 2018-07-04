@@ -2,6 +2,7 @@
 
 namespace App\Repository\Models;
 
+use App\Entity\Models\Domain;
 use App\Entity\Models\Model;
 use App\Entity\Models\Value;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -89,4 +90,20 @@ class ValueRepository extends ServiceEntityRepository
         $result=$query->getResult();
         return $result;
     }
+
+    public function fetchModelDomainValues(Model $model,Domain $domain)
+    {
+        $qb=$this->createQueryBuilder('value');
+        $qb->select('model','value','domain')
+            ->leftJoin('value.model','model')
+            ->leftJoin('value.domain','domain')
+            ->where('domain=:domain')
+            ->andWhere('model=:model');
+        $query = $qb->getQuery();
+        $query->setParameters([':model'=>$model,
+                               ':domain'=>$domain]);
+        $results=$query->getResult();
+        return $results;
+    }
+
 }

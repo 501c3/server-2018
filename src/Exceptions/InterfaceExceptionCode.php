@@ -16,12 +16,35 @@ namespace App\Exceptions;
 
 class InterfaceExceptionCode
 {
-    const COMPETITION = 4102;
-    const INVALID_COMPETITION = 4104;
-    const MODELS = 4202;
-    const INVALID_MODEL = 4204;
-    const SETUPS = 4302;
-    const PARTICIPANT = 4304;
+    const COMPETITION_KEYWORD = 4102;
+    const COMPETITION_INVALID = 4104;
+    const MODELS_KEYWORD = 4202;
+    const MODEL_INVALID = 4204;
+    const SETUPS_KEYWORD = 4302;
+    const PFORM_KEYWORD = 4310;
+    const TYPEA_KEYWORD = 4312;
+    const TYPEA_INVALID = 4314;
+    const TYPEB_KEYWORD = 4316;
+    const TYPEB_INVALID = 4318;
+    const PROFDROP_KEYWORD = 4400;
+    const DROPA_INVALID = 4402;
+    const DROPB_INVALID = 4404;
+    const DROP_MODEL_INVALID = 4406;
+    const GENRES_KEYWORD = 4408;
+    const PROFICIENCIES_KEYWORD=4410;
+    const GENRE_INVALID = 4412;
+    const PROFICIENCY_INVALID = 4414;
+    const TIPROFICIENCY_KEYWORD= 4416;
+    const TIMODEL_INVALID = 4418;
+    const MAPPINGS_KEYWORD = 5002;
+    const PROFICIENCY_KEYWORD = 5102;
+    const MODEL_INVALID_5112 = 5112;
+    const MODEL_INVALID_5122 = 5122;
+    const PROFICIENCY_INVALID_5124=5124;
+    const PROFICIENCY_INVALID_5126=5126;
+
+
+
     const TYPE = 4306;
     const INVALID_TYPE = 4308;
     const PROFICIENCY = 4310;

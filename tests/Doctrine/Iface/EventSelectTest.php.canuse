@@ -201,7 +201,10 @@ class EventSelectTest extends KernelTestCase
             return sprintf( '%s:%d missing %s', $cls, $id, $field );
         };
         $want = function ($id, $expect, $found) {
-            return sprintf( 'Event:%d wanted %s, found %s', $id, $expect, $found );
+            return sprintf( 'Event:%d wanted %s, found %s', $id, $e    /**
+     *
+     */
+xpect, $found );
         };
         $p = $player->getValue();
         $playerId = $player->getId();

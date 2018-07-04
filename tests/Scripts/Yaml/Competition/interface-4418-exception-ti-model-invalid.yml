@@ -1,6 +1,6 @@
 comment:
-    - InterfaceExceptionCode::PROFICIENCY_INVALID_5126=5126
-    -
+    - InterfaceExceptionCode::TIMODEL_INVALID
+    - Invalid Model at row:67, col:14 is invalid..
 competition: Georgia DanceSport Competition and Medal Exams
 models: [ISTD Medal Exams,Georgia Dancesport Amateur,Georgia DanceSport ProAm]
 setups:
@@ -64,24 +64,6 @@ setups:
                             - Gold Star 1
                             - Gold Star 2
         ti-proficiency-dropdown:
-             Georgia DanceSport Amateur:
+             Invalid Model:
                  genres: [Fun Events,Novelty]
                  proficiencies: [Social]
-mappings:
-    proficiency:
-        Georgia DanceSport ProAm:
-            Georgia DanceSport Amateur:
-                Pre Bronze: Bronze
-                Intermediate Bronze: Bronze
-                Full Bronze: Bronze
-                Open Bronze: Novice
-                Pre Silver: Silver
-                Intermediate Silver: Silver
-                Full Silver: Silver
-                Open Silver: Novice
-                Pre Gold: Gold
-                Intermediate Gold: Gold
-                Full Gold: Gold
-                Open Gold: Novice
-                Gold Star 1: Pre Championship
-                Gold Star 2: Championship

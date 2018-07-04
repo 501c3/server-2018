@@ -1,0 +1,16 @@
+comment:
+    - InterfaceExceptionCode::PROFDROP_KEYWORD = 4404
+    - Invalid at row:12, col:17 expected Teacher,Student.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [ISTD Medal Exams,Georgia Dancesport Amateur,Georgia DanceSport ProAm]
+setups:
+    participant-form:
+        typeA: ['Professional','Amateur']
+        typeB: ['Teacher','Student']
+        proficiency-dropdown:
+            Professional:
+                Invalid:
+                    ISTD Medal Exams:
+                        - Professional
+                    Georgia DanceSport ProAm:
+                        - Professional

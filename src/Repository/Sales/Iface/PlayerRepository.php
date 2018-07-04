@@ -161,6 +161,7 @@ class PlayerRepository
 
     /**
      * @param Channel $channel
+     * @param bool $debug
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -177,9 +178,27 @@ class PlayerRepository
         }
     }
 
-    public function create(Workarea $workarea, int $p1, int $p2=null)
+    /**
+     * @param Workarea $workarea
+     * @param int $p1
+     * @param int|null $p2
+     * @return Player
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \Exception
+     */
+    public function create(Workarea $workarea, int $p1, int $p2=null):Player
     {
-        //TODO: Reconstruct Participant Objects
+        $list=$p2?$this->readParticipants([$p1,$p2]):$this->readParticipants([$p1]);
+
+        switch(count($list)){
+            case 1:
+                return $this->createAux($workarea, $list[0]);
+            case 2:
+                return $this->createAux($workarea, $list[0],$list[1]);
+        }
+        throw new \Exception("Could not create Player.  Participant keys invalid",9000);
     }
 
 
@@ -194,7 +213,6 @@ class PlayerRepository
      */
     public function createAux(Workarea $workarea, Participant $p1,Participant $p2=null): Player
     {
-
         if(!isset($this->classify))
         {
             $name=$p1->getName();
@@ -207,25 +225,43 @@ class PlayerRepository
         foreach($modelGenreKeys as $modelId=>$genreKeys) {
             /** @var Model $model */
             $model=$this->modelRepository->findOneBy(['id'=>$modelId]);
+
             $playerLookup=$model->getPlayerlookup();
             foreach($genreKeys as $genreId) {
-                $genre = $this->valueById[$genreId];
                 $qualification=$player->getQualificationByKeys($modelId,$genreId);
                 $q = $qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_ID);
+                $qAux =$qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);
+                var_dump(array_keys($playerLookup[strval($q['genre'])]
+                                                  [strval($q['proficiency'])]),$qAux);die;
                 $playerId=$playerLookup[strval($q['genre'])]
                                        [strval($q['proficiency'])]
                                        [strval($q['age'])]
                                        [strval($q['type'])];
                 /** @var CompetitionPlayer $competitionPlayer */
                 $competitionPlayer=$this->playerRepository->find($playerId);
-                /** @var Event $events */
                 $events=$this->eventRepository->fetchPlayerEvents($model,$competitionPlayer);
+                /** @var Event $event */
                 foreach($events as $event) {
                     $data=$event->getValue();
                     $data['id']=$event->getId();
                     $data['model']=$modelId;
                     $data['etag']=$event->getTag();
-                    $player->addEvents($model,$data);
+                    switch($data['tag']){
+                        case 'Couple':
+                            if($p2){
+                                $player->addEvents($model,$data);
+                            }
+                            break;
+                        case 'Solo':
+                            if(!$p2){
+                                $player->addEvents($model,$data);
+                            }
+                        case 'Grandparent Child':
+                        case 'Parent Child':
+                            if($p2){
+                                $player->addEvents($model,$data);
+                            }
+                    }
                 }
             }
         }
@@ -255,12 +291,18 @@ class PlayerRepository
         $participant->setFirst($data['first'])
                     ->setLast($data['last'])
                     ->setYears($data['years'])
+                    ->setSex($data['sex'])
                     ->setTypeA($typeA)
                     ->setTypeB($typeB);
         foreach($data['genreProficiency'] as $genreId=>$proficiencyId) {
             $genreValue = $this->valueById[$genreId];
             $proficiencyValue = $this->valueById[$proficiencyId];
             $participant->addGenreProficiency($genreValue,$proficiencyValue);
+        }
+        foreach($data['models'] as $modelId){
+            /** @var Model $model */
+            $model=$this->modelRepository->find($modelId);
+            $participant->addModel($model);
         }
         return $participant;
     }

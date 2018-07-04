@@ -1,0 +1,9 @@
+comment:
+    - InterfaceExceptionCode::TYPEA_KEYWORD = 4312
+    - not_typeA at row:8, col:9 expected typeA.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [ISTD Medal Exams,Georgia Dancesport Amateur,Georgia DanceSport ProAm]
+setups:
+    participant-form:
+        not_typeA: ['Professional','Amateur']
+        typeB: ['Teacher','Student']

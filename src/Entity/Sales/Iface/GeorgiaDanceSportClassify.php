@@ -15,7 +15,6 @@ namespace App\Entity\Sales\Iface;
 use App\Entity\Competition\Model;
 use App\Entity\Models\Value;
 use App\Exceptions\ClassifyException;
-use App\Exceptions\PlayerException;
 use Doctrine\Common\Collections\ArrayCollection;
 
 
@@ -28,26 +27,24 @@ class GeorgiaDanceSportClassify extends Classify
                                40=>'Senior 2',
                                30=>'Senior 1',
                                19=>'Adult',
-                                2=>'Senior Youngster'],
+                               17=>'Adult'],
                           65=>[60=>'Senior 4',
                                50=>'Senior 3',
                                40=>'Senior 2',
                                30=>'Senior 1',
                                19=>'Adult',
-                                2=>'Senior Youngster'],
+                               17=>'Adult'],
                           55=>[50=>'Senior 3',
                                40=>'Senior 2',
                                30=>'Senior 1',
                                19=>'Adult',
-                               18=>'Senior Youngster'],
+                               17=>'Adult'],
                           45=>[40=>'Senior 2',
                                30=>'Senior 1',
                                19=>'Adult',
-                               18=>'Adult Youngster',
-                                2=>'Senior Youngster'],
+                               17=>'Adult'],
                           35=> [30=>'Senior 1',
-                                19=>'Adult',
-                                 2=>'Adult Youngster'],
+                                19=>'Adult'],
                           19=> [14=>'Adult'],
                           16=> [2=>'Youth'],
                           14=> [2=>'Junior 2'],
@@ -56,6 +53,9 @@ class GeorgiaDanceSportClassify extends Classify
                            7=> [2=>'Preteen 1'],
                            5=> [2=>'Juvenile'],
                            2=> [2=>'Baby']];
+
+    const AGE_FUN_EVENT = [49=>[9=>'Senior Youngster'],
+                           29=>[9=>'Adult Youngster']];
 
     const AGE_STUDENT= [75=>'Senior 5',
                         65=>'Senior 4',
@@ -72,14 +72,38 @@ class GeorgiaDanceSportClassify extends Classify
                         1=>'Baby'];
 
 
-    const AGE_EXAMS =[50=>'Senior 50',
+    const AGE_MEDAL =[50=>'Senior 50',
                       16=>'Adult 16-50',
                       12=>'Junior 12-16',
                       8=>'Under 12',
                       6=>'Under 8',
                       1=>'Under 6'];
 
+    const HIGHER_PROFICIENCY_MEDAL =
+        [
+            'Pre Bronze'=>['Pre Bronze'=>'Pre Bronze',
+                'Bronze'=>'Bronze',
+                'Silver'=>'Silver',
+                'Gold'=>'Gold'],
+            'Bronze'=>[ 'Pre Bronze'=>'Bronze',
+                'Bronze'=>'Bronze',
+                'Silver'=>'Silver',
+                'Gold'=>'Gold'],
+            'Silver'=>[ 'Pre Bronze'=>'Silver',
+                'Bronze'=>'Silver',
+                'Silver'=>'Silver',
+                'Gold'=>'Gold'],
+            'Gold'=>['Pre Bronze'=>'Gold',
+                'Bronze'=>'Gold',
+                'Silver'=>'Gold',
+                'Gold'=>'Gold']
+        ];
+
+
+
+
     const HIGHER_PROFICIENCY_AMATEUR = [
+        'Social' => ['Social'=>'Social'],
         'Newcomer'=>
             [
                 'Newcomer'=>'Newcomer',
@@ -445,25 +469,6 @@ class GeorgiaDanceSportClassify extends Classify
             ]
     ];
 
-    const HIGHER_PROFICIENCY_MEDAL =
-        [
-        'Pre Bronze'=>['Pre Bronze'=>'Pre Bronze',
-                        'Bronze'=>'Bronze',
-                        'Silver'=>'Silver',
-                        'Gold'=>'Gold'],
-        'Bronze'=>[ 'Pre Bronze'=>'Bronze',
-                    'Bronze'=>'Bronze',
-                    'Silver'=>'Silver',
-                    'Gold'=>'Gold'],
-        'Silver'=>[ 'Pre Bronze'=>'Silver',
-                    'Bronze'=>'Silver',
-                    'Silver'=>'Silver',
-                    'Gold'=>'Gold'],
-        'Gold'=>['Pre Bronze'=>'Gold',
-                'Bronze'=>'Gold',
-                'Silver'=>'Gold',
-                'Gold'=>'Gold']
-        ];
 
     const HIGH_MODEL=
         [
@@ -488,7 +493,7 @@ class GeorgiaDanceSportClassify extends Classify
                     ]
         ];
 
-    const PROFICIENCY_AMATEUR_ISTD =
+    const PROFICIENCY_AMATEUR_TO_MEDAL =
         [
             'Newcomer'=>'Pre Bronze',
             'Bronze'=>'Bronze',
@@ -499,7 +504,7 @@ class GeorgiaDanceSportClassify extends Classify
             'Championship'=>'Gold'
         ];
 
-    const PROFICIENCY_STUDENT_AMATEUR =
+    const PROFICIENCY_STUDENT_TO_AMATEUR =
         [
              'Newcomer'=>'Newcomer',
              'Pre Bronze'=>'Bronze',
@@ -518,6 +523,23 @@ class GeorgiaDanceSportClassify extends Classify
              'Gold Star 2' =>'Championship'
         ];
 
+    const PROFICIENCY_STUDENT_TO_MEDAL = 
+        [
+            'Newcomer'=>'Pre Bronze',
+            'Pre Bronze'=>'Bronze',
+            'Intermediate Bronze'=>'Bronze',
+            'Full Bronze'=>'Bronze',
+            'Open Bronze'=>'Bronze',
+            'Pre Silver'=>'Silver',
+            'Intermediate Silver'=>'Silver',
+            'Full Silver'=>'Silver',
+            'Open Silver' =>'Silver',
+            'Pre Gold'=>'Gold',
+            'Intermediate Gold'=>'Gold',
+            'Full Gold'=>'Gold',
+            'Open Gold' =>'Gold'
+        ];
+
     const PROFICIENCY = 1;
     const AGE = 2;
     const TYPE = 3;
@@ -533,20 +555,19 @@ class GeorgiaDanceSportClassify extends Classify
      * @param int $evaluate
      * @return \Closure
      */
-    protected function AmateurStudentAmateurStudent(Model $model, int $evaluate){
-
+    protected function AmateurAmateur(Model $model, int $evaluate):\Closure
+    {
         switch ($evaluate){
             case self::PROFICIENCY:
                 return function(Value $genre, Participant $p1, Participant $p2=null) use ($model): ?Value{
                     switch ($model->getName()){
                         case 'ISTD Medal Exams':
-                           return $p2?$this->istdAmateurStudentAmateurStudentProficiency($genre,$p1,$p2):
-                                    $this->istdAmateurStudentProficiency($genre, $p1);
+                           return $this->medalCoupleProficiency($genre,$p1,$p2);
                         case 'Georgia DanceSport Amateur':
-                            return $p2?$this->gadsamAmateurStudentAmateurStudentProficiency($genre, $p1,$p2):
-                                        $this->gadsamAmateurStudentProficiency($genre, $p1);
+                            return $this->amateurCoupleProficiency($genre, $p1,$p2);
+                    
                         default:
-                            throw new ClassifyException('Configuration error',
+                            throw new ClassifyException('Unsupported model',
                                 self::MESSAGE_SUPPORT,
                                 9000);
                     }
@@ -556,582 +577,126 @@ class GeorgiaDanceSportClassify extends Classify
                 return function(Participant $p1, Participant $p2=null) use ($model): ?Value{
                     switch ($model->getName()){
                         case 'ISTD Medal Exams':
-                            return $p2?$this->istdAmateurStudentAmateurStudentAge($p1,$p2):
-                                        $this->istdAmateurStudentAge($p1);
+                            return $this->medalCoupleAge($p1,$p2);
                         case 'Georgia DanceSport Amateur':
-                            return $p2? $this->gadsamAmateurStudentAmateurStudentAge($p1,$p2):
-                                        $this->gadsamAmateurStudentAge($p1);
+                            return $p2? $this->amateurCoupleAge($p1,$p2):
+                                        $this->amateurAge($p1);
                         default:
-                            throw new ClassifyException('Configuration error',
+                            throw new ClassifyException('Unsupported model',
                                 self::MESSAGE_SUPPORT,
                                 9000);
                     }
                 };
             case self::TYPE:
+                /**
+                 * @param Participant $p1
+                 * @param Participant $p2
+                 * @return Value|null
+                 */
                 return function(Participant $p1, Participant $p2) use ($model): ?Value{
                     switch ($model->getName()){
                         case 'ISTD Medal Exams':
-                              return $this->domainValueHash['type']['Couple'];
-                        case 'Georgia DanceSport Amateur':
-                              return $this->domainValueHash['type']['Amateur'];
-
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-        }
-    }
-
-
-    protected function AmateurTeacherAmateurTeacher(Model $model, int $evaluate){
-        $message = sprintf(self::NO_EVALUATION,$model->getName(),self::TEXT[$evaluate]);
-        switch ($evaluate){
-            case self::PROFICIENCY:
-                return function(Value $genre, Participant $p1, Participant $p2=null) use ($model,$message): ?Value{
-                    switch ($model->getName()){
-                        case 'Georgia DanceSport Amateur':
-                            return $p2?$this->gadsamAmateurStudentAmateurStudentProficiency($genre, $p1,$p2):
-                                $this->gadsamAmateurStudentProficiency($genre, $p1);
-                        default:
-                            throw new PlayerException($message,9000,$p1,$p2);
-                    }
-                };
-                break;
-            case self::AGE:
-                return function(Participant $p1, Participant $p2=null) use ($model,$message): ?Value{
-                    switch ($model->getName()){
-                        case 'Georgia DanceSport Amateur':
-                            return $p2? $this->gadsamAmateurStudentAmateurStudentAge($p1,$p2):
-                                $this->gadsamAmateurStudent($p1);
-                        default:
-                            throw new PlayerException($message,9000,$p1,$p2);
-                    }
-                };
-            case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model,$message): ?Value{
-                    switch ($model->getName()){
+                            return $this->domainValueHash['type']['Couple'];
                         case 'Georgia DanceSport Amateur':
                             return $this->domainValueHash['type']['Amateur'];
-                        default:
-                            throw new PlayerException($message,9000,$p1,$p2);
-                    }
-                };
-        }
-    }
-
-    protected function ProfessionalStudentProfessionalStudent(Model $model,int $evaluate){
-        $message = sprintf(self::NO_EVALUATION,$model->getName(),self::TEXT[$evaluate]);
-        return function (Participant $p1,Participant $p2) use($message) {
-            throw new PlayerException($message,9000,$p1,$p2);
-        };
-    }
-
-    protected function ProfessionalTeacherProfessionalTeacher(Model $model,int $evaluate){
-        $message = sprintf(self::NO_EVALUATION,$model->getName(),self::TEXT[$evaluate]);
-        return function (Participant $p1,Participant $p2) use($message) {
-            throw new PlayerException($message,9000,$p1,$p2);
-        };
-    }
-
-
-    private function AmateurStudentAmateurTeacher(Model $model,int $evaluate){
-        switch ($evaluate){
-            case self::PROFICIENCY:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-                            //TODO:
-                        case 'Georgia DanceSport Amateur':
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-
                         case 'Georgia DanceSport ProAm':
-                            //TODO:
+                            return $this->domainValueHash['type']['Teacher-Student'];
                         default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-
-                    }
-                };
-                break;
-            case self::AGE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-            case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
+                            $message=sprintf("No type classification for %s and %s",
+                                $p1->getName(),$p2->getName());
+                            throw new ClassifyException('Classification failure',
+                                $message,
                                 9000);
                     }
                 };
         }
+        return null;
     }
 
-    private function AmateurStudentProfessionalStudent(Model $model,int $evaluate){
-        switch ($evaluate){
-            case self::PROFICIENCY:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-                            //TODO:
-                        case 'Georgia DanceSport Amateur':
-                            //TODO:
-                        case 'Georgia DanceSport ProAm':
-                            //TODO:
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-
-                    }
-                };
-                break;
-            case self::AGE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-                             //TODO:
-                        case 'Georgia DanceSport Amateur':
-                             //TODO:
-                        case 'Georgia DanceSport ProAm':
-                            //TODO:
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-
-                    }
-                };
-            case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-        }
-    }
-
-    private function AmateurStudentProfessionalTeacher(Model $model,int $evaluate){
+    protected function TeacherStudent(Model $model,int $evaluate):\Closure
+    {
         switch ($evaluate){
             case self::PROFICIENCY:
                 return function(Value $genre, Participant $p1, Participant $p2) use ($model): ?Value{
                     switch ($model->getName()){
+                        case 'ISTD Medal Exams':
+                            return $this->medalTeacherStudentProficiency($genre,$p1,$p2);
                         case 'Georgia DanceSport ProAm':
-                            return $this->gadsproamTeacherStudentProficiency($genre,$p1,$p2);
+                            return $this->proamTeacherStudentProficiency($genre,$p1,$p2);
+                        default:
+                            throw new ClassifyException('Configuration error',
+                                self::MESSAGE_SUPPORT,
+                                9000);
                     }
                 };
                 break;
             case self::AGE:
                 return function(Participant $p1, Participant $p2) use ($model): ?Value{
                     switch ($model->getName()){
+                        case 'ISTD Medal Exams':
+                            return $this->medalTeacherStudentAge($p1,$p2);
                         case 'Georgia DanceSport ProAm':
-                            return $this->gadsproamTeacherStudentAge($p1,$p2);
+                            return $this->proamTeacherStudentAge($p1,$p2);
+                        default:
+                            throw new ClassifyException('Configuration error',
+                                self::MESSAGE_SUPPORT,
+                                9000);
                     }
                 };
-                break;
             case self::TYPE:
                 return function(Participant $p1, Participant $p2) use ($model): ?Value{
                     switch ($model->getName()){
+                        case 'ISTD Medal Exams':
+                            return  $this->domainValueHash['type']['Solo'];
                         case 'Georgia DanceSport ProAm':
                             return $this->domainValueHash['type']['Teacher-Student'];
-                    }
-                };
-        }
-    }
-
-
-    private function AmateurTeacherAmateurStudent(Model $model,int $evaluate){
-        return $this->AmateurStudentProfessionalTeacher($model,$evaluate);
-    }
-
-
-
-    private function AmateurTeacherProfessionalStudent(Model $model,int $evaluate){
-        switch ($evaluate){
-            case self::PROFICIENCY:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
                         default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-                break;
-            case self::AGE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-            case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
+                            $message = sprintf('Unable to determine type for %s and %s',$p1->getName(),$p2->getName());
+                            throw new ClassifyException('No type',
+                                $message,
                                 9000);
                     }
                 };
         }
+        return null;
     }
 
-    private function AmateurTeacherProfessionalTeacher(Model $model,int $evaluate){
-        switch ($evaluate){
+    private function SoloParticipant(Model $model, int $evaluate): \Closure 
+    {
+        switch($evaluate)
+        {
             case self::PROFICIENCY:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value
-                {
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
+                return function(Value $genre, Participant $p) use ($model){
+                    switch($model->getName())
+                    {
                         case 'Georgia DanceSport Amateur':
-                                //TODO:
-                        case 'Georgia DanceSport ProAm':
-                                //TODO:
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-
+                            return $p->fetchGenreProficiency($genre);
                     }
+                    return null;
                 };
-                break;
+
             case self::AGE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-
+                return function(Participant $p) use ($model) {
+                    $years = $p->getYears();
+                    switch ($model->getName()) {
                         case 'Georgia DanceSport Amateur':
-                                //TODO:
-                        case 'Georgia DanceSport ProAm':
-                                //TODO:
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-
-                    }
-                };
-            case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-        }
-    }
-
-
-    private function ProfessionalStudentAmateurStudent(Model $model,int $evaluate){
-        switch ($evaluate){
-            case self::PROFICIENCY:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-                            //TODO:
-                        case 'Georgia DanceSport Amateur':
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                        case 'Georgia DanceSport ProAm':
-                            //TODO:
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-                break;
-            case self::AGE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-                            //TODO:
-                        case 'Georgia DanceSport Amateur':
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                        case 'Georgia DanceSport ProAm':
-                            //TODO:
-                    }
-                };
-            case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-        }
-    }
-
-    private function ProfessionalStudentAmateurTeacher(Model $model,int $evaluate){
-        switch ($evaluate){
-            case self::PROFICIENCY:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Professional-Teacher',
-                                self::MESSAGE_COUPLING,
-                                9000);
-                    }
-                };
-                break;
-            case self::AGE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Professional-Teacher',
-                                self::MESSAGE_COUPLING,
-                                9000);
-                    }
-                };
-            case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-
-        }
-    }
-
-
-    private function ProfessionalStudentProfessionalTeacher(Model $model,int $evaluate){
-        switch ($evaluate){
-            case self::PROFICIENCY:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        default:
-                            throw new ClassifyException('Professional-Professional',
-                                self::MESSAGE_COUPLING,
-                                9000);
-                    }
-                };
-                break;
-            case self::AGE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        default:
-                            throw new ClassifyException('Professional-Professional',
-                                self::MESSAGE_COUPLING,
-                                9000);
-
-                    }
+                            foreach (self::AGE_STUDENT as $break => $age) {
+                                if ($years >= $break) {
+                                    return $this->domainValueHash['age'][$age];
+                                }
+                            }
+                    };
+                    return null;
                 };
                 break;
             case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
+                return function (Participant $p) use ($model) {
+                    return $p->getTypeA();
                 };
         }
+        return null;
     }
-
-    private function ProfessionalTeacherAmateurStudent(Model $model,int $evaluate){
-        switch ($evaluate){
-            case self::PROFICIENCY:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        //TODO: All are available
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport ProAm':
-                    }
-                };
-                break;
-            case self::AGE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        //TODO: All are available
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                    }
-                };
-                break;
-            case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-
-        }
-    }
-
-    private function ProfessionalTeacherAmateurTeacher(Model $model,int $evaluate){
-        switch ($evaluate){
-            case self::PROFICIENCY:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        default:
-                            throw new ClassifyException('Professional-Amateur Teacher',
-                                self::MESSAGE_COUPLING,
-                                9000);
-                    }
-                };
-                break;
-            case self::AGE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        default:
-                            throw new ClassifyException('Professional-Amateur Teacher',
-                                self::MESSAGE_COUPLING,
-                                9000);
-                    }
-                };
-                break;
-            case self::TYPE:
-                return function(Participant $p1, Participant $p2) use ($model): ?Value{
-                    switch ($model->getName()){
-                        case 'ISTD Medal Exams':
-
-                        case 'Georgia DanceSport Amateur':
-
-                        case 'Georgia DanceSport ProAm':
-                        default:
-                            throw new ClassifyException('Configuration error',
-                                self::MESSAGE_SUPPORT,
-                                9000);
-                    }
-                };
-        }
-    }
-
-    private function ProfessionalTeacherProfessionalStudent(Model $model,int $evaluate){
-        switch ($evaluate) {
-            default:
-                throw new ClassifyException( 'Configuration error',
-                    self::MESSAGE_SUPPORT,
-                    9000 );
-        }
-
-    }
-
-
-    protected function AmateurTeacher(Model $model, int $evaluate){
-            switch($model->getName()){
-                default:
-                    throw new ClassifyException('Configuration error',
-                        self::MESSAGE_SUPPORT,
-                        9000);
-        }
-
-    }
+    
 
     /**
      * @param Participant $p1
@@ -1156,8 +721,10 @@ class GeorgiaDanceSportClassify extends Classify
 
     private function student(Participant $p1, Participant $p2):?Participant
     {
-        return $p1->getTypeB()->getName()=='student'?$p1:$p2;
+        return $p1->getTypeB()->getName()=='Student'?$p1:$p2;
     }
+    
+    
 
     /**
      * @param Participant $p1
@@ -1188,11 +755,13 @@ class GeorgiaDanceSportClassify extends Classify
     }
 
 
+    
+    
     /**
      * @param $models
      * @return Model
      */
-    private function highModel($models):Model
+    private function highModel($models):?Model
     {
         $collection=array_values($models);
         switch(count($collection)) {
@@ -1202,7 +771,7 @@ class GeorgiaDanceSportClassify extends Classify
                 return $m1;
             case 2:
                 /**
-                 * @var Model $m2
+                 * @var Model $m1
                  * @var Model $m2
                  */
                 list($m1,$m2)=$collection;
@@ -1222,212 +791,118 @@ class GeorgiaDanceSportClassify extends Classify
                 $highestName = self::HIGH_MODEL[$higherModel->getName()][$m3->getName()];
                 $highestModel= $highestName==$higherModel->getName()?$higherModel:$m3;
                 return $highestModel;
-
         }
+        return null;
     }
-
-    private function istdAmateurStudentAmateurStudentProficiency(Value $genre, Participant $p1,Participant $p2):Value
+    
+    private function participantModel(Participant $participant):Model
     {
-        /** @var Value $p1Proficiency */
-        $p1Proficiency=$p1->fetchGenreProficiency($genre);
-        /** @var Value $p2Proficiency */
-        $p2Proficiency=$p2->fetchGenreProficiency($genre);
-
-
-        $p1Models =$p1->getModels()->toArray();
-        $p2Models = $p2->getModels()->toArray();
-
-
-        $p1HighModel = $this->highModel($p1Models);
-        $p2HighModel = $this->highModel($p2Models);
-
-        switch($p1HighModel->getName())
-        {
-            case 'ISTD Medal Exams':
-                switch($p2HighModel->getName())
-                {
-                    case 'ISTD Medal Exams':
-                        $name=self::HIGHER_PROFICIENCY_MEDAL[$p1Proficiency->getName()][$p2Proficiency->getName()];
-                        return $this->domainValueHash['proficiency'][$name];
-                    case 'Georgia DanceSport Amateur':
-                        //TODO: Convert p2 from Amateur Proficiency to ISTD Proficiency
-
-                        //TODO: return the higher proficiency
-                    case 'Georgia DanceSport ProAm':
-                        //TODO: Convert p2 from ProAm Proficiency to Amateur Proficiency to ISTD Proficiency
-                        //TODO: return the higher ISTD proficiency
-                }
-
-            case 'Georgia DanceSport Amateur':
-                //TODO: Convert p1 from Amateur Proficiency to ISTD Proficiency
-                switch($p2HighModel->getName())
-                {
-                    case 'ISTD Medal Exams':
-                        //TODO: return the higher proficiency
-                    case 'Georgia DanceSport Amateur':
-                        //TODO: Convert p2 from Amateur Proficiency to ISTD Proficiency
-                        //TODO: return the higher proficiency
-                    case 'Georgia DanceSport ProAm':
-                        //TODO: Convert p2 from ProAm Proficiency to Amateur Proficiency to ISTD Proficiency
-                        //TODO: return the higher ISTD proficiency
-                }
-
-
-            case 'Georgia DanceSport ProAm':
-                //TODO: Convert p1 from ProAm Proficiency to Amateur Proficiency to ISTD Proficiency
-                switch($p2HighModel->getName())
-                {
-                    case 'ISTD Medal Exams':
-                        //TODO: return the higher proficiency
-                    case 'Georgia DanceSport Amateur':
-                        //TODO: Convert p2 from Amateur Proficiency to ISTD Proficiency
-                        //TODO: return the higher proficiency
-                    case 'Georgia DanceSport ProAm':
-                        //TODO: Convert p1 from ProAm Proficiency to Amateur Proficiency to ISTD Proficiency
-                        //TODO: Convert p2 from ProAm Proficiency to Amateur Proficiency to ISTD Proficiency
-                        //TODO: return the higher ISTD proficiency
-                }
-
-        }
-    }
-
-    private function istdAmateurStudentProficiency(Value $genre, Participant $p)
-    {
-        $proficiency=$p->fetchGenreProficiency($genre);
-        $models = $p->getModels();
+        $models = $participant->getModels()->toArray();
         $highModel = $this->highModel($models);
-        switch($highModel->getName())
-        {
+        return $highModel;
+    }
+    
+    
+    private function medalProficiency(Value $genre, Participant $participant):?Value
+    {
+        $proficiencyValue = $participant->fetchGenreProficiency($genre);
+        $proficiencyName = $proficiencyValue->getName();
+        $model  = $this->participantModel($participant);
+        switch($model->getName()){
             case 'ISTD Medal Exams':
-                return $proficiency;
+                return $this->domainValueHash['proficiency'][$proficiencyName];
             case 'Georgia DanceSport Amateur':
-                //TODO: Convert from Amateur Proficiency to ISTD Proficiency
-
-                //TODO: return ISTD Proficiency
+                $medalName = self::PROFICIENCY_AMATEUR_TO_MEDAL[$proficiencyName];    
+                return $this->domainValueHash['proficiency'][$medalName];
             case 'Georgia DanceSport ProAm':
-                //TODO: Convert from ProAm Proficiency to Amateur Proficiency to ISTD Proficiency
-                //TODO: return ISTD Proficiency
+                $medalName = self::PROFICIENCY_STUDENT_TO_MEDAL[$proficiencyName];
+                return $this->domainValueHash['proficiency'][$medalName];
         }
-
+        return null;
     }
-
-
-    /**
-     * @param Value $genre
-     * @param Participant $p1
-     * @param Participant $p2
-     * @return Value
-     */
-    private function gadsamAmateurStudentAmateurStudentProficiency(Value $genre, Participant $p1,Participant $p2):Value
+    
+    private function amateurProficiency(Value $genre, Participant $participant):?Value
     {
-        /** @var Value $p1Proficiency */
-        $p1Proficiency=$p1->fetchGenreProficiency($genre);
-        /** @var Value $p2Proficiency */
-        $p2Proficiency=$p2->fetchGenreProficiency($genre);
-
-
-        $p1Models = $p1->getModels()->toArray();
-        $p2Models = $p2->getModels()->toArray();
-
-
-        $p1HighModel = $this->highModel($p1Models);
-        $p2HighModel = $this->highModel($p2Models);
-        switch($p1HighModel->getName())
-        {
+        $proficiencyValue = $participant->fetchGenreProficiency($genre);
+        $proficiencyName = $proficiencyValue->getName();
+        $model = $this->participantModel($participant);
+        switch($model->getName()){
             case 'Georgia DanceSport Amateur':
-                switch($p2HighModel->getName())
-                {
-                    case 'Georgia DanceSport Amateur':
-                        $name = self::HIGHER_PROFICIENCY_AMATEUR[$p1Proficiency->getName()][$p2Proficiency->getName()];
-                        return $this->domainValueHash['proficiency'][$name];
-                    case 'Georgia DanceSport ProAm':
-
-                        $p2AmateurProficiency = self::PROFICIENCY_STUDENT_AMATEUR[$p2Proficiency->getName()];
-                        $name = self::HIGHER_PROFICIENCY_AMATEUR[$p1Proficiency->getName()][$p2AmateurProficiency];
-                        return $this->domainValueHash['proficiency'][$name];
-                }
-                break;
+                return $this->domainValueHash['proficiency'][$proficiencyName];
             case 'Georgia DanceSport ProAm':
-                $p1AmateurProficiency = self::PROFICIENCY_STUDENT_AMATEUR[$p1Proficiency->getName()];
-                switch($p2HighModel->getName())
-                {
-                    case 'Georgia DanceSport Amateur':
-                        $name = self::HIGHER_PROFICIENCY_AMATEUR[$p1AmateurProficiency][$p2Proficiency->getName()];
-                        return $this->domainValueHash['proficiency'][$name];
-                    case 'Georgia DanceSport ProAm':
-                        $p2AmateurProficiency = self::PROFICIENCY_STUDENT_AMATEUR[$p2Proficiency->getName()];
-                        $name = self::HIGHER_PROFICIENCY_AMATEUR[$p1AmateurProficiency][$p2AmateurProficiency];
-                        return $this->domainValueHash['proficiency'][$name];
-
-                }
+                $amateurName = self::PROFICIENCY_STUDENT_TO_AMATEUR[$proficiencyName];
+                return $this->domainValueHash['proficiency'][$amateurName];
         }
+        return null;
     }
+    
 
-    /**
-     * @param Value $genre
-     * @param Participant $p
-     * @return Value
-     */
-    private function gadsamAmateurStudentProficiency(Value $genre, Participant $p):Value
+    private function studentProficiency(Value $genre, Participant $participant):?Value
     {
-        /** @var Value $proficiency */
-        $proficiency=$p->fetchGenreProficiency($genre);
-        $models = $p->getModels();
-        $highModel = $this->highModel($models);
-        switch($highModel->getName())
-        {
-            case 'Georgia DanceSport Amateur':
-                return $proficiency;
+        $proficiencyValue = $participant->fetchGenreProficiency($genre);
+        $proficiencyName = $proficiencyValue->getName();
+        $model = $this->participantModel($participant);
+        switch($model->getName()){
             case 'Georgia DanceSport ProAm':
-                $name = self::PROFICIENCY_STUDENT_AMATEUR[$proficiency->getName()];
-                return $this->domainValueHash['proficiency'][$name];
+                return $this->domainValueHash['proficiency'][$proficiencyName];
         }
-
+        return null;
     }
 
-
-    /**
-     * @param Value $genre
-     * @param Participant $p1
-     * @param Participant $p2
-     * @return Value
-     * @throws ClassifyException
-     */
-    private function gadsproamTeacherStudentProficiency(Value $genre, Participant $p1, Participant $p2):Value
+    
+    private function medalCoupleProficiency(Value $genre, Participant $p1, Participant $p2):Value
+    {
+        $p1Proficiency=$this->medalProficiency($genre, $p1);
+        $p2Proficiency=$this->medalProficiency($genre, $p2);
+        $higherProficiencyName=self::HIGHER_PROFICIENCY_MEDAL[$p1Proficiency->getName()][$p2Proficiency->getName()];
+        return $this->domainValueHash['proficiency'][$higherProficiencyName];
+    }    
+    
+    private function medalTeacherStudentProficiency(Value $genre, Participant $p1, Participant $p2): Value
     {
         $student = $this->student($p1,$p2);
-        $models=$student->getModels();
-        $highModel=$this->highModel($models->toArray());
-        if($highModel->getName()!='Georgia DanceSport ProAm')
-        {   $name=$student->getName();
-            throw new ClassifyException('Invalid Competition Model',"configuration error for $name",9000);
-        }
-        return $student->fetchGenreProficiency($genre);
-
+        $proficiencyValue = $this->medalProficiency($genre,$student);
+        return $proficiencyValue;
     }
 
-
+    private function proamTeacherStudentProficiency(Value $genre, Participant $p1, Participant $p2): Value
+    {
+        $student = $this->student($p1,$p2);
+        $proficiencyValue = $this->studentProficiency($genre,$student);
+        return $proficiencyValue;
+    }
+    
+    private function amateurCoupleProficiency(Value $genre, Participant $p1, Participant $p2):Value
+    {
+        $p1Proficiency=$this->amateurProficiency($genre, $p1);
+        $p2Proficiency=$this->amateurProficiency($genre, $p2);
+        $higherProficiencyName=self::HIGHER_PROFICIENCY_AMATEUR[$p1Proficiency->getName()][$p2Proficiency->getName()];
+        return $this->domainValueHash['proficiency'][$higherProficiencyName];
+    }
+    
+    
+    
     /**
      * @param Participant $p1
      * @param Participant $p2
      * @return Value
      * @throws ClassifyException
      */
-    private function istdAmateurStudentAmateurStudentAge(Participant $p1,Participant $p2): ?Value
+    private function medalCoupleAge(Participant $p1,Participant $p2): ?Value
     {
         $elder=$this->elder($p1,$p2);
         $elderYears = $elder->getYears();
         $younger=$this->younger($p1,$p2);
         $youngerYears = $younger->getYears();
-        foreach(self::AGE_EXAMS as $ageBreak=>$name) {
+        foreach(self::AGE_MEDAL as $ageBreak=>$name) {
             if($elderYears<16 && $elderYears>=$ageBreak) {
-                return $this->domainValueHash['age'][self::AGE_EXAMS[$ageBreak]];
+                return $this->domainValueHash['age'][self::AGE_MEDAL[$ageBreak]];
             }
             if ($youngerYears<16 && $elderYears>=16 && $elderYears>=$ageBreak) {
-               return $this->domainValueHash['age'][self::AGE_EXAMS[$ageBreak]];
+               return $this->domainValueHash['age'][self::AGE_MEDAL[$ageBreak]];
             }
             if ($youngerYears>=$ageBreak) {
-                return $this->domainValueHash['age'][self::AGE_EXAMS[$ageBreak]];
+                return $this->domainValueHash['age'][self::AGE_MEDAL[$ageBreak]];
             }
         }
         $name = $p1->getName().' & '.$p2->getName();
@@ -1435,20 +910,41 @@ class GeorgiaDanceSportClassify extends Classify
     }
 
     /**
-     * @param Participant $p
+     * @param Participant $p1
+     * @param Participant $p2
      * @return Value|null
      * @throws ClassifyException
      */
-    private function istdAmateurStudentAge(Participant $p): ?Value
+    private function medalTeacherStudentAge(Participant $p1,Participant $p2): ?Value
     {
-        $years = $p->getYears();
-        foreach(self::AGE_EXAMS as $ageBreak=>$name){
+        $student = $this->student($p1,$p2);
+        $years = $student->getYears();
+        foreach(self::AGE_MEDAL as $ageBreak=>$ageName){
             if($years>=$ageBreak) {
-                return $this->domainValueHash['age'][self::AGE_EXAMS[$ageBreak]];
+                return $this->domainValueHash['age'][$ageName];
             }
         }
-        $name = $p->getName();
+        $name = $student->getName();
         throw new ClassifyException("ISTD Age", "Unable to classify age for $name", 9000);
+    }
+
+    /**
+     * @param Participant $p1
+     * @param Participant $p2
+     * @return Value
+     * @throws ClassifyException
+     */
+    private function proamTeacherStudentAge(Participant $p1, Participant $p2): Value
+    {
+        $student = $this->student($p1,$p2);
+        $years = $student->getYears();
+        foreach(self::AGE_STUDENT as $ageBreak=>$ageName){
+            if($years>=$ageBreak){
+                return $this->domainValueHash['age'][$ageName];
+            }
+        }
+        $name = $student->getName();
+        throw new ClassifyException("ProAm Age", "Unable to classify age for $name", 9000);
     }
 
     /**
@@ -1457,7 +953,7 @@ class GeorgiaDanceSportClassify extends Classify
      * @return Value|null
      * @throws ClassifyException
      */
-    private function gadsamAmateurStudentAmateurStudentAge(Participant $p1,Participant $p2): ?Value
+    private function amateurCoupleAge(Participant $p1,Participant $p2): ?Value
     {
         $elder=$this->elder($p1,$p2);
         $elderYears = $elder->getYears();
@@ -1470,7 +966,6 @@ class GeorgiaDanceSportClassify extends Classify
                         $value = $this->domainValueHash['age'][$ageName];
                         return $value;
                     };
-
                 }
             }
         }
@@ -1478,42 +973,83 @@ class GeorgiaDanceSportClassify extends Classify
         throw new ClassifyException('Georgia DanceSport Age',"Unable to classify age for $name",9000);
     }
 
-    /**
-     * @param Participant $p
-     * @return Value|null
-     * @throws ClassifyException
-     */
-    private function gadsamAmateurStudentAge(Participant $p): ?Value
+    public function amateurAge(Participant $participant):?Value
     {
-        $years = $p->getYears();
-        foreach(self::AGE_STUDENT as $ageBreak=>$name){
-            if($years>=$ageBreak) {
-                return $this->domainValueHash['age'][self::AGE_STUDENT[$ageBreak]];
+        $years = $participant->getYears();
+        foreach(self::AGE_STUDENT as $nominalYears=>$ageName){
+            if($years>=$nominalYears){
+                return $this->domainValueHash['age'][$ageName];
             }
         }
-        $name = $p->getName();
-        throw new ClassifyException("Georgia DanceSport Amateur Age", "Unable to classify age for $name", 9000);
+        return null;
     }
 
 
     /**
      * @param Participant $p1
      * @param Participant $p2
-     * @return Value|null
-     * @throws ClassifyException
+     * @param Model $model
+     * @return null|string
      */
-    private function gadsproamTeacherStudentAge(Participant $p1, Participant $p2) : ?Value
+    private function coupleClassifier(Participant $p1, Participant $p2, Model $model): ?string
     {
-        $student=$this->student($p1,$p2);
-        $years = $student->getYears();
-        foreach(self::AGE_STUDENT as $ageBreak=>$ageName) {
-            if($years>=$ageBreak) {
-                $value=$this->domainValueHash['age'][self::AGE_STUDENT[$ageBreak]];
-                return $value;
-            }
+        $p1TypeA = $p1->getTypeA()->getName();
+        $p1TypeB = $p1->getTypeB()->getName();
+        $p2TypeA = $p2->getTypeA()->getName();
+        $p2TypeB = $p2->getTypeB()->getName();
+        $classifier=$p1TypeA.$p1TypeB.$p2TypeA.$p2TypeB;
+        switch($classifier) {
+            case 'AmateurStudentAmateurStudent':
+            case 'AmateurTeacherAmateurTeacher':
+                switch($model->getName()){
+                    case 'ISTD Medal Exams':
+                    case 'Georgia DanceSport Amateur':
+                        return 'AmateurAmateur';
+                    case 'Georgia DanceSport ProAm':
+                        return null;
+                }
+                break;
+            case 'AmateurStudentAmateurTeacher':
+            case 'AmateurTeacherAmateurStudent':
+            case 'ProfessionalTeacherAmateurStudent':
+            case 'AmateurStudentProfessionalTeacher':
+                switch($model->getName()){
+                    case 'ISTD Medal Exams':
+                        return 'TeacherStudent';
+                    case 'Georgia DanceSport Amateur':
+                        return null;
+                    case 'Georgia DanceSport ProAm':
+                        return 'TeacherStudent';
+                }
+                break;
+            default:
+                return null;
         }
-        $name = $p1->getName().' & '.$p2->getName();
-        throw new ClassifyException("Georgia DanceSport Amateur Age", "Unable to classify age for $name", 9000);
+        return null;
+    }
+
+    public function buildCoupleQualification(Participant $p1, Participant $p2,
+                                                Value $genre,Value $proficiency,Value $age,Value $type):?Qualification
+    {
+        $qualification = new Qualification();
+        if($genre->getName()!=='Fun Events') {
+            $qualification->set([$genre,$proficiency,$age,$type]);
+            return $qualification;
+        }
+        $yearsDifference = abs($p1->getYears()-$p2->getYears());
+        $seniorFunAge=$yearsDifference>=40?$this->domainValueHash['age']['Senior Youngster']:null;
+        $adultFunAge=$yearsDifference<40 && $yearsDifference>=20?$this->domainValueHash['age']['Adult Youngster']:null;
+
+        if($seniorFunAge){
+            $qualification->set([$genre,$proficiency,$seniorFunAge,$type]);
+            return $qualification;
+        }
+
+        if($adultFunAge){
+            $qualification->set([$genre,$proficiency,$adultFunAge,$type]);
+            return $qualification;
+        }
+        return null;
     }
 
     /**
@@ -1524,16 +1060,16 @@ class GeorgiaDanceSportClassify extends Classify
     public function couple(Participant $p1, Participant $p2) : Player
     {
         /** @var ArrayCollection $commonGenreValues */
-        $commonModels = $this->commonModels( $p1, $p2 );
-        $p1TypeA = $p1->getTypeA()->getName();
-        $p1TypeB = $p1->getTypeB()->getName();
-        $p2TypeA = $p2->getTypeA()->getName();
-        $p2TypeB = $p2->getTypeB()->getName();
-        $classifier = $p1TypeA . $p1TypeB . $p2TypeA . $p2TypeB;
         $player = new Player();
         $player->addParticipant( $p1 )
-            ->addParticipant( $p2 );
+                ->addParticipant( $p2 );
+        $commonModels = $this->commonModels( $p1, $p2 );
         foreach ($commonModels as $modelName => $model) {
+            $classifier = $this->coupleClassifier($p1,$p2,$model);
+            if(is_null($classifier)){
+                //Ineligible to enter this model continue to the next
+                continue;
+            }
             $proficiencyFn = $this->$classifier( $model, self::PROFICIENCY );
             $ageFn = $this->$classifier( $model, self::AGE );
             $typeFn = $this->$classifier( $model, self::TYPE );
@@ -1544,47 +1080,70 @@ class GeorgiaDanceSportClassify extends Classify
             /** @var ArrayCollection $genreCollection */
             $genreCollection = $this->commonGenres( $p1, $p2 );
             $iterator = $genreCollection->getIterator();
+
+            /** @var Value $genre */
             while ($genre = $iterator->current()) {
-                /** @var Value $proficiency */
+                /** @var bool $isFunEvent */
                 $proficiency = $proficiencyFn( $genre, $p1, $p2 );
-                $qualification = new Qualification();
-                $qualification->set( [$genre, $proficiency, $age, $type] );
-                $player->addQualification( $model, $qualification );
+                /** @var Qualification $qualification */
+                $qualification=$this->buildCoupleQualification($p1,$p2,$genre,$proficiency,$age,$type);
+                if($qualification){
+                    $player->addQualification( $model, $qualification );
+                }
                 $iterator->next();
             }
         }
         return $player;
     }
 
-    /**
+
+    public function buildSoloQualification(Participant $p,
+                                           Value $genre,Value $proficiency,Value $age,Value $type):?Qualification
+    {
+        $qualification = new Qualification();
+        if($genre->getName()!=='Fun Events'){
+            $qualification->set([$genre,$proficiency,$age,$type]);
+            return $qualification;
+        }
+        $funAge=in_array($age->getName(),['Baby','Juvenile','Preteen 1','Preteen 2'])?
+                        $this->domainValueHash['age']['Youngster']:
+                        null;
+        if($funAge){
+            $qualification->set([$genre,$proficiency,$funAge,$type]);
+            return $qualification;
+        }
+        return null;
+    }
+
+        /**
      * @param Participant $p
      * @return Player
      */
     public function solo(Participant $p) : Player
     {
         $models = $p->getModels()->toArray();
-        $pTypeA = $p->getTypeA()->getName();
-        $pTypeB = $p->getTypeB()->getName();
-        $classifier = $pTypeA.$pTypeB;
+        /** @var Player $player */
         $player = new Player();
         $player->addParticipant($p);
         foreach($models as $modelName=>$model)
         {
-            $proficiencyFn = $this->$classifier( $model, self::PROFICIENCY );
-            $ageFn = $this->$classifier( $model, self::AGE );
-            $typeFn = $this->$classifier( $model, self::TYPE );
-            $names=$p->fetchGenreNames();
-            foreach($names as $name) {
-                $genre=isset($this->domainValueHash['style'][$name])?
-                            $this->domainValueHash['style'][$name]:
-                            $this->domainValueHash['substyle'][$name];
+            $proficiencyFn = $this->SoloParticipant( $model, self::PROFICIENCY );
+            $ageFn = $this->SoloParticipant( $model, self::AGE );
+            $typeFn = $this->SoloParticipant( $model, self::TYPE );
+            foreach($p->fetchGenreNames() as $genre) {
+                $genre=isset($this->domainValueHash['style'][$genre])?
+                            $this->domainValueHash['style'][$genre]:
+                            $this->domainValueHash['substyle'][$genre];
                 $proficiency=$proficiencyFn($genre,$p);
                 $age = $ageFn($p);
                 $type= $typeFn($p);
-                $qualification = new Qualification();
-                $qualification->set([$genre,$proficiency,$age,$type]);
+                $qualification=$this->buildSoloQualification($p,$genre,$proficiency,$age,$type);
+                if(!$qualification){
+                    continue;
+                }
                 $player->addQualification($model,$qualification);
             }
+
         }
         return $player;
     }

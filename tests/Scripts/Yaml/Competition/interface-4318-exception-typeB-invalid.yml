@@ -1,0 +1,9 @@
+comment:
+    - InterfaceExceptionCode::TYPEB_KEYWORD = 4316
+    - Invalid at row:9, col:26 expected Teacher or Student.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [ISTD Medal Exams,Georgia Dancesport Amateur,Georgia DanceSport ProAm]
+setups:
+    participant-form:
+        typeA: [Professional,Amateur]
+        typeB: [Teacher, Invalid]

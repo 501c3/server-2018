@@ -74,6 +74,10 @@ class Player
 
         if(!$this->models->contains($model)){
             $this->models->set($model->getId(),$model);
+            if(!isset($this->dataCache['models'])){
+                $this->dataCache['models']=[];
+            }
+            $this->dataCache['models'][$model->getId()]=$model->getName();
         }
         $modelQualifications = $this->qualifications->get($model->getId());
         if(!$modelQualifications) {

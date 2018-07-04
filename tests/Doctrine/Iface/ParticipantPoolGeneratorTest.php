@@ -67,14 +67,6 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
         self::$domainValueHash = $valueRepository->fetchDomainValueHash();
     }
 
-    public function test6006ExceptionModels()
-    {
-        $yamlText = file_get_contents(
-            __DIR__ . '/../../Scripts/Yaml/Iface/base-6006-exception-models.yml' );
-        $this->participantPoolGenerator->parse( $yamlText );
-    }
-
-
     /**
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -107,12 +99,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
                     foreach ($sexList as $sex => $genreList) {
                         foreach ($genreList as $genre => $proficiencyList) {
                             /** @var Value $genreValue */
-                            $genreValue = isset( self::$domainValueHash['style'][$genre] ) ?
-                                self::$domainValueHash['style'][$genre] :
-                                self::$domainValueHash['substyle'][$genre];
                             foreach ($proficiencyList as $proficiency => $ageList) {
                                 /** @var Value $proficiencyValue */
-                                $proficiencyValue = self::$domainValueHash['proficiency'][$proficiency];
+
                                 /**
                                  * @var string  $age
                                  * @var  Participant $participant

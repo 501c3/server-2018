@@ -1,0 +1,9 @@
+comment:
+    - InterfaceExceptionCode::TYPEA_INVALID = 4314
+    - Invalid at row:8, col:30 expected Professional or Amateur.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [ISTD Medal Exams,Georgia Dancesport Amateur,Georgia DanceSport ProAm]
+setups:
+    participant-form:
+        typeA: [Professional,Invalid]
+        typeB: [Teacher, Student]

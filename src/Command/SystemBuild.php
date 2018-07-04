@@ -63,7 +63,7 @@ class SystemBuild extends Command
         $this->runSubcommand('sales:channel:load',['filename'=>$yaml['sales']],$output);
         $io->writeln('Building Sequence : '.$yaml['competition']['sequence']);
         $this->runSubcommand('competition:sequence',['filename'=>$yaml['competition']['sequence']],$output);
-        $io->writeln('Building Interface : '.$yaml['competition']['interface']);
+       // $io->writeln('Building Interface : '.$yaml['competition']['interface']);
        // $this->runSubcommand('competition:interface',['filename'=>$yaml['competition']['interface']],$output);
         $io->success('All databases rebuilt.');
     }

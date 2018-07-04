@@ -1,0 +1,4 @@
+comment:
+    - InterfaceExceptionCode::COMPETITION_INVALID=4104
+    - Competition Invalid at row:4, col:14 not found.
+competition: Competition Invalid

@@ -37,7 +37,8 @@ class ParticipantPoolGenerator extends BaseParser
 
     protected $modelByName = [];
 
-    protected $pools = ['medal' => [],
+    protected $pools =
+        ['medal' => [],
         'amateur' => [],
         'proam' => [],
         'medal-amateur' => [],
@@ -60,6 +61,92 @@ class ParticipantPoolGenerator extends BaseParser
             $this->modelByName[$model->getName()] = $model;
         }
     }
+
+    /**
+     * @param $poolName
+     * @param $typeA
+     * @param $typeB
+     * @param $sex
+     * @param $genre
+     * @param $proficiency
+     * @param $age
+     * @throws \Exception
+     */
+    private function checkInput($poolName,$typeA,$typeB,$sex,$genre,$proficiency,$age)
+    {
+        if(!isset($this->pools[$poolName])) {
+            throw new \Exception("'$poolName' is invalid an unrecognized pool of competitors",9000);
+        }
+        if(!isset($this->pools[$poolName][$typeA][$typeB][$sex])){
+            throw new \Exception("sex:'$sex' is invalid.",9000);
+        }
+        if(!isset($this->pools[$poolName][$typeA][$typeB][$sex][$genre])){
+            throw new \Exception("genre:'$genre' is invalid.",9000);
+        }
+        if(!isset($this->pools[$poolName][$typeA][$typeB][$sex][$genre][$proficiency])){
+            throw new \Exception("proficiency:'$proficiency' is invalid.",9000);
+        }
+        if(!isset($this->pools[$poolName][$typeA][$typeB][$sex][$genre][$proficiency][$age])){
+            throw new \Exception("age:'$age' is invalid for $proficiency proficiency and $poolName pool",9000);
+        }
+    }
+
+    public function getDomainValueHash(){
+        return $this->domainValueHash;
+    }
+
+    public function getValueById(){
+        return $this->valueById;
+    }
+
+    /**
+     * @param $poolName
+     * @param $sex
+     * @param $genre
+     * @param $proficiency
+     * @param $age
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getStudent($poolName,$sex,$genre,$proficiency,$age)
+    {
+        $this->checkInput($poolName,'Amateur','Student',$sex,$genre,$proficiency,$age);
+        return $this->pools[$poolName]['Amateur']['Student'][$sex][$genre][$proficiency][$age];
+    }
+
+    /**
+     * @param $poolName
+     * @param $sex
+     * @param $genre
+     * @param $proficiency
+     * @param $age
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getProfessionalTeacher($poolName,$sex,$genre,$proficiency,$age)
+    {
+        $this->checkInput($poolName,'Professional','Teacher',$sex,$genre,$proficiency,$age);
+        return $this->pools[$poolName]['Professional']['Teacher'][$sex][$genre][$proficiency][$age];
+    }
+
+    /**
+     * @param $poolName
+     * @param $sex
+     * @param $genre
+     * @param $proficiency
+     * @param $age
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getAmateurTeacher($poolName,$sex,$genre,$proficiency,$age)
+    {
+        $this->checkInput($poolName,'Amateur','Teacher',$sex,$genre,$proficiency,$age);
+        return $this->pools[$poolName]['Amateur']['Teacher'][$sex][$genre][$proficiency][$age];
+    }
+
+
+
+
 
     /**
      * @param string $yaml
@@ -178,19 +265,6 @@ class ParticipantPoolGenerator extends BaseParser
         }
         return null;
     }
-
-//    private function highModel(array $collection) {
-//        if (isset($collection['Georgia DanceSport ProAm'])) {
-//            return $collection['Georgia DanceSport ProAm'];
-//        }
-//        if (isset($collection['Georgia DanceSport Amateur'])) {
-//            return $collection['Georgia DanceSport Amateur'];
-//        }
-//        if (isset($collection['ISTD Medal Exams'])) {
-//            return $collection['ISTD Medal Exams'];
-//        }
-//        return null;
-//    }
 
 
     /**
@@ -362,6 +436,33 @@ class ParticipantPoolGenerator extends BaseParser
                 /** @var Value $typeBValue */
                 $typeBValue = $this->getDomainValue( 'type', $typeB );
                 $participant->setTypeB( $typeBValue );
+                switch($poolName){
+                    case 'medal':
+                        $participant->addModel($this->modelByName['ISTD Medal Exams']);
+                        break;
+                    case 'amateur':
+                        $participant->addModel($this->modelByName['Georgia DanceSport Amateur']);
+                        break;
+                    case 'proam':
+                        $participant->addModel($this->modelByName['Georgia DanceSport ProAm']);
+                        break;
+                    case 'medal-amateur':
+                        $participant->addModel($this->modelByName['ISTD Medal Exams']);
+                        $participant->addModel($this->modelByName['Georgia DanceSport Amateur']);
+                        break;
+                    case 'medal-proam':
+                        $participant->addModel($this->modelByName['ISTD Medal Exams']);
+                        $participant->addModel($this->modelByName['Georgia DanceSport ProAm']);
+                        break;
+                    case 'amateur-proam':
+                        $participant->addModel($this->modelByName['Georgia DanceSport Amateur']);
+                        $participant->addModel($this->modelByName['Georgia DanceSport ProAm']);
+                        break;
+                    case 'medal-amateur-proam':
+                        $participant->addModel($this->modelByName['ISTD Medal Exams']);
+                        $participant->addModel($this->modelByName['Georgia DanceSport Amateur']);
+                        $participant->addModel($this->modelByName['Georgia DanceSport ProAm']);
+                }
                 $this->pools[$poolName][$typeA][$typeB][$sex][$genre][$proficiency][$nage] = $participant;
             }
         }

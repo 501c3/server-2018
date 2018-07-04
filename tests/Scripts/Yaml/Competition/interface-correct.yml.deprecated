@@ -1,6 +1,6 @@
 comment:
-    - InterfaceExceptionCode::INVALID_COMBINATION = 4404
-    - Not Teacher at row:46, col:17 is invalid.
+    -
+    -
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Georgia DanceSport ProAm,ISTD Medal Exams]
 setups:
@@ -41,14 +41,22 @@ setups:
                 - Novice
                 - Pre Championship
                 - Championship
+            Partner:
+                - Social
         combinations:
             Professional:
-                Not Teacher: Professional
-            Amateur:
+                Professional: Professional
                 Teacher: Teacher
-                Student: Student
-
-mapping:
+            Amateur:
+                Amateur: Amateur
+                Student: Amateur
+                Partner: Partner
+            Student:
+                Student: Amateur
+                Partner: Partner
+            Partner:
+                Partner: Partner
+mappings:
     genre: [American, Rhythm, Smooth, International, Latin, Standard]
     proficiency:
         Student-Amateur:
@@ -66,8 +74,26 @@ mapping:
             Open Gold: Novice
             Gold Star 1: Pre Championship
             Gold Star 2: Championship
+        Student-:
+            Pre Bronze: Pre Bronze
+            Intermediate Bronze: Bronze
+            Full Bronze: Bronze
+            Open Bronze: Bronze
+            Pre Silver: Silver
+            Intermediate Silver: Silver
+            Full Silver: Silver
+            Open Silver: Silver
+            Pre Gold: Gold
+            Intermediate Gold: Gold
+            Full Gold: Gold
+            Open Gold: Gold
+        Amateur-Partner:
+            Newcomer: Pre Bronze
+            Bronze: Bronze
+            Silver: Silver
+            Gold: Gold
     age:
-        Years Amateur:
+        Amateur:
             1-4: Baby
             5-6: Juvenile
             7-9: Preteen 1
@@ -81,6 +107,3 @@ mapping:
             55-64: Senior 3
             65-74: Senior 4
             75-99: Senior 5
-
-
-

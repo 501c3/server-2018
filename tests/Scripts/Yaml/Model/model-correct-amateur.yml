@@ -71,7 +71,6 @@ players:
           - Smooth
           - Standard
           - Latin
-          - Novelty
       proficiency:
           - Newcomer
           - Bronze
@@ -101,23 +100,26 @@ players:
           - Fun Events
       proficiency:
           - Social
+
+      age:
+          - Adult Youngster
+          - Senior Youngster
+      type:
+          - Amateur
+    -
+      substyle:
+          - Novelty
+      proficiency:
+          - Social
           - Newcomer
           - Bronze
-          - Silver
-          - Gold
-          - Novice
-          - Pre Championship
-          - Championship
       age:
           - Baby
           - Juvenile
           - Preteen 1
           - Preteen 2
-          - Adult Youngster
-          - Senior Youngster
       type:
           - Amateur
-
 event-tags:
     - Qualifier
 
@@ -192,13 +194,6 @@ event-collections:
                  Social:
                     eligible:
                         - Social
-                        - Newcomer
-                        - Bronze
-                        - Silver
-                        - Gold
-                        - Novice
-                        - Pre Championship
-                        - Championship
                     single-event: {Smooth: [Foxtrot], Rhythm: [Swing]}
         type:
             Amateur: [Amateur]
@@ -212,13 +207,6 @@ event-collections:
                 Social:
                     eligible:
                         - Social
-                        - Newcomer
-                        - Bronze
-                        - Silver
-                        - Gold
-                        - Novice
-                        - Pre Championship
-                        - Championship
                     single-event: {Smooth: [Waltz], Rhythm: [Rumba]}
         type:
             Amateur: [Amateur]
@@ -226,11 +214,15 @@ event-collections:
         style: Fun Events
         event-tag: Qualifier
         age:
-            Youngster: [Baby, Juvenile, Preteen 1,Preteen 2]
+            Youngster:
+                - Baby
+                - Juvenile
+                - Preteen 1
+                - Preteen 2
         proficiency:
             Solo:
                 Bronze:
-                    eligible: [Newcomer, Bronze]
+                    eligible: [Social,Newcomer,Bronze]
                     single-event: {Novelty: [Chicken Dance]}
         type:
             Amateur: [Amateur]

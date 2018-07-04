@@ -1,6 +1,6 @@
 comment:
-    - InterfaceExceptionCode::PROFICIENCY_INVALID_5126=5126
-    -
+    -  InterfaceExceptionCode::MODEL_INVALID_5112=5112
+    -  Invalid Model at row:72, col:9 is invalid model.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [ISTD Medal Exams,Georgia Dancesport Amateur,Georgia DanceSport ProAm]
 setups:
@@ -69,7 +69,7 @@ setups:
                  proficiencies: [Social]
 mappings:
     proficiency:
-        Georgia DanceSport ProAm:
+        InvalidModel:
             Georgia DanceSport Amateur:
                 Pre Bronze: Bronze
                 Intermediate Bronze: Bronze

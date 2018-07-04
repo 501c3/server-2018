@@ -1,6 +1,6 @@
 comment:
-    - InterfaceExceptionCode::PROFICIENCY_INVALID_5126=5126
-    -
+    -  InterfaceExceptionCode::MAPPINGS_KEYWORD=5002
+    -  not_mappings at row:70, col:1 expected mappings.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [ISTD Medal Exams,Georgia Dancesport Amateur,Georgia DanceSport ProAm]
 setups:
@@ -67,7 +67,7 @@ setups:
              Georgia DanceSport Amateur:
                  genres: [Fun Events,Novelty]
                  proficiencies: [Social]
-mappings:
+not_mappings:
     proficiency:
         Georgia DanceSport ProAm:
             Georgia DanceSport Amateur:

@@ -1,5 +1,5 @@
 comment:
-    - InterfaceExceptionCode::INVALID_MODEL = 4204
-    - Invalid Model at row:5, col:37 is an invalid model.
+    - InterfaceExceptionCode::MODELS_KEYWOR=4202
+    - not_models at row:5, col:1 expected models.
 competition: Georgia DanceSport Competition and Medal Exams
 models: [Georgia Dancesport Amateur,Invalid Model,ISTD Medal Exams]

@@ -652,10 +652,6 @@ class EntriesAssessGeneratorScriptTest extends KernelTestCase
      * @expectedExceptionMessage "Invalid Tag" at row:18, col:18 is invalid.
      * @expectedExceptionCode 4264
      *
-     * @throws \App\Exceptions\GeneralException
-     * @throws \App\Exceptions\MissingException
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function test4264ExceptionInvalidTag()
     {
@@ -669,10 +665,6 @@ class EntriesAssessGeneratorScriptTest extends KernelTestCase
      * @expectedExceptionMessage "Invalid Chosen" at row:19, col:21 expects "one","all".
      * @expectedExceptionCode 4266
      *
-     * @throws \App\Exceptions\GeneralException
-     * @throws \App\Exceptions\MissingException
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function test4266ExceptionInvalidChosen()
     {
@@ -685,10 +677,6 @@ class EntriesAssessGeneratorScriptTest extends KernelTestCase
      * @expectedException \App\Exceptions\GeneralException
      * @expectedExceptionMessage "Invalid Assess" at row:20, col:21 is invalid.
      * @expectedExceptionCode 4268
-     * @throws \App\Exceptions\GeneralException
-     * @throws \App\Exceptions\MissingException
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function test4268ExceptionInvalidAssess()
     {
@@ -697,13 +685,6 @@ class EntriesAssessGeneratorScriptTest extends KernelTestCase
         self::$entriesAssessGenerator->parse($yamlText);
     }
 
-
-    /**
-     * @throws \App\Exceptions\GeneralException
-     * @throws \App\Exceptions\MissingException
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function testCorrect()
     {
         $yamlText = file_get_contents(

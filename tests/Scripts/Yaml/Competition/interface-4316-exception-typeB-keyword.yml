@@ -1,0 +1,9 @@
+comment:
+    - InterfaceExceptionCode::TYPEB_KEYWORD = 4316
+    - not_typeB at row:9, col:9 expected typeB.
+competition: Georgia DanceSport Competition and Medal Exams
+models: [ISTD Medal Exams,Georgia Dancesport Amateur,Georgia DanceSport ProAm]
+setups:
+    participant-form:
+        typeA: [Professional,Amateur]
+        not_typeB: [Teacher, Student]

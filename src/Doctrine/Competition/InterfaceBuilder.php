@@ -33,11 +33,9 @@ use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
 class InterfaceBuilder extends Builder
 {
 
-    private $domainValues = [];
+    private $domainValueHash = [];
 
-    private $modelId = [];
-
-    private $mappingCheck;
+    private $modelByName = [];
 
     /**
      * @var ValueRepository
@@ -60,6 +58,16 @@ class InterfaceBuilder extends Builder
      */
     private $ifaceRepository;
 
+    private $typeASelections=[];
+
+    private $typeBSelections=[];
+
+    private $proficiencyDropdowns=[];
+
+    private $tiProficiencyDropdowns=[];
+
+    private $mappings = [];
+
     public function __construct(
         ModelRepository $modelRepository,
         DomainRepository $domainRepository,
@@ -75,6 +83,7 @@ class InterfaceBuilder extends Builder
         $this->domainRepository = $domainRepository;
         $this->ifaceRepository = $ifaceRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->domainValueHash = $this->valueRepository->fetchDomainValueHash();
     }
 
     /**
@@ -96,13 +105,11 @@ class InterfaceBuilder extends Builder
         $competition = $this->findCompetition( current( $r['data'] ), current( $r['position'] ),
             key( $r['data'] ), key( $r['position'] ) );
 
-        $this->loadModelDomainValues( next( $r['data'] ), next( $r['position'] ),
+        $this->loadModels( next( $r['data'] ), next( $r['position'] ),
             key( $r['data'] ), key( $r['position'] ) );
 
         $setups=$this->buildSetups( next( $r['data'] ), next( $r['position'] ),
             key( $r['data'] ), key( $r['position'] ) );
-
-        $this->mappingCheck = $setups['proficiency'];
 
         $mappings=$this->buildMappings( next( $r['data'] ), next( $r['position'] ),
             key( $r['data'] ), key( $r['position'] ) );
@@ -131,13 +138,13 @@ class InterfaceBuilder extends Builder
     {
         if ($dataKey != 'competition') {
             throw new GeneralException( $dataKey, $positionKey, "expected \"competition\"",
-                InterfaceExceptionCode::COMPETITION );
+                InterfaceExceptionCode::COMPETITION_KEYWORD );
         }
         /** @var Competition $competition */
         $competition = $this->competitionRepository->findOneBy( ['name' => $dataPart] );
         if (!$competition) {
             throw new GeneralException( $dataPart, $positionPart, "not found",
-                InterfaceExceptionCode::INVALID_COMPETITION );
+                InterfaceExceptionCode::COMPETITION_INVALID );
         }
         return $competition;
     }
@@ -149,11 +156,11 @@ class InterfaceBuilder extends Builder
      * @param $positionKey
      * @throws GeneralException
      */
-    private function loadModelDomainValues($dataPart, $dataPosition, $dataKey, $positionKey)
+    private function loadModels($dataPart, $dataPosition, $dataKey, $positionKey)
     {
         if ($dataKey != 'models') {
             throw new GeneralException( $dataKey, $positionKey, "expected \"models\"",
-                InterfaceExceptionCode::MODELS );
+                InterfaceExceptionCode::MODELS_KEYWORD );
         }
         list( $modelName, $position, , ) = $this->current( $dataPart, $dataPosition );
         while ($modelName && $position) {
@@ -161,30 +168,10 @@ class InterfaceBuilder extends Builder
             $model = $this->modelRepository->findOneby( ['name' => $modelName] );
             if (!$model) {
                 throw new GeneralException( $modelName, $position, "is an invalid model",
-                    InterfaceExceptionCode::INVALID_MODEL );
+                    InterfaceExceptionCode::MODEL_INVALID );
             }
-            $this->loadDomainValues( $model );
+            $this->modelByName[$model->getName()]=$model;
             list( $modelName, $position, , ) = $this->next( $dataPart, $dataPosition );
-        }
-    }
-
-    /**
-     * @param Model $model
-     */
-    private function loadDomainValues(Model $model)
-    {
-        $modelName = $model->getName();
-        if (!isset( $this->competitionModel[$modelName] )) {
-            $this->modelId[$modelName] = $model->getId();
-        }
-        $domainValues = $this->valueRepository->fetchDomainValues( $model );
-        foreach ($domainValues as $value) {
-            /** @var Value $value */
-            $domainName = $value->getDomain()->getName();
-            if (!isset( $this->domainValues[$domainName] )) {
-                $this->domainValues[$domainName] = [];
-            }
-            $this->domainValues[$domainName][$value->getName()] = $value;
         }
     }
 
@@ -200,16 +187,15 @@ class InterfaceBuilder extends Builder
     {
         if ($dataKey != 'setups') {
             throw new GeneralException( $dataKey, $positionKey, "expected \"setups\"",
-                InterfaceExceptionCode::SETUPS );
+                InterfaceExceptionCode::SETUPS_KEYWORD );
         }
         list( $participantsPart, $participantsPosition, $participantsKey, $participantsPositionKey )
             = $this->current( $dataPart, $positionPart );
-        if ($participantsKey != 'participant') {
-            throw new GeneralException( $participantsKey, $participantsPositionKey, "expected \"participants\"",
-                InterfaceExceptionCode::PARTICIPANT );
+        if ($participantsKey != 'participant-form') {
+            throw new GeneralException( $participantsKey, $participantsPositionKey, "expected \"participant-form\"",
+                InterfaceExceptionCode::PFORM_KEYWORD );
         }
-        $participantsSetup=$this->buildParticipantsSetup( $participantsPart, $participantsPosition );
-
+        $participantsSetup=$this->buildParticipantForm( $participantsPart, $participantsPosition );
         return $participantsSetup;
     }
 
@@ -220,134 +206,368 @@ class InterfaceBuilder extends Builder
      * @return array
      * @throws GeneralException
      */
-    private function buildParticipantsSetup(array $data, array $positions){
-        list($typePart, $typePartPosition, $typeKey, $typeKeyPosition) = $this->current($data, $positions);
-        if($typeKey != 'type') {
-            throw new GeneralException($typeKey, $typeKeyPosition, "expected \"type\"",
-                InterfaceExceptionCode::TYPE);
+    private function buildParticipantForm(array $data, array $positions){
+        list($typeAPart, $typeAPartPosition, $typeAKey, $typeAKeyPosition)
+            = $this->current($data, $positions);
+        if($typeAKey != 'typeA') {
+            throw new GeneralException($typeAKey, $typeAKeyPosition, "expected \"typeA\"",
+                InterfaceExceptionCode::TYPEA_KEYWORD);
         }
-        $typeSetup=[];
-        list($type, $typePosition, , ) = $this->current($typePart, $typePartPosition);
-        while($type && $typePosition) {
-            $typeValue=$this->getPrimitive('type',$type);
-            if(!$typeValue) {
-                throw new GeneralException($type,$typePosition,'is invalid',
-                    InterfaceExceptionCode::INVALID_TYPE);
-            }
-            $typeSetup[$typeValue->getName()]=$typeValue->getId();
-            list($type, $typePosition, , ) = $this->next($typePart, $typePartPosition);
+        $this->buildTypeA($typeAPart,$typeAPartPosition);
+        list($typeBPart, $typeBPartPosition, $typeBKey, $typeBKeyPosition) = $this->next($data,$positions);
+        if($typeBKey != 'typeB') {
+            throw new GeneralException($typeBKey, $typeBKeyPosition, "expected \"typeB\"",
+                InterfaceExceptionCode::TYPEB_KEYWORD);
+        }
+        $this->buildTypeB($typeBPart,$typeBPartPosition);
+        if($typeAKey != 'typeA') {
+            throw new GeneralException($typeBKey, $typeBKeyPosition, "expected \"typeA\"",
+                InterfaceExceptionCode::TYPEB_KEYWORD);
         }
 
-        list($proficiencyPart, $proficiencyPartPosition, $proficiencyKey, $proficiencyKeyPosition)
+        list($dropdownPart, $dropdownPartPosition, $dropdownKey, $dropdownKeyPosition)
             = $this->next($data, $positions);
-        if($proficiencyKey != 'proficiency') {
-            throw new GeneralException( $proficiencyKey, $proficiencyKeyPosition, "expected \"proficiency\"",
-                InterfaceExceptionCode::PROFICIENCY);
+        if($dropdownKey != 'proficiency-dropdown') {
+            throw new GeneralException( $dropdownKey, $dropdownKeyPosition,
+                "expected \"proficiency-dropdown\"",
+                InterfaceExceptionCode::PROFDROP_KEYWORD);
         }
-        $proficiencySelections = $this->buildProficiencySelections($proficiencyPart, $proficiencyPartPosition);
-        list($combinationPart, $combinationPartPosition, $combinationKey, $combinationKeyPosition)
+        $this->buildTypeADropLayer($dropdownPart,$dropdownPartPosition);
+        list($tiDropdownPart, $tiDropdownPartPosition, $tiDropdownKey,$tiDropdownKeyPosition)
             = $this->next($data,$positions);
-        if($combinationKey!='combinations') {
-            throw new GeneralException($combinationKey, $combinationKeyPosition,
-                'expected proficiency-combinations',
-                InterfaceExceptionCode::COMBINATIONS);
+        if($tiDropdownKey != 'ti-proficiency-dropdown') {
+            throw new GeneralException($tiDropdownKey, $tiDropdownKeyPosition,
+                "expected \"ti-proficiency-dropdown\"",
+                InterfaceExceptionCode::TIPROFICIENCY_KEYWORD);
         }
-        $combinations = $this->checkCombinations($combinationPart,$combinationPartPosition);
-        return ['type'=>$typeSetup, 'proficiency'=> $proficiencySelections, 'combination'=>$combinations];
+        $clientModels = [];
+        $clientHash = [];
+        foreach($this->modelByName as $modelName=>$model) {
+            $clientModels[$modelName]=$model->getId();
+        }
+        foreach($this->domainValueHash as $domain=>$valueList){
+            if(!isset($clientHash[$domain])){
+                $clientHash[$domain]=[];
+            }
+            /**
+             * @var string  $valueName
+             * @var  Value $value
+             */
+            foreach($valueList as $valueName=>$value){
+                $clientHash[$domain][$valueName]=$value->getId();
+            }
+
+        }
+        $this->buildTiProficiency($tiDropdownPart,$tiDropdownPartPosition);
+        $participantSetup=['typeA'=>$this->typeASelections,
+                           'typeB'=>$this->typeBSelections,
+                           'models'=> $clientModels,
+                           'proficiency'=>$this->proficiencyDropdowns,
+                           'ti-proficiency'=>$this->tiProficiencyDropdowns,
+                           'domain-value-hash'=>$clientHash,
+                           'descr'=>['proficiency'=>'$data[$typeAId][$typeBId][$modelId][genres-proficiencies]']];
+        return $participantSetup;
     }
+
 
     /**
      * @param array $data
-     * @param array $position
-     * @return array
+     * @param array $positions
      * @throws GeneralException
-     *
-     * Example $proficiencySelections['Amateur']['Bronze']= n  where n is the numeric id for bronze
-     * Information passed to client as JSON
      */
-    private function buildProficiencySelections(array $data, array $position)
+    public function buildTypeA(array $data,array $positions)
     {
-        $proficiencySelections=[];
-        list($proficiencyPart, $proficiencyPartPosition, $typeKey, $typeKeyPosition)
-            = $this->current($data, $position);
-        while($proficiencyPart && $proficiencyPartPosition){
-            if(is_null($this->getPrimitive('type',$typeKey))) {
-                throw new GeneralException($typeKey, $typeKeyPosition, "is invalid",
-                    InterfaceExceptionCode::PROFICIENCY_TYPE);
+
+        list($typeA,$typeAPosition, , )=$this->current($data,$positions);
+        while ($typeA) {
+            if (!in_array( $typeA, ['Professional', 'Amateur'] )) {
+                throw new GeneralException( $typeA, $typeAPosition,
+                    'expected "Professional" or "Amateur"',
+                    InterfaceExceptionCode::TYPEA_INVALID );
             }
-            if(!isset($proficiencySelections[$typeKey])){
-                $proficiencySelections[$typeKey]=[];
-            }
-            list($proficiencyName, $proficiencyNamePosition, , )
-                =$this->current($proficiencyPart, $proficiencyPartPosition);
-            while($proficiencyName && $proficiencyNamePosition){
-                $proficiencyValue = $this->getPrimitive('proficiency', $proficiencyName);
-                if(!isset($proficiencyValue)){
-                    throw new GeneralException($proficiencyName, $proficiencyNamePosition, 'is invalid',
-                        InterfaceExceptionCode::INVALID_PROFICIENCY);
-                }
-                $proficiencySelections[$typeKey][$proficiencyValue->getName()]=$proficiencyValue->getId();
-                list($proficiencyName, $proficiencyNamePosition, , )
-                    =$this->next($proficiencyPart, $proficiencyPartPosition);
-            }
-            list($proficiencyPart, $proficiencyPartPosition, $typeKey, $typeKeyPosition)
-                = $this->next($data, $position);
+            /** @var Value $typeAValue */
+            $typeAValue = $this->domainValueHash['type'][$typeA];
+            $this->typeASelections[$typeAValue->getName()]=$typeAValue->getId();
+            list($typeA,$typeAPosition, , ) = $this->next($data,$positions);
         }
-        return $proficiencySelections;
     }
 
     /**
      * @param array $data
      * @param array $positions
-     * @return array
      * @throws GeneralException
      */
-    private function checkCombinations(array $data, array $positions){
-       list($combination,$combinationPosition,$key,$keyPosition)
-           = $this->current($data,$positions);
-       while($combination && $combinationPosition){
-           if(is_null($this->getPrimitive('type',$key))){
-               throw new GeneralException($key,$keyPosition,"is invalid",
-                   InterfaceExceptionCode::INVALID_TYPE);
-           }
-           list($secondary, $secondaryPosition, $secondaryKey, $secondaryKeyPosition)
-               = $this->current($combination,$combinationPosition);
-           while($secondary && $secondaryPosition){
+    public function buildTypeB(array $data,array $positions)
+    {
+        list($typeB,$typeBPosition, , )=$this->current($data,$positions);
+        while ($typeB) {
+            if (!in_array( $typeB, ['Teacher','Student'] )) {
+                throw new GeneralException( $typeB, $typeBPosition,
+                    'expected "Teacher" or "Student"',
+                    InterfaceExceptionCode::TYPEB_INVALID );
+            }
+            /** @var Value $typeBValue */
+            $typeBValue = $this->domainValueHash['type'][$typeB];
+            $this->typeBSelections[$typeBValue->getName()]=$typeBValue->getId();
+            list($typeB,$typeBPosition, , ) = $this->next($data,$positions);
+        }
+    }
 
-               if(is_null($this->getPrimitive('type',$secondaryKey))){
-                   throw new GeneralException($secondaryKey,$secondaryKeyPosition,"is invalid",
-                       InterfaceExceptionCode::INVALID_COMBINATION);
-               }
-               if(is_null($this->getPrimitive('type',$secondary))){
-                   throw new GeneralException($secondary,$secondaryPosition, "is invalid",
-                       InterfaceExceptionCode::INVALID_COMBINATION);
-               }
-               list($secondary,$secondaryPosition, , )=$this->next($combination,$combinationPosition);
-           }
-           list($combination,$combinationPosition,$key,$keyPosition)
-               = $this->next($data,$positions);
-       }
-       return $data;
+    /**
+     * @param array $data
+     * @param array $positions
+     * @throws GeneralException
+     */
+    private function buildTypeADropLayer(array $data,array $positions)
+    {
+        list($layer,$layerPosition,$layerKey,$layerKeyPosition)
+            = $this->current($data,$positions);
+        $expectedKeys = array_keys($this->typeASelections);
+        while ($layer) {
+            if (!in_array( $layerKey, $expectedKeys )) {
+                $expectedString = join( '","', $expectedKeys );
+                throw new GeneralException( $layerKey, $layerKeyPosition,
+                    "expected \"$expectedString\"",
+                    InterfaceExceptionCode::DROPA_INVALID );
+            }
+            $typeAId=$this->typeASelections[$layerKey];
+            if(!isset($this->proficiencyDropdowns[$typeAId])){
+                $this->proficiencyDropdowns[$typeAId]=[];
+            }
+            $this->buildTypeBDropLayer($layer,$layerPosition,$typeAId);
+            list($layer,$layerPosition,$layerKey,$layerKeyPosition)
+                = $this->next($data,$positions);
+
+        }
+    }
+
+    /**
+     * @param $data
+     * @param $positions
+     * @param $typeAId
+     * @throws GeneralException
+     */
+    private function buildTypeBDropLayer($data,$positions,$typeAId)
+    {
+
+        list($layer,$layerPosition,$layerKey,$layerKeyPosition)
+            = $this->current($data,$positions);
+        $expectedKeys = array_keys($this->typeBSelections);
+
+        while($layer){
+            if (!in_array( $layerKey, $expectedKeys )) {
+                $expectedString = join( '","', $expectedKeys );
+                throw new GeneralException( $layerKey, $layerKeyPosition,
+                    "expected \"$expectedString\"",
+                    InterfaceExceptionCode::DROPB_INVALID );
+            }
+            $typeBId=$this->typeBSelections[$layerKey];
+            if(!isset($this->proficiencyDropdowns[$typeAId][$typeBId])){
+                $this->proficiencyDropdowns[$typeAId][$typeBId]=[];
+            }
+            $this->buildModelDropLayer($layer,$layerPosition,$typeAId,$typeBId);
+            list($layer,$layerPosition,$layerKey,$layerKeyPosition)
+                = $this->next($data,$positions);
+        }
     }
 
 
     /**
-     * @param string $domainName
-     * @param string $key
-     * @return Value|null
+     * @param array $data
+     * @param array $positions
+     * @param int $typeAId
+     * @param int $typeBId
+     * @throws GeneralException
      */
-    private function getPrimitive(string $domainName, string $key):?Value {
-        if (isset($this->domainValues[$domainName][$key])) {
-            return $this->domainValues[$domainName][$key];
+    private function buildModelDropLayer(array $data,array $positions,int $typeAId,int $typeBId)
+    {
+        list($layer,$layerPosition,$layerKey,$layerKeyPosition)
+            = $this->current($data,$positions);
+        $expectedKeys = array_keys($this->modelByName);
+        while($layer){
+            if (!in_array( $layerKey, $expectedKeys )) {
+                $expectedString = join( '","', $expectedKeys );
+                throw new GeneralException( $layerKey, $layerKeyPosition,
+                    "expected \"$expectedString\"",
+                    InterfaceExceptionCode::DROP_MODEL_INVALID);
+            }
+            /** @var Model $model */
+            $model=$this->modelByName[$layerKey];
+            $modelId = $model->getId();
+            $this->buildGenresProficienciesLayer($layer,$layerPosition,$typeAId,$typeBId,$modelId);
+            list($layer,$layerPosition,$layerKey,$layerKeyPosition)
+                =$this->next($data,$positions);
         }
-        $domain = $this->domainRepository->findOneBy(['name'=>$domainName]);
-        /** @var Value|null $result */
-        $result = $this->valueRepository->findOneBy(['name'=>$key, 'domain'=>$domain]);
-        if($result){
-            $this->domainValues[$domainName][$key]=$result;
-        }
-        return $result;
     }
+
+
+    /**
+     * @param $data
+     * @param $positions
+     * @param $typeAId
+     * @param $typeBId
+     * @param $modelId
+     * @throws GeneralException
+     */
+    private function buildGenresProficienciesLayer($data,$positions,$typeAId,$typeBId,$modelId)
+    {
+
+        list($genres,$genresPosition,$genreKey,$genreKeyPosition)
+            = $this->current($data,$positions);
+        if($genreKey!='genres'){
+            throw new GeneralException($genreKey,$genreKeyPosition,
+                'expected "es"',
+                InterfaceExceptionCode::GENRES_KEYWORD);
+        }
+        list($proficiencies,$proficienciesPosition,$proficienciesKey,$proficienciesKeyPosition)
+            = $this->next($data,$positions);
+        if($proficienciesKey!='proficiencies'){
+            throw new GeneralException($proficienciesKey,$proficienciesKeyPosition,
+                    'expected "proficiencies"',
+                    InterfaceExceptionCode::PROFICIENCIES_KEYWORD);
+        }
+        $this->buildGenresProficienciesDetail($genres,$genresPosition,
+                                              $proficiencies,$proficienciesPosition,
+                                              $typeAId,$typeBId,$modelId)  ;
+    }
+
+    /**
+     * @param array $genres
+     * @param array $genresPosition
+     * @param array $proficiencies
+     * @param $proficienciesPosition
+     * @param int $typeAId
+     * @param int $typeBId
+     * @param int $modelId
+     * @throws GeneralException
+     */
+
+    private function buildGenresProficienciesDetail(array $genres, array $genresPosition,
+                                                    array $proficiencies,$proficienciesPosition,
+                                                    int $typeAId,int $typeBId,int $modelId)
+    {
+        $genresKeyStringPairs = $this->buildGenresKeyStringPairs($genres,$genresPosition);
+        $proficienciesKeyStringPairs = $this->buildProficienciesKeyStringPairs($proficiencies,$proficienciesPosition);
+        $this->proficiencyDropdowns[$typeAId][$typeBId][$modelId]
+            =
+            [
+                'genres'=>$genresKeyStringPairs,
+                'proficiencies'=>$proficienciesKeyStringPairs
+            ];
+    }
+
+
+    /**
+     * @param $data
+     * @param $positions
+     * @return array
+     * @throws GeneralException
+     */
+    private function buildGenresKeyStringPairs($data,$positions)
+    {
+        list($genre,$genrePosition,,)=$this->current($data,$positions);
+        $idStringPair = [];
+        while($genre){
+            $hasGenre = isset($this->domainValueHash['style'][$genre])||
+                        isset($this->domainValueHash['substyle'][$genre]);
+            if(!$hasGenre){
+                throw new GeneralException($genre,$genrePosition,"is invalid",
+                            InterfaceExceptionCode::GENRE_INVALID);
+            }
+            /** @var Value $value */
+            $value = isset($this->domainValueHash['style'][$genre])?
+                        $this->domainValueHash['style'][$genre]:
+                        $this->domainValueHash['substyle'][$genre];
+            $idStringPair[$value->getId()]=$value->getName();
+            list($genre,$genrePosition,,)=$this->next($data,$positions);
+        }
+        return $idStringPair;
+    }
+
+
+    /**
+     * @param $data
+     * @param $positions
+     * @return array
+     * @throws GeneralException
+     */
+    private function buildProficienciesKeyStringPairs($data,$positions)
+    {
+        list($proficiency,$proficiencyPosition,,)=$this->current($data,$positions);
+        $idStringPair = [];
+        while($proficiency){
+            if(!isset($this->domainValueHash['proficiency'][$proficiency])){
+                throw new GeneralException($proficiency,$proficiencyPosition,
+                    "is invalid",
+                    InterfaceExceptionCode::PROFICIENCY_INVALID);
+            }
+            /** @var Value $value */
+            $value = $this->domainValueHash['proficiency'][$proficiency];
+            $idStringPair[$value->getName()]=$value->getId();
+            list($proficiency,$proficiencyPosition,,)=$this->next($data,$positions);
+        }
+        return $idStringPair;
+    }
+
+    /**
+     * @param $data
+     * @param $positions
+     * @throws GeneralException
+     */
+    public function buildTiProficiency($data,$positions)
+    {
+        list($dataPart,$positionsPart,$modelKey,$modelKeyPosition)
+            = $this->current($data,$positions);
+        while($dataPart){
+            if(!isset($this->modelByName[$modelKey])){
+                throw new GeneralException($modelKey,$modelKeyPosition,
+                    "is invalid",
+                    InterfaceExceptionCode::TIMODEL_INVALID);
+            }
+            /** @var Model $model */
+            $model=$this->modelByName[$modelKey];
+            list($genres,$genrePositions,$genreKey,$genreKeyPosition)
+                = $this->current($dataPart,$positionsPart);
+            if($genreKey!='genres'){
+                throw new GeneralException($genreKey,$genreKeyPosition,
+                    'expected "genres"',
+                    InterfaceExceptionCode::GENRES_KEYWORD);
+            }
+            list($proficiencies,$proficienciesPosition,$proficienciesKey,$proficienciesKeyPosition)
+                = $this->next($dataPart,$positionsPart);
+
+            if($proficienciesKey!='proficiencies'){
+                throw new GeneralException($proficienciesKey,$proficienciesKeyPosition,
+                    'expected "proficiencies"',
+                    InterfaceExceptionCode::PROFICIENCIES_KEYWORD);
+            }
+
+            $this->buildTiGenresProficienciesDetail($genres,$genrePositions,
+                                                    $proficiencies,$proficienciesPosition,
+                                                    $model->getId());
+            list($dataPart,$positionsPart,$modelKey,$modelKeyPosition)
+                = $this->next($data,$positions);
+        }
+    }
+
+    /**
+     * @param $genres
+     * @param $genrePositions
+     * @param $proficiencies
+     * @param $proficiencyPositions
+     * @param $modelId
+     * @throws GeneralException
+     */
+    private function buildTiGenresProficienciesDetail($genres,$genrePositions,
+                                                       $proficiencies, $proficiencyPositions,
+                                                        $modelId)
+    {
+        $genresKeyStringPairs = $this->buildGenresKeyStringPairs($genres,$genrePositions);
+        $proficiencyKeyStringPairs = $this->buildProficienciesKeyStringPairs($proficiencies,$proficiencyPositions);
+        $this->tiProficiencyDropdowns[$modelId]=['genres'=>$genresKeyStringPairs,
+                                                 'proficiencies'=>$proficiencyKeyStringPairs];
+    }
+
 
     /**
      * @param $dataPart
@@ -361,178 +581,110 @@ class InterfaceBuilder extends Builder
     {
         if($dataKey != 'mappings') {
             throw new GeneralException($dataKey, $positionKey, "expected \"mappings\"",
-                    InterfaceExceptionCode::MAPPINGS);
+                    InterfaceExceptionCode::MAPPINGS_KEYWORD);
         }
 
-        list($genrePart,$genrePosition, $genreKey, $genreKeyPosition)
-            = $this->current($dataPart, $positionPart);
-        if($genreKey != 'genre'){
-            throw new GeneralException($genreKey, $genreKeyPosition, "expected \"genre\"",
-                InterfaceExceptionCode::GENRE);
-        }
-        $genreMapping = $this->buildGenreMapping($genrePart, $genrePosition);
         list($proficiencyPart,$proficiencyPosition,$proficiencyKey,$proficiencyKeyPosition)
-            = $this->next($dataPart, $positionPart);
+            = $this->current($dataPart, $positionPart);
         if($proficiencyKey != 'proficiency'){
             throw new GeneralException($proficiencyKey, $proficiencyKeyPosition, "expected \"proficiency\"",
-                InterfaceExceptionCode::MAPPING_PROFICIENCY);
+                InterfaceExceptionCode::PROFICIENCY_KEYWORD);
         }
-        $proficiencyIdMap = $this->buildProficiencyMapping($proficiencyPart,$proficiencyPosition);
-        list($agePart,$agePosition, $ageKey, $ageKeyPosition)
-            = $this->next($dataPart, $positionPart);
-        if($ageKey != 'age') {
-            throw new GeneralException($ageKey, $ageKeyPosition, "expected \"age\"",
-                InterfaceExceptionCode::MAPPING_AGE);
+        if(!isset($this->mappings['proficiency'])) {
+            $this->mappings['proficiency']=[];
         }
-        $ageIdMap = $this->buildAgeMapping($agePart,$agePosition);
-
-        return ['genre'=>$genreMapping, 'proficiency'=>$proficiencyIdMap, 'age'=>$ageIdMap];
-    }
-
-    /**
-     * @param array $data
-     * @param array $position
-     * @return array
-     * @throws GeneralException
-     */
-    private function buildGenreMapping(array $data, array $position):array
-    {
-        list($genreName, $genrePosition, , ) = $this->current($data,$position);
-
-        $genreClassification = [];
-        while($genreName && $genrePosition){
-            if(isset($this->domainValues['style'][$genreName])){
-                /** @var Value $value */
-                $value = $this->domainValues['style'][$genreName];
-                $genreClassification[$genreName]=['class'=>'style', 'id'=>$value->getId()];
-            } elseif (isset($this->domainValues['substyle'][$genreName])) {
-                /** @var Value $value */
-                $value = $this->domainValues['substyle'][$genreName];
-                $genreClassification[$genreName]=['class'=>'substyle', 'id'=>$value->getId()];
-            } else {
-                throw new GeneralException($genreName, $genrePosition, 'is invalid',
-                    InterfaceExceptionCode::INVALID_GENRE);
-            }
-            list($genreName,$genrePosition, , ) = $this->next($data,$position);
-        }
-        return $genreClassification;
+        $this->buildProficiencyMapping($proficiencyPart,$proficiencyPosition);
+        return $this->mappings;
     }
 
 
     /**
      * @param array $data
-     * @param array $position
-     * @return array
+     * @param array $positions
      * @throws GeneralException
      */
-    public function buildProficiencyMapping(array $data, array $position):array
-    {
-        $proficiencyIdMap = [];
-        list($proficiencyEquivalents, $proficiencyEquivalentsPosition, $typeKey, $typeKeyPosition)
-            = $this->current($data,$position);
-        while($proficiencyEquivalents && $proficiencyEquivalentsPosition){
-            $proficiencyIdMap[$typeKey]=[];
-            list($leftType,$rightType)=preg_split('/\-/', $typeKey);
-            if(!isset($this->domainValues['type'][$leftType])){
-                throw new GeneralException($leftType, $typeKeyPosition,"left type is invalid",
-                    InterfaceExceptionCode::MAPPING_PROFICIENCY_TYPE);
+    public function buildProficiencyMapping(array $data,array $positions){
+        list($bottomModelData,$bottomModelDataPositions, $topModelKey,$topModelKeyPosition)
+            = $this->current($data,$positions);
+        while($bottomModelData) {
+            if(!isset($this->modelByName[$topModelKey])) {
+                throw new GeneralException($topModelKey,$topModelKeyPosition,
+                            "is invalid model",
+                    InterfaceExceptionCode::MODEL_INVALID_5112);
             }
-            if(!isset($this->domainValues['type'][$rightType])){
-                throw new GeneralException($rightType, $typeKeyPosition, "right type is invalid",
-                        InterfaceExceptionCode::MAPPING_PROFICIENCY_TYPE);
+            /** @var Model $model */
+            $model = $this->modelByName[$topModelKey];
+            $modelId = $model->getId();
+            if(!isset($this->mappings['proficiency'][$modelId])){
+                $this->mappings['proficiency'][$modelId]=[];
             }
-            $checkLeft = $this->mappingCheck[$leftType];
-            $checkRight = $this->mappingCheck[$rightType];
-            list($rightProficiency,$rightProficiencyPosition,$leftProficiency,$leftProficiencyPosition)
-                = $this->current($proficiencyEquivalents, $proficiencyEquivalentsPosition);
-            while($rightProficiency && $rightProficiencyPosition){
-                if(!isset($checkLeft[$leftProficiency])) {
-                    throw new GeneralException($leftProficiency, $leftProficiencyPosition,
-                        "is not valid for $leftType",InterfaceExceptionCode::MAPPING_CHECK);
-                }
-                if(!isset($checkRight[$rightProficiency])) {
-                    throw new GeneralException($rightProficiency, $rightProficiencyPosition,
-                            "is not valid for $rightType", InterfaceExceptionCode::MAPPING_CHECK);
-                }
-                /** @var Value $leftValue */
-                $leftValue=$this->domainValues['proficiency'][$leftProficiency];
-                /** @var Value $rightValue */
-                $rightValue=$this->domainValues['proficiency'][$rightProficiency];
-                $proficiencyIdMap[$typeKey][$leftValue->getId()]=$rightValue->getId();
-                list($rightProficiency, $rightProficiencyPosition, $leftProficiency, $leftProficiencyPosition)
-                    = $this->next($proficiencyEquivalents, $proficiencyEquivalentsPosition);
-            }
-            list($proficiencyEquivalents, $proficiencyEquivalentsPosition, $typeKey, $typeKeyPosition)
-                = $this->next($data,$position);
+            $this->buildProficiencyMappingLayer1($bottomModelData,$bottomModelDataPositions,$model->getId());
+            list($bottomModelData, $bottomModelDataPositions, $topModelKey, $topModelKeyPosition)
+                = $this->next($data,$positions);
         }
-        return $proficiencyIdMap;
+    }
+
+
+    /**
+     * @param array $data
+     * @param array $positions
+     * @param int $modelId1
+     * @throws GeneralException
+     */
+    public function buildProficiencyMappingLayer1(array $data,array $positions,int $modelId1)
+    {
+        list($proficiencies,$proficienciesPositions,$bottomModelKey,$bottomModelKeyPosition)
+            = $this->current($data,$positions);
+        while($proficiencies){
+            if(!isset($this->modelByName[$bottomModelKey])){
+                throw new GeneralException($bottomModelKey,$bottomModelKeyPosition,
+                    "is invalid",
+                    InterfaceExceptionCode::MODEL_INVALID_5122);
+            }
+            $model = $this->modelByName[$bottomModelKey];
+            $modelId2 = $model->getId();
+            if(!isset($this->mappings['proficiency'][$modelId1][$modelId2])) {
+                $this->mappings['proficiency'][$modelId1][$modelId2]=[];
+            }
+            $this->buildProficiencyMappingLayer2($proficiencies,$proficienciesPositions,$modelId1,$modelId2);
+            list($proficiencies,$proficienciesPositions,$bottomModelKey,$bottomModelKeyPosition)
+                =$this->next($data,$positions);
+        }
     }
 
     /**
      * @param array $data
-     * @param array $position
-     * @return array
+     * @param array $positions
+     * @param int $modelId1
+     * @param int $modelId2
      * @throws GeneralException
      */
-    private function buildAgeMapping(array $data, array $position):array
-    {
-        $ageIdByYear=[];
-        list($agePart, $agePosition, $typeKey, $typeKeyPosition)
-            = $this->current($data, $position);
-        while($agePart && $agePosition){
-            if(!isset($this->domainValues['type'][$typeKey])){
-                throw new GeneralException($typeKey,$typeKeyPosition,"is invalid",
-                    InterfaceExceptionCode::MAPPING_TYPE_AGE);
+    public function buildProficiencyMappingLayer2(array $data,array $positions,int $modelId1,int $modelId2) {
+        list($proficiency2,$proficiency2Position,$proficiency1,$proficiency1Position)
+            = $this->current($data,$positions);
+        while($proficiency2) {
+            if(!isset($this->domainValueHash['proficiency'][$proficiency1])){
+                throw new GeneralException($proficiency1,$proficiency1Position,
+                        "is invalid",
+                        InterfaceExceptionCode::PROFICIENCY_INVALID_5124);
             }
-            $ageIdByYear[$typeKey]=[];
-            list($ageDivision, $ageDivisionPosition,$ageSpread,$ageSpreadPosition)
-                = $this->current($agePart,$agePosition);
-            while($ageDivision && $ageDivisionPosition){
-                list($low,$high) = preg_split("/\-/",$ageSpread);
-                $spread=$this->checkAgeSpread($low,$high);
-                if(!$spread){
-                    throw new GeneralException($ageSpread, $ageSpreadPosition, 'error in age spread',
-                        InterfaceExceptionCode::MAPPING_AGE_SPREAD);
-                }
-
-                if(!isset($this->domainValues['age'][$ageDivision])) {
-                    throw new GeneralException($ageDivision, $ageDivisionPosition,'is invalid',
-                            InterfaceExceptionCode::MAPPING_AGE_INVALID);
-                }
-                /** @var Value $ageValue */
-                $ageValue = $this->domainValues['age'][$ageDivision];
-                for($i=$spread['low'];$i<=$spread['high'];$i++){
-                    if(isset($ageIdByYear[$typeKey][$i])){
-                        throw new GeneralException($ageSpread, $ageSpreadPosition, 'age spread overlap',
-                                InterfaceExceptionCode::MAPPING_SPREAD_OVERLAP);
-                    }
-                    $ageIdByYear[$typeKey][$i]=$ageValue->getId();
-                }
-
-                list($ageDivision, $ageDivisionPosition, $ageSpread, $ageSpreadPosition)
-                    = $this->next($agePart, $agePosition);
-
+            /** @var Value $value1 */
+            $value1=$this->domainValueHash['proficiency'][$proficiency1];
+            $proficiencyId1=$value1->getId();
+            if(!isset($this->domainValueHash['proficiency'][$proficiency2])){
+                throw new GeneralException($proficiency2,$proficiency2Position,
+                    "is invalid",
+                    InterfaceExceptionCode::PROFICIENCY_INVALID_5126);
             }
-            list($agePart, $agePosition, $typeKey, $typeKeyPosition)
-                = $this->next($data, $position);
-
+            /** @var Value $value2 */
+            $value2 = $this->domainValueHash['proficiency'][$proficiency2];
+            $proficiencyId2 = $value2->getId();
+            if(!isset($this->mappings['proficiency'][$modelId1][$modelId2][$proficiencyId1])){
+                $this->mappings['proficiency'][$modelId1][$modelId2][$proficiencyId1]=$proficiencyId2;
+            }
+            list($proficiency2,$proficiency2Position,$proficiency1,$proficiency1Position)
+                = $this->next($data,$positions);
         }
-        return $ageIdByYear;
-    }
-
-    /**
-     * @param string $low
-     * @param string $high
-     * @return array|bool
-     */
-    private function checkAgeSpread(string $low, string $high)
-    {
-        $nlow = intval($low);
-        $nhigh= intval($high);
-        if(!($nlow<$nhigh)) {
-            return false;
-        }
-        return ['low'=>$nlow,'high'=>$nhigh];
     }
 
 }
