@@ -24,6 +24,8 @@ use App\Entity\Models\Value;
 use App\Entity\Sales\Channel;
 use App\Entity\Sales\Contact;
 use App\Entity\Sales\Form;
+use App\Entity\Sales\Iface\Participant;
+use App\Entity\Sales\Iface\Player as IfacePlayer;
 use App\Entity\Sales\Tag;
 use App\Entity\Sales\Workarea;
 use App\Exceptions\ClassifyException;
@@ -41,7 +43,7 @@ use Doctrine\ORM\ORMException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Dotenv\Dotenv;
 
-class PlayerTest extends KernelTestCase
+class ParticipantPlayerTest extends KernelTestCase
 {
     const ISTD_PROFICIENCIES =
         [
@@ -1094,15 +1096,76 @@ class PlayerTest extends KernelTestCase
         $this->assertArraySubset($expectedQualification,$actualQualification);
     }
 
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \Exception
+     */
     public function testGADSSoloFunEvents()
     {
-        $contact = self::generateContact('GADS','Adult Youngster');
+        $contact = self::generateContact('GADS','Chicken Dance');
         $workarea=$contact->getWorkarea()->first();
         $gen = self::$participantPoolGenerator;
-        $youngster = $gen->getStudent( 'amateur', 'F', 'Fun Events', 'Social', 8);
+        $youngster = $gen->getStudent( 'amateur', 'F', 'Novelty', 'Social', 8);
         self::$participantRepository->save($workarea,$youngster);
         $soloPlayer = self::$ifacePlayerRepository->create( $workarea, $youngster->getId());
         $description = $soloPlayer->describe();
-        var_dump($description);die;
+        $actual = $description['events'][2][0];
+        $expected=['age'=>'Youngster',
+                  'tag'=>'Solo',
+                  'style'=>'Fun Events',
+                  'dances'=>['CD']];
+        $this->assertArraySubset($expected,$actual);
+
     }
+
+    public function testParticipantList()
+    {
+        $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport Amateur']);
+        $modelId = $model->getId();
+        $contact = self::generateContact('GADS','ParticipantListTest');
+        $workarea=$contact->getWorkarea()->first();
+        $gen = self::$participantPoolGenerator;
+        $count=0;
+        $expected = [];
+        foreach(self::AMATEUR_PROFICIENCIES as $proficiency){
+            /** @var Participant $gent */
+            $gent = $gen->getStudent( 'amateur', 'M', 'Standard', $proficiency, 30 );
+            /** @var Participant $lady */
+            $lady = $gen->getStudent( 'amateur', 'F', 'Standard', $proficiency, 30 );
+            $count+=2;
+            self::$participantRepository->save($workarea,$gent);
+            self::$participantRepository->save($workarea,$lady);
+            $expected["Standard-$proficiency Amateur-M30"]=$gent->getId();
+            $expected["Standard-$proficiency Amateur-F30"]=$lady->getId();
+        }
+
+        $participantList=self::$participantRepository->fetchList($workarea);
+        $this->assertArraySubset($expected,$participantList->preJSON());
+        $this->assertArraySubset($participantList->preJSON(),$expected);
+    }
+
+
+    public function testPlayerCoupleList()
+    {
+        $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport Amateur']);
+        $modelId = $model->getId();
+        $contact = self::generateContact('GADS','PlayerListTest');
+        $workarea=$contact->getWorkarea()->first();
+        $gen = self::$participantPoolGenerator;
+        $expected = [];
+        foreach(self::AMATEUR_PROFICIENCIES as $amateurProficiency){
+            /** @var Participant $gent */
+            $gent = $gen->getStudent( 'amateur', 'M', 'Standard', $amateurProficiency, 30 );
+            /** @var Participant $lady */
+            $lady = $gen->getStudent( 'amateur', 'F', 'Standard', $amateurProficiency, 30 );
+            self::$participantRepository->save($workarea,$gent);
+            self::$participantRepository->save($workarea,$lady);
+            /** @var IfacePlayer $player */
+            $player=self::$ifacePlayerRepository->create($workarea, $gent->getId(),$lady->getId());
+            var_dump($player->describe());die;
+        }
+    }
+
 }

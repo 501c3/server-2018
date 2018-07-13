@@ -478,7 +478,7 @@ class InterfaceBuilder extends Builder
             $value = isset($this->domainValueHash['style'][$genre])?
                         $this->domainValueHash['style'][$genre]:
                         $this->domainValueHash['substyle'][$genre];
-            $idStringPair[$value->getId()]=$value->getName();
+            $idStringPair[$value->getName()]=$value->getId();
             list($genre,$genrePosition,,)=$this->next($data,$positions);
         }
         return $idStringPair;

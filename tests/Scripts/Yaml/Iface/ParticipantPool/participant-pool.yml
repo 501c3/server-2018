@@ -122,3 +122,11 @@ participant-pool:
         sex: [M,F]
         typeA: Amateur
         typeB: Student
+    -
+        models: [Georgia DanceSport Amateur]
+        genres: [Novelty]
+        proficiencies: [Social,Newcomer,Bronze]
+        ages: 2-90
+        sex: [M,F]
+        typeA: Amateur
+        typeB: Student

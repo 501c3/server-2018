@@ -16,6 +16,7 @@ namespace App\Repository\Sales\Iface;
 
 use App\Entity\Sales\Form;
 use App\Entity\Sales\Iface\Participant;
+use App\Entity\Sales\Iface\ParticipantList;
 use App\Entity\Sales\Tag;
 use App\Entity\Sales\Workarea;
 use App\Repository\Competition\ModelRepository;
@@ -60,15 +61,21 @@ class ParticipantRepository
 
     }
 
-    public function fetchList(Workarea $workarea)
+    public function fetchList(Workarea $workarea): ?ParticipantList
     {
         $tag=$this->tagRepository->fetch('participant');
         $forms=$this->formRepository->findBy(['tag'=>$tag, 'workarea'=>$workarea]);
-        $list = [];
-        foreach($forms as $form) {
-            //TODO:
+        if(!count($forms)) {
+            return null;
         }
-
+        $list=new ParticipantList(ParticipantList::DISPLAY_NAME_NORMAL);
+        foreach($forms as $form) {
+            $id=$form->getId();
+            $content = $form->getContent();
+            $content['id']=$id;
+            $list->add($content);
+        }
+        return $list;
     }
 
     private function fetchForm(Workarea $workarea, Tag $tag, Participant &$participant)

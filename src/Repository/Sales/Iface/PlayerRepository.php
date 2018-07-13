@@ -51,7 +51,7 @@ class PlayerRepository
     /**
      * @var TagRepository
      */
-    private $tagRepository;
+    private $tagRepository; //TODO:
 
     /** @var FormRepository */
     private $formRepository;
@@ -141,8 +141,8 @@ class PlayerRepository
             ->setModelById($modelsById)
             ->setParticipantTag($participantTag)
             ->setPlayerTag($playerTag)
-            ->setProficiencyMapping($mapping['proficiency'])
-            ->setAgeMapping($mapping['age']);
+            ->setProficiencyMapping($mapping['proficiency']);
+
 
         $this->modelPlayerLookup = [];
         /**
@@ -177,6 +177,29 @@ class PlayerRepository
                 $this->configureClassifier($competition,$classify);
         }
     }
+
+
+    public function fetch(int $id)
+    {
+        //TODO fetch single player
+    }
+
+    public function fetchList(Workarea $workarea)
+    {
+        //TODO: fetch players directly for browser and deposit into a PlayerList object.
+
+    }
+
+    public function delete(int $id)
+    {
+        //TODO: delete form related to player.
+    }
+
+    public function deleteList(array $playerIds)
+    {
+        //TODO:  delete a list of players.
+    }
+
 
     /**
      * @param Workarea $workarea
@@ -230,9 +253,8 @@ class PlayerRepository
             foreach($genreKeys as $genreId) {
                 $qualification=$player->getQualificationByKeys($modelId,$genreId);
                 $q = $qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_ID);
+
                 $qAux =$qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);
-                var_dump(array_keys($playerLookup[strval($q['genre'])]
-                                                  [strval($q['proficiency'])]),$qAux);die;
                 $playerId=$playerLookup[strval($q['genre'])]
                                        [strval($q['proficiency'])]
                                        [strval($q['age'])]

@@ -374,10 +374,6 @@ class DefinitionBuilder extends Builder
         list( $dataPart, $positionPart, $dataKey, $positionKey ) = $this->current( $data, $position );
         while ($dataPart && $positionPart) {
             if (!isset( $this->domainValueHash['style'][$dataKey] )) {
-                /*throw new YamlToModelException("Found \"$dataKey\"",
-                                               "which is an undefined dance style.",
-                                                $positionKey,
-                                                YamlToModelException:);*/
                 throw new GeneralException($dataKey, $positionKey,
                                          "is an invalid style.",
                                           ModelExceptionCode::STYLE);
@@ -1182,7 +1178,6 @@ class DefinitionBuilder extends Builder
             list($danceCollection, $danceCollectionPosition, )=
                 $this->current($substyleDanceCollections, $substyleDanceCollectionsPosition);
             while($danceCollection && $danceCollectionPosition){
-                //var_dump($danceCollection, $substyle);die;
                 /** @var ArrayCollection $collection */
                 $collection = new ArrayCollection();
                 list($dance,$dancePosition, , ) = $this->current($danceCollection, $danceCollectionPosition);

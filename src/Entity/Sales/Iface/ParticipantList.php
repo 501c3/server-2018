@@ -19,96 +19,73 @@ use App\Entity\Sales\Tag;
 use App\Entity\Sales\Workarea;
 use App\Repository\Sales\FormRepository;
 use App\Repository\Sales\PricingRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 class ParticipantList
 {
     /**
-     * @var FormRepository
-     */
-    private $formRepository;
-    /**
      * @var Tag
      */
-    private $participantTag;
-    /**
-     * @var Workarea
-     */
-    private $workarea;
-    /**
-     * @var array
-     */
-    private $domainValueHash;
-    /**
-     * @var array
-     */
-    private $valueById;
-    /**
-     * @var Tag
-     */
-    private $playerTag;
-    /**
-     * @var array
-     */
-    private $modelById;
 
-    private $participantList;
+    const DISPLAY_NAME_NORMAL = 1;
+    const DISPLAY_NAME_LAST = 2;
 
+    private $sort;
 
-    public function __construct(array $valueById,
-                                array $modelById,
-                                Workarea $workarea,
-                                FormRepository $formRepository,
-                                Tag $participantTag,
-                                Tag $playerTag)
+    private $display;
+
+    private $collection;
+
+    public function __construct(int $display)
     {
-        $this->formRepository = $formRepository;
-        $this->participantTag = $participantTag;
-        $this->workarea = $workarea;
-        $this->domainValueHash = $domainValueHash;
-        $this->valueById = $valueById;
-        $this->playerTag = $playerTag;
-        $this->modelById = $modelById;
+        $this->display=$display;
+        $this->collection = new ArrayCollection();
+
     }
 
-    public function fetch() {
-        $forms=$this->formRepository->fetchList($this->workarea,$this->participantTag);
-        $unsorted = [];
-        $keyValue = [];
-        /** @var Form $form */
-        foreach($forms as $form) {
-            $content=$form->getContent();
-            $first = $content['first'];
-            $last = $content['last'];
-            $id = $form->getId();
-            $unsorted[$id]=['first'=>$first,'last'=>$last];
-            $keyValue[$id]=[$last.', '.$first];
-        }
-        $result=asort($keyValue);
-        return $result;
+    public function add(array $data) : ParticipantList
+    {
+        $this->collection->add($data);
+        return $this;
     }
 
-    public function add(array $data)
+    public function describe()
     {
-        $participant = new Participant($this->valueById,$this->modelById,$this->formRepository,$this->participantTag);
-        $participant->createInDb($this->workarea,$data);
-        $name = $participant->getName();
-        $id = $participant->getId();
-        $this->participantList[$id]=$name;
-        return $id;
+        return $this->collection->toArray();
     }
 
-    public function delete(int $participantId)
+    public function preJSON()
     {
-        $forms = $this->formRepository->fetchList($this->workarea,$this->playerTag);
-        $em = $this->formRepository->getEntityManager();
-        foreach($forms as $form) {
-            $data=$form->getContent();
-            if(in_array($participantId, $data['participants'])) {
-                $em->remove($form);
-                $em->flush();
+        /** @var Collection $list */
+        $list = $this->collection->map(function($item){return ['first'=>$item['first'],
+                                                               'last'=>$item['last'],
+                                                               'id'=>$item['id']];});
+        $arrayCollection = new ArrayCollection();
+        /** @var \ArrayIterator $iterator */
+        $iterator = $list->getIterator();
+        $current = $iterator->current();
+        while($current){
+            switch ($this->display){
+                case self::DISPLAY_NAME_NORMAL:
+                    $arrayCollection->set($current['first'].' '.$current['last'],$current['id']);
+                    break;
+                case self::DISPLAY_NAME_LAST:
+                    $arrayCollection->set($current['last'].', '.$current['first'],$current['id']);
             }
+            $iterator->next();
+            $current = $iterator->current();
         }
-
+        $iterator=$arrayCollection->getIterator();
+        $iterator->ksort();
+        $result = [];
+        $current = $iterator->current();
+        while($current){
+            $result[$iterator->key()]=$current;
+            $iterator->next();
+            $current=$iterator->current();
+        }
+        return $result;
     }
 
 }

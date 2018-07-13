@@ -1106,8 +1106,7 @@ class GeorgiaDanceSportClassify extends Classify
             return $qualification;
         }
         $funAge=in_array($age->getName(),['Baby','Juvenile','Preteen 1','Preteen 2'])?
-                        $this->domainValueHash['age']['Youngster']:
-                        null;
+                         $age:null;
         if($funAge){
             $qualification->set([$genre,$proficiency,$funAge,$type]);
             return $qualification;
