@@ -218,9 +218,10 @@ class Player
         return isset($this->dataCache['exclusions'])?$this->dataCache['exclusions']:[];
     }
 
-    public function setExclusions($exclusions) : Player
+    public function setExclusions(array $exclusions) : Player
     {
         $this->dataCache['exclusions']=$exclusions;
+        return $this;
     }
 
 

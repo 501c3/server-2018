@@ -418,8 +418,8 @@ class ParticipantPlayerTest extends KernelTestCase
     /** @var ParticipantPoolGenerator */
     private static $participantPoolGenerator;
 
-    /** @var PlayerPoolGenerator */
-    private  static $playerPoolGenerator;
+    /* @var PlayerPoolGenerator */
+    //private  static $playerPoolGenerator;
 
     /** @var PlayerRepository */
     private static $ifacePlayerRepository;
@@ -496,8 +496,7 @@ class ParticipantPlayerTest extends KernelTestCase
                                                                     $modelRepository,
                                                                     $ifaceRepository,
                                                                     $valueRepository);
-        self::$participantRepository = new ParticipantRepository($valueRepository,
-                                                                $modelRepository,
+        self::$participantRepository = new ParticipantRepository($modelRepository,
                                                                 $formRepository,
                                                                 self::$tagRepository);
         self::$ifacePlayerRepository = new PlayerRepository($valueRepository,
@@ -515,12 +514,6 @@ class ParticipantPlayerTest extends KernelTestCase
         $fileLocation = realpath( __DIR__ . '/../../Scripts/Yaml/Iface/ParticipantPool/participant-pool.yml' );
         $yamlText =  file_get_contents($fileLocation);
         self::$participantPoolGenerator->parse($yamlText);
-        $playerPoolGenerator = new PlayerPoolGenerator(
-                                    $competitionRepository,
-                                    $modelRepository,
-                                    $valueRepository,
-                                    self::$participantPoolGenerator);
-        self::$playerPoolGenerator=$playerPoolGenerator;
         self::$modelRepository=$modelRepository;
     }
 
@@ -575,7 +568,6 @@ class ParticipantPlayerTest extends KernelTestCase
                 foreach(['Latin','Standard','Rhythm','Smooth'] as $genre){
                     $leader = $gen->getStudent( 'medal', 'M', $genre, $proficiency, $years );
                     $follower = $gen->getStudent( 'medal', 'F', $genre, $proficiency, $years );
-
                     self::$participantRepository->save( $workarea, $leader );
                     self::$participantRepository->save( $workarea, $follower );
                     $couplePlayer = self::$ifacePlayerRepository->create( $workarea, $leader->getId(), $follower->getId() );
@@ -1120,10 +1112,15 @@ class ParticipantPlayerTest extends KernelTestCase
 
     }
 
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \Exception
+     */
     public function testParticipantList()
     {
-        $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport Amateur']);
-        $modelId = $model->getId();
+        //$model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport Amateur']);
+        //$modelId = $model->getId();
         $contact = self::generateContact('GADS','ParticipantListTest');
         $workarea=$contact->getWorkarea()->first();
         $gen = self::$participantPoolGenerator;
@@ -1147,14 +1144,21 @@ class ParticipantPlayerTest extends KernelTestCase
     }
 
 
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \Exception
+     */
     public function testPlayerCoupleList()
     {
         $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport Amateur']);
         $modelId = $model->getId();
         $contact = self::generateContact('GADS','PlayerListTest');
         $workarea=$contact->getWorkarea()->first();
+        /** @var ParticipantPoolGenerator $gen */
         $gen = self::$participantPoolGenerator;
-        $expected = [];
+
         foreach(self::AMATEUR_PROFICIENCIES as $amateurProficiency){
             /** @var Participant $gent */
             $gent = $gen->getStudent( 'amateur', 'M', 'Standard', $amateurProficiency, 30 );
@@ -1164,7 +1168,105 @@ class ParticipantPlayerTest extends KernelTestCase
             self::$participantRepository->save($workarea,$lady);
             /** @var IfacePlayer $player */
             $player=self::$ifacePlayerRepository->create($workarea, $gent->getId(),$lady->getId());
-            var_dump($player->describe());die;
+            $expectedParticipants = [$gent->getId()=>"Standard-$amateurProficiency Amateur-M30",
+                                     $lady->getId()=>"Standard-$amateurProficiency Amateur-F30"];
+            $expectedQualifications= [$model->getName()=>
+                                            ["Standard"=>["genre"=>"Standard",
+                                                          "proficiency"=>$amateurProficiency,
+                                                          "age"=>"Adult",
+                                                          "type"=>"Amateur"]]];
+            $expectedModels = [$modelId=>"Georgia DanceSport Amateur"];
+            $actual = $player->describe();
+            $this->assertArraySubset($expectedParticipants, $actual['participants']);
+            $this->assertArraySubset($expectedQualifications, $actual['qualifications']);
+            $this->assertArraySubset($expectedModels, $actual['models']);
+            $description = $player->describe();
+            foreach($description['events'][$modelId] as $event){
+                $expectedDescriptions = ['age'=>'Adult',
+                                         'tag'=>'Couple',
+                                         'style'=>'International'];
+                $this->assertArraySubset($expectedDescriptions, $event);
+            }
+        }
+    }
+
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \Exception
+     */
+    public function testCreateSaveRetrievePlayerList()
+    {
+        $contact = self::generateContact( 'GADS', 'PlayerListTest' );
+        $workarea = $contact->getWorkarea()->first();
+        /** @var ParticipantPoolGenerator $gen */
+        $gen = self::$participantPoolGenerator;
+
+        $team = [];
+        foreach (self::AMATEUR_PROFICIENCIES as $proficiency) {
+            /** @var Participant $gent */
+            $gent = $gen->getStudent( 'amateur', 'M', 'Latin', $proficiency, 45 );
+            /** @var Participant $lady */
+            $lady = $gen->getStudent( 'amateur', 'F', 'Latin', $proficiency, 40 );
+            self::$participantRepository->save( $workarea, $gent );
+            self::$participantRepository->save( $workarea, $lady );
+            $player = self::$ifacePlayerRepository->create( $workarea, $gent->getId(), $lady->getId() );
+            $team[$player->getId()]=[
+                                     [
+                                        'first'=>"Latin-$proficiency",
+                                        'last'=>"Amateur-F40",
+                                        'typeA'=>$lady->getTypeA()->getName(),
+                                        'typeB'=>$lady->getTypeB()->getName(),
+                                        'sex'=>'F',
+                                        'id'=>$lady->getId()
+                                     ],
+                                     [
+                                        'first'=>"Latin-$proficiency",
+                                        'last'=>"Amateur-M45",
+                                        'typeA'=>$gent->getTypeA()->getName(),
+                                        'typeB'=>$gent->getTypeB()->getName(),
+                                        'sex'=>'M',
+                                        'id'=>$gent->getId() ]
+                                     ];
+        }
+        $playerList = self::$ifacePlayerRepository->fetchList($workarea);
+        $this->assertArraySubset($team,$playerList->preJSON());
+    }
+
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \Exception
+     */
+
+    public function testDeletePlayer()
+    {
+        $contact = self::generateContact( 'GADS', 'PlayerListTest' );
+        $workarea = $contact->getWorkarea()->first();
+        /** @var ParticipantPoolGenerator $gen */
+        $gen = self::$participantPoolGenerator;
+        $teams = [];
+        foreach (self::AMATEUR_PROFICIENCIES as $proficiency) {
+            /** @var Participant $gent */
+            $gent = $gen->getStudent( 'amateur', 'M', 'Latin', $proficiency, 45 );
+            /** @var Participant $lady */
+            $lady = $gen->getStudent( 'amateur', 'F', 'Latin', $proficiency, 40 );
+            self::$participantRepository->save( $workarea, $gent );
+            self::$participantRepository->save( $workarea, $lady );
+            $player = self::$ifacePlayerRepository->create( $workarea, $gent->getId(), $lady->getId() );
+            array_push($teams,$player->getId());
+        }
+        $playerList=self::$ifacePlayerRepository->fetchList($workarea);
+        $this->assertEquals(count($teams),$playerList->count());
+        $deleteId = array_pop($teams);
+        self::$ifacePlayerRepository->delete($deleteId);
+        $revisedPlayerList = self::$ifacePlayerRepository->fetchList($workarea);
+        $playerIds = array_keys($revisedPlayerList->preJSON());
+        $this->assertNotContains($deleteId,$playerIds);
+        foreach($teams as $remainingId){
+            $this->assertContains($remainingId,$playerIds);
         }
     }
 

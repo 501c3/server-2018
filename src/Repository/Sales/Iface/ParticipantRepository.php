@@ -20,16 +20,17 @@ use App\Entity\Sales\Iface\ParticipantList;
 use App\Entity\Sales\Tag;
 use App\Entity\Sales\Workarea;
 use App\Repository\Competition\ModelRepository;
-use App\Repository\Models\ValueRepository;
+//use App\Repository\Models\ValueRepository;
 use App\Repository\Sales\FormRepository;
 use App\Repository\Sales\TagRepository;
 
 class ParticipantRepository
 {
-    /**
+    //TODO: Delete commented lines.
+    /*
      * @var ValueRepository
      */
-    private $valueRepository;
+    //private $valueRepository;
     /**
      * @var ModelRepository
      */
@@ -44,13 +45,12 @@ class ParticipantRepository
     private $tagRepository;
 
     public function __construct(
-        ValueRepository $valueRepository,
         ModelRepository $modelRepository,
         FormRepository $formRepository,
         TagRepository $tagRepository
     )
     {
-        $this->valueRepository = $valueRepository;
+        //$this->valueRepository = $valueRepository;
         $this->modelRepository = $modelRepository;
         $this->formRepository = $formRepository;
         $this->tagRepository = $tagRepository;
@@ -97,6 +97,12 @@ class ParticipantRepository
     }
 
 
+    /**
+     * @param Workarea $workarea
+     * @param Participant $participant
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function save(Workarea $workarea, Participant &$participant)
     {
         $tag = $this->tagRepository->fetch('participant');

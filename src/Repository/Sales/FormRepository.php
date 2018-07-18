@@ -52,6 +52,12 @@ class FormRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function fetchForm($id)
     {
         $qb=$this->createQueryBuilder('form');
@@ -63,6 +69,42 @@ class FormRepository extends ServiceEntityRepository
         return $query->getSingleResult();
     }
 
+    /**
+     * @param $ids
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function deleteFormList($ids)
+    {
+        $em=$this->getEntityManager();
+        foreach($ids as $id){
+            $form = $this->find($id);
+            $em->remove($form);
+        }
+        $em->flush();
+    }
+
+
+    /**
+     * @param $id
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function deleteForm($id)
+    {
+        $form=$this->find($id);
+        $em=$this->getEntityManager();
+        $em->remove($form);
+        $em->flush();
+
+    }
+
+
+    /**
+     * @param Tag|null $tag
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function getCount(Tag $tag = null)
     {
         $qb = $this->createQueryBuilder('form');

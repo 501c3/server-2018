@@ -24,6 +24,7 @@ use App\Entity\Sales\Iface\Classify;
 use App\Entity\Sales\Iface\GeorgiaDanceSportClassify;
 use App\Entity\Sales\Iface\Participant;
 use App\Entity\Sales\Iface\Player;
+use App\Entity\Sales\Iface\PlayerList;
 use App\Entity\Sales\Iface\Qualification;
 use App\Entity\Sales\Workarea;
 use App\Exceptions\ClassifyException;
@@ -40,9 +41,8 @@ use Doctrine\ORM\ORMException;
 
 class PlayerRepository
 {
-    /**
-     * @var ValueRepository
-     */
+    /** @var ValueRepository*/
+
     private $valueRepository;
     /**
      * @var ModelRepository
@@ -51,7 +51,7 @@ class PlayerRepository
     /**
      * @var TagRepository
      */
-    private $tagRepository; //TODO:
+    private $tagRepository;
 
     /** @var FormRepository */
     private $formRepository;
@@ -106,7 +106,6 @@ class PlayerRepository
         CompetitionPlayerRepository $playerRepository,
         EventRepository $eventRepository)
     {
-
         $this->valueRepository = $valueRepository;
         $this->modelRepository = $modelRepository;
         $this->tagRepository = $tagRepository;
@@ -178,26 +177,66 @@ class PlayerRepository
         }
     }
 
+    /**
+     * @param Workarea $workarea
+     * @return PlayerList|null
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
 
-    public function fetch(int $id)
+    public function fetchList(Workarea $workarea): ?PlayerList
     {
-        //TODO fetch single player
+        $tag=$this->tagRepository->fetch('player');
+        $forms=$this->formRepository->findBy(['tag'=>$tag, 'workarea'=>$workarea]);
+        if(!count($forms)) {
+            return null;
+        }
+        $list=new PlayerList();
+        /** @var Form $form */
+        foreach($forms as $form)
+        {
+            $id=$form->getId();
+            $content = $form->getContent();
+            $participants=$this->readParticipants($content['participants']);
+            /** @var Participant $participant */
+            $team = [];
+            foreach($participants as $participant) {
+                $team[$participant->getId()] =
+                    [
+                        'first' => $participant->getFirst(),
+                        'last' => $participant->getLast(),
+                        'typeA' => $participant->getTypeA()->getName(),
+                        'typeB' => $participant->getTypeB()->getName(),
+                        'sex'=>$participant->getSex()
+                    ];
+            }
+            $list->addPlayer($id,$team);
+        }
+        return $list;
     }
 
-    public function fetchList(Workarea $workarea)
+    /**
+     * @param int $id
+     * @return PlayerRepository
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function delete(int $id):PlayerRepository
     {
-        //TODO: fetch players directly for browser and deposit into a PlayerList object.
-
+       $this->formRepository->deleteForm($id);
+       return $this;
     }
 
-    public function delete(int $id)
-    {
-        //TODO: delete form related to player.
-    }
-
+    /**
+     * @param array $playerIds
+     * @return $this
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
     public function deleteList(array $playerIds)
     {
-        //TODO:  delete a list of players.
+        $this->formRepository->deleteFormList($playerIds);
+        return $this;
     }
 
 
@@ -253,8 +292,8 @@ class PlayerRepository
             foreach($genreKeys as $genreId) {
                 $qualification=$player->getQualificationByKeys($modelId,$genreId);
                 $q = $qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_ID);
-
-                $qAux =$qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);
+               // TODO: Delete next line when debugged.
+               // $qAux =$qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);
                 $playerId=$playerLookup[strval($q['genre'])]
                                        [strval($q['proficiency'])]
                                        [strval($q['age'])]
@@ -278,6 +317,7 @@ class PlayerRepository
                             if(!$p2){
                                 $player->addEvents($model,$data);
                             }
+                            break;
                         case 'Grandparent Child':
                         case 'Parent Child':
                             if($p2){
@@ -329,6 +369,13 @@ class PlayerRepository
         return $participant;
     }
 
+    /**
+     * @param $participantIds
+     * @return array
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Exception
+     */
     private function readParticipants($participantIds): array
     {
         $list = [];
@@ -343,6 +390,12 @@ class PlayerRepository
         return $list;
     }
 
+    /**
+     * @param int $id
+     * @return Player
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function read(int $id):Player
     {
         $form = $this->formRepository->find( $id );
@@ -358,7 +411,6 @@ class PlayerRepository
             foreach($eventList as $events){
                 $player->addEvents( $model, $events );
             }
-
         }
 
         foreach ($data['qualifications'] as $modelId => $qualifiers) {
@@ -385,7 +437,8 @@ class PlayerRepository
             $date = new \DateTime( $data['assessment-date'] );
             $player->setAssessment( $date, $data['assessment'] );
         }
-
         return $player;
     }
+
+
 }
