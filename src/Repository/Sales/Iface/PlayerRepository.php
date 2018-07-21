@@ -36,6 +36,7 @@ use App\Repository\Competition\ModelRepository;
 use App\Repository\Models\ValueRepository;
 use App\Repository\Sales\FormRepository;
 use App\Repository\Sales\TagRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
@@ -83,6 +84,10 @@ class PlayerRepository
     private $modelById;
 
     private $debug;
+    /**
+     * @var SummaryRepository
+     */
+    private $summaryRepository;
 
     /**
      * PlayerRepository constructor.
@@ -94,6 +99,7 @@ class PlayerRepository
      * @param IfaceRepository $ifaceRepository
      * @param CompetitionPlayerRepository $playerRepository
      * @param EventRepository $eventRepository
+     * @param SummaryRepository $summaryRepository
      */
 
     public function __construct(
@@ -104,7 +110,8 @@ class PlayerRepository
         CompetitionRepository $competitionRepository,
         IfaceRepository $ifaceRepository,
         CompetitionPlayerRepository $playerRepository,
-        EventRepository $eventRepository)
+        EventRepository $eventRepository,
+        SummaryRepository $summaryRepository)
     {
         $this->valueRepository = $valueRepository;
         $this->modelRepository = $modelRepository;
@@ -114,6 +121,7 @@ class PlayerRepository
         $this->eventRepository = $eventRepository;
         $this->ifaceRepository = $ifaceRepository;
         $this->competitionRepository = $competitionRepository;
+        $this->summaryRepository = $summaryRepository;
     }
 
     /**
@@ -136,11 +144,11 @@ class PlayerRepository
         $valueById = $this->valueRepository->fetchAllValuesById();
         $modelsById = $this->modelRepository->fetchModelById();
         $classify->setDomainValueHash($domainValueHash)
-            ->setValueById($valueById)
-            ->setModelById($modelsById)
-            ->setParticipantTag($participantTag)
-            ->setPlayerTag($playerTag)
-            ->setProficiencyMapping($mapping['proficiency']);
+                    ->setValueById($valueById)
+                    ->setModelById($modelsById)
+                    ->setParticipantTag($participantTag)
+                    ->setPlayerTag($playerTag)
+                    ->setProficiencyMapping($mapping['proficiency']);
 
 
         $this->modelPlayerLookup = [];
@@ -432,12 +440,18 @@ class PlayerRepository
         if (isset( $data['exclusions'] )) {
             $player->setExclusions( $data['exclusions'] );
         }
-
-        if (isset( $data['assessment'] )) {
-            $date = new \DateTime( $data['assessment-date'] );
-            $player->setAssessment( $date, $data['assessment'] );
-        }
         return $player;
+    }
+
+
+    public function save(Player $player)
+    {
+        $id=$player->getId();
+        $form=$this->formRepository->find($id);
+        $form->setContent($player->toArray());
+        /** @var EntityManagerInterface $em */
+        $em=$this->formRepository->getEntityManager();
+        $em->flush();
     }
 
 

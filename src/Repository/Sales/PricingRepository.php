@@ -7,7 +7,6 @@ use App\Entity\Sales\Inventory;
 use App\Entity\Sales\Pricing;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\Query\Expr\OrderBy;
 
 
 /**
@@ -30,7 +29,7 @@ class PricingRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('pricing')
                 ->select('pricing','inventory','channel')
                 ->leftJoin('pricing.channel','channel')
-                ->leftJoin('pricing.inventory','inventory')
+                ->innerJoin('pricing.inventory','inventory')
                 ->where('channel=:channel')
                 ->andWhere('pricing.startAt>=:startAt')
                 ->andWhere('inventory=:inventory')

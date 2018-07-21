@@ -265,9 +265,9 @@ class ChannelBuilder extends Builder
     private function fetchTag($name)
     {
         $tag=$this->tagRepository->findOneBy(['name'=>$name]);
-        if(!isset($tag)){
+        if(is_null($tag)){
             $tag=new Tag();
-            $tag->setName(self::MONITOR);
+            $tag->setName($name);
             $em=$this->tagRepository->getEntityManager();
             $em->persist($tag);
             $em->flush();

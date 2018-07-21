@@ -56,6 +56,7 @@ class PlayerPoolGenerator extends BaseParser
      * @param string $yaml
      * @return array
      * @throws GeneralException
+     * @throws \Exception
      */
     public function parse(string $yaml)
     {
@@ -156,6 +157,7 @@ class PlayerPoolGenerator extends BaseParser
      * @param $dataPart
      * @param $positionPart
      * @throws GeneralException
+     *
      */
     public function buildPlayerCoupling(string $genre, $dataPart, $positionPart)
     {

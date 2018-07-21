@@ -20,17 +20,12 @@ use App\Entity\Sales\Iface\ParticipantList;
 use App\Entity\Sales\Tag;
 use App\Entity\Sales\Workarea;
 use App\Repository\Competition\ModelRepository;
-//use App\Repository\Models\ValueRepository;
 use App\Repository\Sales\FormRepository;
 use App\Repository\Sales\TagRepository;
 
 class ParticipantRepository
 {
-    //TODO: Delete commented lines.
-    /*
-     * @var ValueRepository
-     */
-    //private $valueRepository;
+
     /**
      * @var ModelRepository
      */
@@ -43,24 +38,31 @@ class ParticipantRepository
      * @var TagRepository
      */
     private $tagRepository;
+    /**
+     * @var SummaryRepository
+     */
+    private $summaryRepository;
 
     public function __construct(
         ModelRepository $modelRepository,
         FormRepository $formRepository,
-        TagRepository $tagRepository
+        TagRepository $tagRepository,
+        SummaryRepository $summaryRepository
     )
     {
-        //$this->valueRepository = $valueRepository;
         $this->modelRepository = $modelRepository;
         $this->formRepository = $formRepository;
         $this->tagRepository = $tagRepository;
+        $this->summaryRepository = $summaryRepository;
     }
 
-    public function fetch(int $id)
-    {
 
-    }
-
+    /**
+     * @param Workarea $workarea
+     * @return ParticipantList|null
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function fetchList(Workarea $workarea): ?ParticipantList
     {
         $tag=$this->tagRepository->fetch('participant');
@@ -68,7 +70,10 @@ class ParticipantRepository
         if(!count($forms)) {
             return null;
         }
-        $list=new ParticipantList(ParticipantList::DISPLAY_NAME_NORMAL);
+        /** @var int $displayMode */
+        $displayMode = ParticipantList::DISPLAY_NAME_NORMAL;
+        $list=new ParticipantList($displayMode);
+        /** @var Form $form */
         foreach($forms as $form) {
             $id=$form->getId();
             $content = $form->getContent();
@@ -111,6 +116,12 @@ class ParticipantRepository
         $em->persist($form);
         $em->flush();
         $participant->setId($form->getId());
+    }
+
+
+    public function remove(Workarea $workarea, Participant &$participant)
+    {
+        // TODO: Remove participant from summary and associated players
     }
 
 
