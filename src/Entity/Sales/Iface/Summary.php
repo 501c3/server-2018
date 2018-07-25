@@ -34,6 +34,12 @@ class Summary
 
     /**
      * @var array
+     * $this->idPlayerParticipant[$playerId]=[$participantIdList]
+     */
+    private $idPlayerParticipants = [];
+
+    /**
+     * @var array
      * $this->idPlayerEvents[$playerId][$modelId]=[$eventIdList]
      */
     private $idPlayerEvents = [];
@@ -46,14 +52,35 @@ class Summary
 
     /**
      * @var array
-     * $this->participant[$participantId]=$participant
+     * $this->participant[$participantId]=(Participant) $participant
      */
     private $participant = [];
 
     /**
      * @var array
+     * $this->inventory[$inventoryId]=['tag'=>string, 'name'=>string,'unitPrice'=>float]
+     *
      */
-    private $assessment = [];
+    private $inventory;
+
+    /**
+     * @var array
+     * $this->assessment['comp'][$playerId]=['dances'=>#, 'charge'=>$];
+     * $this->assessment['exam'][$playerId]=['dances'=>#, 'charge'=>$]
+     */
+    private $assessment = ['comp'=>[],'exam'=>[]];
+
+    /**
+     * @var array
+     * $this->xtras[$inventoryId]=['qty'=>#, 'description'=> string, 'unitPrice'=>float]
+     */
+    private $xtras = [];
+
+    /**
+     * @var array
+     * $this->payment[$date]
+     */
+    private $payments = [];
 
     public function __construct(string $currency)
     {
@@ -125,14 +152,27 @@ class Summary
         }
     }
 
+    private function summaryParticipantFields(Participant $participant)
+    {
+        return ['first'=>$participant->getFirst(),
+                'last'=>$participant->getLast(),
+                'sex'=>$participant->getSex(),
+                'years'=>$participant->getYears(),
+                'typeA'=>$participant->getTypeA()->getName(),
+                'typeB'=>$participant->getTypeB()->getName()];
+    }
+
     public function add(Player &$player)
     {
         foreach($player->getParticipantIds() as $participantId){
-            $this->participant[$participantId]=$player->getParticipant($participantId);
+            $this->participant[$participantId]
+                =$this->summaryParticipantFields(
+                        $player->getParticipant($participantId));
         }
         $modelEventSelections = $player->getSelections();
         $playerId = $player->getId();
         $modelIdEventDescriptions = $player->getEvents();
+
         foreach($modelEventSelections as $modelId => $eventSelections)
         {
             $this->addCoupling($player->getParticipantIds(),$modelId, $eventSelections);
@@ -140,6 +180,7 @@ class Summary
         foreach($player->getParticipantIds() as $participantId) {
             $this->addParticipantPlayerIds($participantId, $playerId);
         }
+        $this->idPlayerParticipants[$player->getId()]=$player->getParticipantIds();
         foreach ($modelEventSelections as $modelId => $eventSelectionIds) {
             $this->addPlayerEventIds($playerId,$modelId,$eventSelectionIds);
             $eventDescriptions = $modelIdEventDescriptions[$modelId];
@@ -156,10 +197,94 @@ class Summary
     public function removePlayer(int $playerId)
     {
 
+        $participantIds = [];
+        foreach($this->idParticipantPlayers as $idParticipant=>$idPlayerList) {
+            if(in_array($playerId,$idPlayerList)) {
+                $participantIds[]=$idParticipant;
+                $this->idParticipantPlayers[$idParticipant]=array_diff($idPlayerList,[$playerId]);
+            }
+        }
+        unset($this->idPlayerParticipants[$playerId]);
+
+        switch(count($participantIds)){
+            case 1:
+                $p0=$participantIds[0];
+                foreach($this->idCoupling as $pl=>$idModelEvent){
+                    foreach($idModelEvent as $modelId=>$events) {
+                        foreach($events as $eventId){
+                            if(is_null($this->idCoupling[$p0][$modelId][$eventId])){
+                                unset($this->idCoupling[$p0][$modelId][$eventId]);
+                            }
+                        }
+                    }
+                }
+                break;
+            case 2:
+                $p0=$participantIds[0];
+                $p1=$participantIds[1];
+                foreach($this->idCoupling as $pl=>$idModelEvent) {
+                    if($p0==$pl) {
+                        foreach ($idModelEvent as $modelId => $events) {
+                            foreach($events as $eventId=>$pr){
+                                if($p1==$pr) {
+                                    unset($this->idCoupling[$p0][$modelId][$eventId]);
+                                }
+                            }
+                        }
+                    }
+                }
+                foreach($this->idCoupling as $pl=>$idModelEvent) {
+                    if($p1==$pl){
+                        foreach ($idModelEvent as $modelId => $events) {
+                            foreach($events as $eventId=>$pr){
+                                if($p0==$pr) {
+                                    unset($this->idCoupling[$p1][$modelId][$eventId]);
+                                }
+                            }
+                        }
+                    }
+                }
+        }
+        foreach($this->idCoupling as $pl=>$idModelEvent) {
+            foreach(array_keys($idModelEvent) as $modelId) {
+                if(!count($this->idCoupling[$pl][$modelId])){
+                    unset($this->idCoupling[$pl][$modelId]);
+                }
+            }
+            if(!count($this->idCoupling[$pl])) {
+                unset($this->idCoupling[$pl]);
+            }
+        }
+        unset($this->idPlayerEvents[$playerId]);
     }
 
-    public function removeParticipant(int $participantId){
-
+    public function removeParticipant(int $participantId):array
+    {
+        $playerIds  = $this->idParticipantPlayers[$participantId];
+        foreach($playerIds as $playerId) {
+            unset($this->idPlayerEvents[$playerId]);
+        }
+        unset($this->idParticipantPlayers[$participantId]);
+        foreach($this->idCoupling as $pl=>$idModelEvents) {
+          if($pl==$participantId){
+            unset($this->idCoupling[$pl]);
+            continue;
+          }
+          foreach($idModelEvents as $modelId=>$events){
+              foreach($events as $eventId=>$pr){
+                  if($pr == $participantId){
+                      unset($this->idCoupling[$pl][$modelId][$eventId]);
+                  }
+              }
+              if(!count($this->idCoupling[$pl][$modelId])){
+                  unset($this->idCoupling[$pl][$modelId]);
+              }
+          }
+        }
+        foreach($playerIds as $playerId){
+            unset($this->idPlayerParticipants[$playerId]);
+        }
+        return $playerIds;
     }
 
     public function hasConflict(array $conflict)
@@ -228,16 +353,24 @@ class Summary
         return $this->hasConflict($conflict)?$conflict:[];
     }
 
-    public function setXtras(Xtras $xtras)
+    public function getParticipants():array
     {
-
+        return $this->participant;
     }
 
 
-    public function preJSON():array
+    public function setXtras(Xtras $xtras): Summary
     {
-
+        $this->xtras = $xtras->toArray();
+        return $this;
     }
+
+    public function setInventory(array $data): Summary
+    {
+        $this->inventory=$data;
+        return $this;
+    }
+
 
     public function toArray()
     {
@@ -245,33 +378,37 @@ class Summary
             ['idCoupling' => $this->idCoupling,
              'idParticipantPlayers' => $this->idParticipantPlayers,
              'idPlayerEvents'=> $this->idPlayerEvents,
-             'idEventDescription'=> $this->idEventDescription];
+             'idEventDescription'=> $this->idEventDescription,
+             'participant'=>$this->participant,
+             'assessment'=>$this->assessment,
+             'xtras'=>$this->xtras,
+             'payments'=>$this->payments
+            ];
     }
 
-    public function init($data):array
+    public function init($data)
     {
         $this->idCoupling = $data['idCoupling'];
         $this->idParticipantPlayers = $data['idParticipantPlayers'];
+        $this->idPlayerParticipants = $data['idPlayerParticipants'];
         $this->idPlayerEvents = $data['idPlayerEvents'];
         $this->idEventDescription = $data['idEventDescription'];
-        return array_keys($this->idParticipantPlayers);
+        $this->participant = $data['participant'];
+        $this->xtras = $data['xtras'];
     }
 
-    public function initParticipant(Participant $participant)
-    {
-        $this->participant[$participant->getId()]=$participant;
-    }
 
     public function describe():array
     {
         $data = [];
+        $data['inventory']=$this->inventory;
         foreach($this->idCoupling as $p0=>$modelEventPartnerList){
-            $lead=$this->participant[$p0]->getName();
+            $lead=$this->participant[$p0]['first'].' '.$this->participant[$p0]['last'];
             $data[$lead]=[];
             foreach($modelEventPartnerList as $modelId=>$eventPartnerList) {
                 $data[$lead][$modelId]=[];
                 foreach($eventPartnerList as $eventId=>$p1) {
-                    $follow = $this->participant[$p1]->getName();
+                    $follow = $this->participant[$p1]['first'].' '.$this->participant[$p1]['last'];
                     $event = $this->idEventDescription[$modelId][$eventId];
                     $description = ['event'=>$event];
                     if($follow){
@@ -281,6 +418,152 @@ class Summary
                 }
             }
         }
+        $data['xtras']=$this->xtras;
+        $data['payments']=$this->payments;
         return $data;
+    }
+
+    private function orderInfo(array $info0, array $info1):array
+    {
+        $compare1=strcmp($info0['sex'],$info1['sex']);
+        if($compare1<0){
+            return [$info0,$info1];
+        }
+        if($compare1>0){
+            return [$info1,$info0];
+        }
+        $compare2=strcmp($info0['last'],$info1['last']);
+        if($compare2<0){
+            return [$info0,$info1];
+        }
+        if($compare2>0){
+            return [$info1,$info0];
+        }
+        $compare3=strcmp($info0['first'],$info1['first']);
+        if($compare3<0){
+            return [$info0,$info1];
+        }
+        if($compare3>0){
+            return [$info1,$info0];
+        }
+        return [$info0,$info1];
+    }
+
+    private function getPlayerDataOrdered(int $playerId)
+    {
+        $participantIds = $this->idPlayerParticipants[$playerId];
+        switch(count($participantIds)){
+            case 1:
+                $p0=$participantIds[0];
+                $info=$this->participant[$p0];
+                return [$info];
+            case 2:
+                $info0=$this->participant[$participantIds[0]];
+                $info1=$this->participant[$participantIds[1]];
+                return $this->orderInfo($info0,$info1);
+        }
+    }
+
+    private function mergeModelEventCollections(array $modelEventCollections)
+    {
+        $merged = [];
+        foreach($modelEventCollections as $modelId=>$eventCollection){
+            $merged[$modelId]=array_merge(...$eventCollection);
+        }
+       return $merged;
+    }
+
+
+    public function preJSON():array
+    {
+        $participation = [];
+        $modelEventCollections = [];
+        foreach($this->idPlayerEvents as $playerId=>$modelEventList) {
+            $participation[$playerId]=['participants'=>$this->getPlayerDataOrdered($playerId),
+                                       'idModelEvents'=>[]];
+            foreach($modelEventList as $modelId=>$eventList){
+                if(!isset($modelEventCollections[$modelId])){
+                    $modelEventCollections[$modelId]=[];
+                }
+                array_push($modelEventCollections[$modelId],$eventList);
+                $participation[$playerId]['idModelEvents'][$modelId]=$eventList;
+            }
+        }
+        $modelEvents = $this->mergeModelEventCollections($modelEventCollections);
+        $descriptions = [];
+        foreach($modelEvents as $modelId=>$eventIds){
+            if(!isset($descriptions[$modelId])){
+                $descriptions[$modelId]=[];
+            }
+            foreach($eventIds as $eventId) {
+                $descriptions[$modelId][$eventId]=$this->idEventDescription[$modelId][$eventId];
+            }
+        }
+
+        $preJSON=['participation'=>$participation,
+                  'eventDescription'=>$descriptions];
+
+        return $preJSON;
+    }
+
+
+    private function inventoryCharges()
+    {
+       $charges=[];
+       foreach($this->inventory as $inventoryId=>$record) {
+           $charges[$record['description']]=$record['unitPrice'];
+       }
+       return $charges;
+    }
+
+
+    public function assess()
+    {
+        $charges = $this->inventoryCharges();
+        $this->assessment=['comp'=>[],'exam'=>[]];
+        foreach ($this->idPlayerEvents as $playerId => $modelEvents) {
+            foreach ($modelEvents as $modelId => $eventList) {
+                foreach ($eventList as $eventId) {
+                    $description = $this->idEventDescription[$modelId][$eventId];
+                    $cnt = count($description['dances']);
+                    if (in_array( $description['age'],
+                        ['Baby', 'Juvenile', 'Preteen 1', 'Preteen 2', 'Junior 1', 'Junior 2', 'Youth'] )) {
+                        if(!isset($this->assessment['comp'][$playerId])) {
+                            $this->assessment['comp'][$playerId]=['dances'=>0,'charge'=>0.0];
+                        }
+                        $this->assessment['comp'][$playerId]['dances']+=$cnt;
+                        $this->assessment['comp'][$playerId]['charge']+=$cnt*$charges['Per Dance Child'];
+                    } else if (in_array( $description['age'],
+                        ['Adult', 'Senior 1', 'Senior 2', 'Senior 3', 'Senior 4', 'Senior 5'] )) {
+                        if(!isset($this->assessment['comp'][$playerId])) {
+                            $this->assessment['comp'][$playerId]=['dances'=>0,'charge'=>0.0];
+                        }
+                        $this->assessment['comp'][$playerId]['dances']+=$cnt;
+                        $this->assessment['comp'][$playerId]['charge']+=$cnt*$charges['Per Dance Adult'];
+                    } else if (in_array( $description['age'],
+                        ['Under 6', 'Under 8', 'Under 12', 'Junior 12-16'] )) {
+                        if(!isset($this->assessment['exam'][$playerId])) {
+                                $this->assessment['exam'][$playerId]=['dances'=>0,'charge'=>0.0];
+                        }
+                        $this->assessment['exam'][$playerId]['dances']+=$cnt;
+                        $this->assessment['exam'][$playerId]['charge']+=$cnt*$charges['Exam Per Dance Child'];
+
+                    }else if (in_array( $description['age'],
+                        ['Adult 16-50', 'Senior 50'] )) {
+                        if(!isset($this->assessment['exam'])) {
+                            $this->assessment['exam'][$playerId]=['dances'=>0,'charge'=>0.0];
+                        }
+                        $this->assessment['exam'][$playerId]['dances']+=$cnt;
+                        $this->assessment['exam'][$playerId]['charge']+=$cnt*$charges['Exam Per Dance Adult'];
+                    }
+                }
+            }
+        }
+        return $this->assessment;
+    }
+
+    public function assessTotal()
+    {
+
     }
 }

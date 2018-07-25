@@ -16,6 +16,7 @@ namespace App\Repository\Sales\Iface;
 
 use App\Entity\Sales\Form;
 use App\Entity\Sales\Iface\Xtras;
+use App\Entity\Sales\Inventory;
 use App\Entity\Sales\Pricing;
 use App\Entity\Sales\Workarea;
 use App\Repository\Sales\ChannelRepository;
@@ -75,26 +76,53 @@ class XtrasRepository
      */
     public function fetch(Workarea $workarea):Xtras
     {
-        $tag=$this->tagRepository->fetch('xtras');
+        $tag=$this->tagRepository->fetch('extra');
         /** @var Form $form */
-        $form=$this->formRepository->findOneBy(['tag'=>$tag, 'workarea'=>$workarea]);
         $xtras = new Xtras('USD');
+        $xtras->setWorkarea($workarea);
+        $form=$this->formRepository->findOneBy(['tag'=>$tag, 'workarea'=>$workarea]);
         if(is_null($form)){
             $channel=$workarea->getChannel();
             $inventoryList = $this->inventoryRepository->fetchInventory($tag);
-            $priceList = $this->pricingRepository->fetchAllPricing($channel,
+            $priceList = $this->pricingRepository->fetchCurrentPricing($channel,
                                                                     $inventoryList,
                                                                     new \DateTime('now'));
-            /** @var Pricing $price */
-            foreach($priceList as $price) {
-                $inventory = $price->getInventory();
-                $xtras->setInventory($inventory->getId(), $inventory->getName(), floatval($price->getPrice()));
+            /** @var Inventory $inventory*/
+            foreach($inventoryList as $inventory) {
+                $id = $inventory->getId();
+                $description = $inventory->getName();
+                $price = $priceList[$id];
+                $xtras->setInventory($id, $description, floatval($price));
             }
             return $xtras;
         }
         $content = $form->getContent();
-        $xtras->fromArray($content);
+        $xtras->init($content);
         $xtras->setId($form->getId());
+
         return $xtras;
+    }
+
+    /**
+     * @param Xtras $xtras
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function save(Xtras $xtras)
+    {
+        $tag=$this->tagRepository->fetch('extra');
+        $em=$this->formRepository->getEntityManager();
+        if($xtras->hasId()) {
+            /** @var Form $form */
+            $form=$this->formRepository->find($xtras->getId());
+            $form->setContent($xtras->toArray());
+        } else {
+            $form = new Form();
+            $form->setWorkarea($xtras->getWorkarea())
+                ->setTag($tag)
+                ->setContent($xtras->toArray());
+            $em->persist($form);
+        }
+        $em->flush();
     }
 }

@@ -22,8 +22,14 @@ class PricingRepository extends ServiceEntityRepository
         parent::__construct( $registry, Pricing::class );
     }
 
-
-
+    /**
+     * @param Channel $channel
+     * @param Inventory $inventory
+     * @param \DateTime $dateTime
+     * @return mixed
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function fetchPricing(Channel $channel,Inventory $inventory,\DateTime $dateTime)
     {
         $qb = $this->createQueryBuilder('pricing')
@@ -31,23 +37,38 @@ class PricingRepository extends ServiceEntityRepository
                 ->leftJoin('pricing.channel','channel')
                 ->innerJoin('pricing.inventory','inventory')
                 ->where('channel=:channel')
-                ->andWhere('pricing.startAt>=:startAt')
+                ->andWhere('pricing.startAt<=:dateTime')
                 ->andWhere('inventory=:inventory')
                 ->orderBy('pricing.startAt','DESC');
         $query = $qb->getQuery();
-        $result=$query->setParameter(':channel',$channel);
-        return $query->getSingleResult();
+        $query->setParameters([':channel'=>$channel,
+                               ':dateTime'=>$dateTime,
+                               ':inventory'=>$inventory]);
+        $result=$query->getSingleResult();
+        return $result;
     }
 
 
-    public function fetchAllPricing(Channel $channel, array $inventoryList, \DateTime $dateTime)
+
+    /**
+     * @param Channel $channel
+     * @param array $inventoryList
+     * @param \DateTime $dateTime
+     * @return array
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function fetchCurrentPricing(Channel $channel, array $inventoryList, \DateTime $dateTime)
     {
         $result= [];
+        /** @var Inventory $inventory */
         foreach($inventoryList as $inventory)
         {
             /** @var Pricing $price */
             $price=$this->fetchPricing($channel,$inventory,$dateTime);
-            $result[$price->getInventory()->getId()] = [strval($price->getPrice())];
+            $result[$price->getInventory()->getId()] = ['tag'=>$price->getInventory()->getTag()->getName(),
+                                                        'description'=>$price->getInventory()->getName(),
+                                                        'unitPrice'=>floatval($price->getPrice())];
         }
         return $result;
     }

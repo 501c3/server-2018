@@ -14,9 +14,14 @@
 namespace App\Entity\Sales\Iface;
 
 
+use App\Entity\Sales\Workarea;
+
 class Xtras
 {
     private $id;
+
+    /** @var Workarea */
+    private $workarea;
 
     private $currency;
 
@@ -36,14 +41,35 @@ class Xtras
 
     public function setId(int $id):Xtras
     {
-        $this->$id = $id;
+        $this->id = $id;
         return $this;
+    }
+
+    public function getId():int
+    {
+        return $this->id;
+    }
+
+    public function setWorkarea(Workarea $workarea):Xtras
+    {
+        $this->workarea=$workarea;
+        return $this;
+    }
+
+    public function getWorkarea():Workarea
+    {
+        return $this->workarea;
     }
 
     public function setInventory(int $id, string $description, float $unitPrice):Xtras
     {
         $this->inventory[$id]=['description'=>$description, 'unitPrice'=>$unitPrice];
         return $this;
+    }
+
+    public function getInventory()
+    {
+        return $this->inventory;
     }
 
     public function setOrder(int $id, int $qty):Xtras
@@ -65,15 +91,13 @@ class Xtras
 
     public function toArray()
     {
-        return ['id'=>$this->id,
-                'currency'=>$this->currency,
+        return ['currency'=>$this->currency,
                 'inventory'=>$this->inventory,
                 'order'=>$this->order];
     }
 
-    public function fromArray($data)
+    public function init($data)
     {
-        $this->id = $data['id'];
         $this->currency = $data['currency'];
         $this->inventory = $data['inventory'];
         $this->order = $data['order'];

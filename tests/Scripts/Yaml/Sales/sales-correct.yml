@@ -7,7 +7,6 @@ state: GA
 date: {start: 2018-09-15, finish: 2018-09-15}
 monitor:
     Mark Garber: mgarber@georgiadancesport.org
-    Steve Garber: 501c3.management@gmail.com
 inventory:
     participant:
         Per Dance Child: {2018-07-01: 7.00, 2018-09-01: 12.00}

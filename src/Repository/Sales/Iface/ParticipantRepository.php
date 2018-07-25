@@ -101,6 +101,18 @@ class ParticipantRepository
         return $form;
     }
 
+    /**
+     * @param int $id
+     * @return mixed
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getForm(int $id)
+    {
+        $form = $this->formRepository->fetchForm($id);
+        return $form;
+    }
+
 
     /**
      * @param Workarea $workarea

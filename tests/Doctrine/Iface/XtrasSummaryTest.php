@@ -28,6 +28,7 @@ use App\Entity\Sales\Iface\Player as IfacePlayer;
 use App\Entity\Sales\Iface\Summary;
 use App\Entity\Sales\Inventory;
 use App\Entity\Sales\Pricing;
+use App\Entity\Sales\Receipts;
 use App\Entity\Sales\Tag;
 use App\Entity\Sales\Workarea;
 use App\Exceptions\ClassifyException;
@@ -75,7 +76,6 @@ class XtrasSummaryTest  extends KernelTestCase
 
     /** @var XtrasRepository */
     private static $xtraRepository;
-
 
     /** @var Channel */
     private static $channel;
@@ -157,6 +157,7 @@ class XtrasSummaryTest  extends KernelTestCase
         $tagRepository = $entityManagerSales->getRepository(Tag::class);
         $inventoryRepository = $entityManagerSales->getRepository(Inventory::class);
         $pricingRepository = $entityManagerSales->getRepository(Pricing::class);
+        $receiptsRepository = $entityManagerSales->getRepository(Receipts::class);
         self::$workareaRepository= $entityManagerSales->getRepository(Workarea::class);
         self::$contactRepository = $entityManagerSales->getRepository(Contact::class);
         self::$tagRepository = $entityManagerSales->getRepository(Tag::class);
@@ -170,7 +171,8 @@ class XtrasSummaryTest  extends KernelTestCase
                                                     $formRepository,
                                                     self::$tagRepository,
                                                     $inventoryRepository,
-                                                    $pricingRepository);
+                                                    $pricingRepository,
+                                                    $receiptsRepository);
         self::$participantRepository = new ParticipantRepository($modelRepository,
                                                                 $formRepository,
                                                                 self::$tagRepository,
@@ -208,7 +210,7 @@ class XtrasSummaryTest  extends KernelTestCase
      * @param string $femaleProficiency
      * @param int $maleAge
      * @param int $femaleAge
-     * @return IfacePlayer|null
+     * @return array
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws ClassifyException
@@ -219,7 +221,7 @@ class XtrasSummaryTest  extends KernelTestCase
         string $maleProficiency,
         string $femaleProficiency,
         int $maleAge,
-        int $femaleAge) : ?IfacePlayer
+        int $femaleAge) : array
     {
         /** @var Contact $contact */
         $contact = self::generateContact( 'GADS', 'Select events' );
@@ -233,7 +235,7 @@ class XtrasSummaryTest  extends KernelTestCase
         self::$participantRepository->save( $workarea, $gent );
         self::$participantRepository->save( $workarea, $lady );
         $player = self::$ifacePlayerRepository->create( $workarea, $gent->getId(), $lady->getId());
-        return $player;
+        return [$player,$workarea];
     }
 
     /**
@@ -273,7 +275,7 @@ class XtrasSummaryTest  extends KernelTestCase
         self::$participantRepository->save( $workarea, $lady2 );
         $player1 = self::$ifacePlayerRepository->create( $workarea, $gent->getId(), $lady1->getId());
         $player2 = self::$ifacePlayerRepository->create( $workarea, $gent->getId(), $lady2->getId());
-        return [$player1,$player2];
+        return [$player1,$player2,$workarea];
     }
 
 
@@ -288,7 +290,7 @@ class XtrasSummaryTest  extends KernelTestCase
     {
         $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport Amateur']);
         $modelId = $model->getId();
-        $player = $this->generateAmateurCouple('Standard',
+        list($player,) = $this->generateAmateurCouple('Standard',
                                                      'Silver',
                                                     'Silver',
                                                            55,
@@ -318,7 +320,7 @@ class XtrasSummaryTest  extends KernelTestCase
          * @var IfacePlayer $firstPlayer
          * @var IfacePlayer $secondPlayer
          */
-        list($firstPlayer,$secondPlayer)
+        list($firstPlayer,$secondPlayer,)
             = $this->generateProAmCoupleTrio(
                                 'Standard',
                                 'Professional',
@@ -357,7 +359,7 @@ class XtrasSummaryTest  extends KernelTestCase
          * @var IfacePlayer $firstPlayer
          * @var IfacePlayer $secondPlayer
          */
-        list($firstPlayer,$secondPlayer)
+        list($firstPlayer,$secondPlayer,)
             = $this->generateProAmCoupleTrio(
                 'Standard',
                 'Professional',
@@ -393,8 +395,14 @@ class XtrasSummaryTest  extends KernelTestCase
         }
     }
 
-
-    private function buildTestSummary():Summary
+    /**
+     * @param int $ageAmateur
+     * @return Summary
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    private function buildTestSummaryProAm($ageAmateur = 50):Summary
     {
         $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport ProAm']);
         $modelId = $model->getId();
@@ -402,13 +410,13 @@ class XtrasSummaryTest  extends KernelTestCase
          * @var IfacePlayer $firstPlayer
          * @var IfacePlayer $secondPlayer
          */
-        list($firstPlayer,$secondPlayer)
+        list($firstPlayer,$secondPlayer,)
             = $this->generateProAmCoupleTrio(
             'Standard',
             'Professional',
             'Intermediate Silver',
             'Full Silver',30,
-            50);
+            $ageAmateur);
         $firstEvents = $firstPlayer->getEvents();
         $secondEvents = $secondPlayer->getEvents();
         $firstKeys = array_keys($firstEvents[$modelId]);
@@ -426,9 +434,14 @@ class XtrasSummaryTest  extends KernelTestCase
         return $summary;
     }
 
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
     public function testSummaryDescribe()
     {
-        $summary = $this->buildTestSummary();
+        $summary = $this->buildTestSummaryProAm();
         $describe = $summary->describe();
         foreach($describe as $name=>$modelIdEvents){
             foreach($modelIdEvents as $modelId=>$events) {
@@ -446,6 +459,231 @@ class XtrasSummaryTest  extends KernelTestCase
         }
     }
 
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+
+    public function testSaveRecallSummary()
+    {
+        $summary = $this->buildTestSummaryProAm();
+        $participants=$summary->getParticipants();
+        $participantIds = array_keys($participants);
+        $id0 = $participantIds[0];
+        /** @var Form $form */
+        $form=self::$participantRepository->getForm($id0);
+        $workarea = $form->getWorkarea();
+        self::$summaryRepository->save($workarea,$summary);
+        $recalledSummary = self::$summaryRepository->read($workarea);
+        $this->assertEquals($summary->describe(),$recalledSummary->describe());
+    }
+
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function testSaveRecallXtras()
+    {
+        $summary = $this->buildTestSummaryProAm();
+        $participants=$summary->getParticipants();
+        $participantIds = array_keys($participants);
+        $id0 = $participantIds[0];
+        /** @var Form $form */
+        $form=self::$participantRepository->getForm($id0);
+        $workarea = $form->getWorkarea();
+        $xtras = self::$xtraRepository->fetch($workarea);
+        $inventory = $xtras->getInventory();
+        foreach(array_keys($inventory) as $id){
+            $xtras->setOrder($id,1);
+        }
+        self::$xtraRepository->save($xtras);
+        $recalledXtra = self::$xtraRepository->fetch($workarea);
+        $this->assertEquals($xtras->toArray(),$recalledXtra->toArray());
+    }
+
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+
+    public function testSummaryPricingChild()
+    {
+        /** @var Model $model */
+        $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport Amateur']);
+        $modelId = $model->getId();
+        list($amateurPlayersYouth,$workarea) =  $this->generateAmateurCouple(
+                                                    'Standard',
+                                                    'Bronze','Bronze',
+                                                    7,7);
+        $events=$amateurPlayersYouth->getEvents();
+        $keys = array_keys($events[$modelId]);
+        $amateurPlayersYouth->setSelections([$modelId=>$keys]);
+        $summary=self::$summaryRepository->read($workarea);
+        $summary->add($amateurPlayersYouth);
+        $assessment=$summary->assess();
+        $this->assertEquals(['comp'=>[3=>['dances'=>12,'charge'=>84]],'exam'=>[]],$assessment);
+        self::$summaryRepository->save($workarea,$summary);
+        $recalledSummary = self::$summaryRepository->read($workarea);
+        $recalledAssessment = $recalledSummary->assess();
+        $this->assertEquals($recalledAssessment,$assessment);
+    }
+
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function testSummaryPricingAdult()
+    {
+        $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport ProAm']);
+        $modelId = $model->getId();
+        list($fullGoldPlayer,$preBronzePlayer,$workarea) =  $this->generateProAmCoupleTrio(
+            'Standard',
+            'Professional',
+            'Full Gold',
+            'Pre Bronze',
+            30,40);
+        $goldEvents=$fullGoldPlayer->getEvents();
+        $goldKeys = array_keys($goldEvents[$modelId]);
+        $fullGoldPlayer->setSelections([$modelId=>$goldKeys]);
+        $bronzeEvents = $preBronzePlayer->getEvents();
+        $bronzeKeys = array_keys($bronzeEvents[$modelId]);
+        $preBronzePlayer->setSelections([$modelId=>$bronzeKeys]);
+        $summary=self::$summaryRepository->read($workarea);
+        $summary->add($fullGoldPlayer);
+        $summary->add($preBronzePlayer);
+        $assessment=$summary->assess();
+        $expected = ['comp'=>[4=>['dances'=>18,'charge'=>216],5=>['dances'=>12,'charge'=>144]],'exam'=>[]];
+        $this->assertEquals($expected,$assessment);
+        self::$summaryRepository->save($workarea,$summary);
+        $recalledSummary = self::$summaryRepository->read($workarea);
+        $recalledAssessment = $recalledSummary->assess();
+        $this->assertEquals($assessment,$recalledAssessment);
+    }
 
 
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function testSummaryDeletePlayer()
+    {
+        $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport ProAm']);
+        $modelId = $model->getId();
+        /**
+         * @var \App\Entity\Sales\Iface\Player $fullGoldPlayer
+         * @var \App\Entity\Sales\Iface\Player $preBronzePlayer
+         */
+        list($fullGoldPlayer,$preBronzePlayer,$workarea) =  $this->generateProAmCoupleTrio(
+            'Standard',
+            'Professional',
+            'Full Gold',
+            'Pre Bronze',
+            30,40);
+        $goldEvents=$fullGoldPlayer->getEvents();
+        $goldKeys = array_keys($goldEvents[$modelId]);
+        $fullGoldPlayer->setSelections([$modelId=>$goldKeys]);
+        $bronzeEvents = $preBronzePlayer->getEvents();
+        $bronzeKeys = array_keys($bronzeEvents[$modelId]);
+        $preBronzePlayer->setSelections([$modelId=>$bronzeKeys]);
+        $summary=self::$summaryRepository->read($workarea);
+        $summary->add($fullGoldPlayer);
+        $summary->add($preBronzePlayer);
+        $expected = ['comp'=>[4=>['dances'=>18,'charge'=>216],5=>['dances'=>12,'charge'=>144]],'exam'=>[]];
+        $this->assertEquals($expected, $summary->assess());
+        $fullGoldPlayerId = $fullGoldPlayer->getId();
+        $summary->removePlayer($fullGoldPlayerId);
+        unset($expected['comp'][$fullGoldPlayerId]);
+        $this->assertEquals($expected,$summary->assess());
+    }
+
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function testSummaryDeleteParticipant()
+    {
+        $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport ProAm']);
+        $modelId = $model->getId();
+        /**
+         * @var \App\Entity\Sales\Iface\Player $fullGoldPlayer
+         * @var \App\Entity\Sales\Iface\Player $preBronzePlayer
+         */
+        list($fullGoldPlayer,$preBronzePlayer,$workarea) =  $this->generateProAmCoupleTrio(
+                                                                'Standard',
+                                                                'Professional',
+                                                                'Full Gold',
+                                                                'Pre Bronze',
+                                                                30,40);
+        $goldEvents=$fullGoldPlayer->getEvents();
+        $goldKeys = array_keys($goldEvents[$modelId]);
+        $fullGoldPlayer->setSelections([$modelId=>$goldKeys]);
+        $bronzeEvents = $preBronzePlayer->getEvents();
+        $bronzeKeys = array_keys($bronzeEvents[$modelId]);
+        $preBronzePlayer->setSelections([$modelId=>$bronzeKeys]);
+        $summary=self::$summaryRepository->read($workarea);
+        $summary->add($preBronzePlayer)
+                ->add($fullGoldPlayer);
+        list($p0,$p1)=$preBronzePlayer->getParticipantIds();
+        $summary->removeParticipant($p1);
+        $assessment=$summary->assess();
+        $this->assertEquals(['comp'=>[4=>['dances'=>18,'charge'=>216]],'exam'=>[]],$assessment);
+
+    }
+
+    /**
+     * @throws ClassifyException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function testSummaryPreJSON()
+    {
+        $model=self::$modelRepository->findOneBy(['name'=>'Georgia DanceSport ProAm']);
+        $modelId = $model->getId();
+        /**
+         * @var \App\Entity\Sales\Iface\Player $fullGoldPlayer
+         * @var \App\Entity\Sales\Iface\Player $preBronzePlayer
+         */
+        list($fullGoldPlayer,$preBronzePlayer,$workarea) =  $this->generateProAmCoupleTrio(
+                                                                'Standard',
+                                                                'Professional',
+                                                                'Full Gold',
+                                                                'Pre Bronze',
+                                                                30,40);
+        $goldEvents=$fullGoldPlayer->getEvents();
+        $goldKeys = array_keys($goldEvents[$modelId]);
+        $fullGoldPlayer->setSelections([$modelId=>$goldKeys]);
+        $bronzeEvents = $preBronzePlayer->getEvents();
+        $bronzeKeys = array_keys($bronzeEvents[$modelId]);
+        $preBronzePlayer->setSelections([$modelId=>$bronzeKeys]);
+        $summary=self::$summaryRepository->read($workarea);
+        $summary->add($preBronzePlayer)
+                ->add($fullGoldPlayer);
+        $preJSON = $summary->preJSON();
+        $this->assertEquals(['participation','eventDescription'],array_keys($preJSON));
+        $playerIds=array_keys($preJSON['participation']);
+        foreach($playerIds as $playerId){
+            $value=$preJSON['participation'][$playerId];
+            $this->assertEquals(['participants','idModelEvents'],array_keys($value));
+            foreach($preJSON['participation'][$playerId]['participants'] as $participant){
+               $this->assertEquals(['first','last','sex','years','typeA','typeB'],array_keys($participant));
+            }
+        }
+
+        foreach($preJSON['eventDescription'] as $modelId=>$eventList) {
+            foreach($eventList as $eventId=>$description) {
+                $this->assertEquals(['age','tag','type','style','dances','proficiency','id','model','etag'],
+                                     array_keys($description));
+            }
+        }
+    }
 }

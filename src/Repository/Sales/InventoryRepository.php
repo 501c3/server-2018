@@ -29,8 +29,10 @@ class InventoryRepository extends ServiceEntityRepository
                     ->where('tag=:tag');
         $query = $qb->getQuery();
         $query->setParameter('tag',$tag);
-        return $query->getResult();
+        $result = $query->getResult();
+        return $result;
     }
+
 
 
     public function getEntityManager()
