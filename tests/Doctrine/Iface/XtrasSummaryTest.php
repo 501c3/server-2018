@@ -637,7 +637,6 @@ class XtrasSummaryTest  extends KernelTestCase
         $summary->removeParticipant($p1);
         $assessment=$summary->assess();
         $this->assertEquals(['comp'=>[4=>['dances'=>18,'charge'=>216]],'exam'=>[]],$assessment);
-
     }
 
     /**
