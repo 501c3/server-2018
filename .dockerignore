@@ -1,0 +1,11 @@
+behat.yml
+secrets/*
+db-*
+mink.php
+package*
+phpunit*
+selelenium.sh
+symfony*
+system-build.yml
+tests
+yarn.*

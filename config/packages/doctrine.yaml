@@ -8,7 +8,6 @@ parameters:
 doctrine:
     dbal:
         # configure these for your database server
-
         default_connection: access
         connections:
             access:
@@ -16,46 +15,46 @@ doctrine:
                 driver:   'pdo_mysql'
                 server_version: '5.7'
                 charset:  utf8mb4
-                host:     env(DATABASE_HOST_DEV)
-                user:     env(DATABASE_USER_DEV)
-                password: env(DATABASE_PASSWD_DEV)
-                url: '%env(resolve:DATABASE_URL_ACCESS_DEV)%'
+                host:     '%env(DATABASE_HOST)%'
+                port:     3306
+                user:     '%env(DATABASE_USER)%'
+                password: '%env(DATABASE_PASSWD)%'
             configuration:
                 dbname:   configuration
                 driver:   'pdo_mysql'
                 server_version: '5.7'
                 charset:  utf8mb4
-                host:     env(DATABASE_HOST_DEV)
-                user:     env(DATABASE_USER_DEV)
-                password: env(DATABASE_PASSWD_DEV)
-                url: '%env(resolve:DATABASE_URL_CONFIGURATION_DEV)%'
+                host:     '%env(DATABASE_HOST)%'
+                port:     3306
+                user:     '%env(DATABASE_USER)%'
+                password: '%env(DATABASE_PASSWD)%'
             sales:
                 dbname:   sales
                 driver:   'pdo_mysql'
                 server_version: '5.7'
                 charset:  utf8mb4
-                host:     env(DATABASE_HOST_DEV)
-                user:     env(DATABASE_USER_DEV)
-                password: env(DATABASE_PASSWD_DEV)
-                url: '%env(resolve:DATABASE_URL_SALES_DEV)%'
+                host:     '%env(DATABASE_HOST)%'
+                port:     3306
+                user:     '%env(DATABASE_USER)%'
+                password: '%env(DATABASE_PASSWD)%'
             models:
                 dbname:   models
                 driver:   'pdo_mysql'
                 server_version: '5.7'
                 charset:  utf8mb4
-                host:     env(DATABASE_HOST_DEV)
-                user:     env(DATABASE_USER_DEV)
-                password: env(DATABASE_PASSWORD_DEV)
-                url: '%env(resolve:DATABASE_URL_MODELS_DEV)%'
+                host:     '%env(DATABASE_HOST)%'
+                port:     3306
+                user:     '%env(DATABASE_USER)%'
+                password: '%env(DATABASE_PASSWD)%'
             competition:
                 dbname:   competition
                 driver:   'pdo_mysql'
                 server_version: '5.7'
                 charset:  utf8mb4
-                host:     env(DATABASE_HOST_DEV)
-                user:     env(DATABASE_USER_DEV)
-                password: env(DATABASE_PASSWD_DEV)
-                url: '%env(resolve:DATABASE_URL_COMPETITION_DEV)%'
+                host:     '%env(DATABASE_HOST)%'
+                port:     3306
+                user:     '%env(DATABASE_USER)%'
+                password: '%env(DATABASE_PASSWD)%'
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'
         default_entity_manager: access

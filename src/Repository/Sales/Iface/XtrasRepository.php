@@ -92,14 +92,13 @@ class XtrasRepository
                 $id = $inventory->getId();
                 $description = $inventory->getName();
                 $price = $priceList[$id];
-                $xtras->setInventory($id, $description, floatval($price));
+                $xtras->setInventory($id, $description, $price['unitPrice']);
             }
             return $xtras;
         }
         $content = $form->getContent();
         $xtras->init($content);
         $xtras->setId($form->getId());
-
         return $xtras;
     }
 

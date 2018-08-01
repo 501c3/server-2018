@@ -13,7 +13,6 @@
 
 namespace App\Tests\Doctrine\Iface;
 
-
 use App\Entity\Competition\Competition;
 use App\Entity\Competition\Event;
 use App\Entity\Competition\Iface;
@@ -684,5 +683,30 @@ class XtrasSummaryTest  extends KernelTestCase
                                      array_keys($description));
             }
         }
+    }
+
+    public function testXtraSaveRecall()
+    {
+        $model = self::$modelRepository->findOneBy( ['name' => 'Georgia DanceSport ProAm'] );
+        $modelId = $model->getId();
+        /**
+         * @var \App\Entity\Sales\Iface\Player $fullGoldPlayer
+         * @var \App\Entity\Sales\Iface\Player $preBronzePlayer
+         */
+        list( $fullGoldPlayer, $preBronzePlayer, $workarea ) = $this->generateProAmCoupleTrio(
+                                                            'Standard',
+                                                            'Professional',
+                                                            'Full Gold',
+                                                            'Pre Bronze',
+                                                            30, 40 );
+        $xtra = self::$xtraRepository->fetch( $workarea );
+        $inventory = $xtra->getInventory();
+        foreach($inventory as $inventoryId=>$record){
+            $xtra->setOrder($inventoryId, 1);
+        }
+        self::$xtraRepository->save($xtra);
+        $recalledInventory = self::$xtraRepository->fetch($workarea);
+        $recalledInventory->toArray();
+        $this->assertEquals($xtra->toArray(),$recalledInventory->toArray());
     }
 }

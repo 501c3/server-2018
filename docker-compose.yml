@@ -1,0 +1,53 @@
+version: "3.2"
+services:
+   db:
+      image: mysql:5.7
+      secrets:
+          - mysql_root_password
+      environment:
+          MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      volumes:
+          - sf4-db:/var/lib/mysql
+          - /home/mgarber/Dev2018/server/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      ports:
+          - "3306:3306"
+
+   web:
+      image: gads:0.1
+      depends_on:
+          - db
+#      secrets:
+#          - app_secret
+#          - mysql_user
+#          - mysql_passwd
+      build:
+          context: .
+          args:
+              version: 0.1
+              env: dev
+          dockerfile: ./sf4-web.Dockerfile
+      environment:
+          APP_ENV: dev
+          APP_SECRET: fb274ba0164b117992eaefea8141d97c #/run/secrets/app_secret
+          DATABASE_USER: root #/run/secrets/mysql_user
+          DATABASE_PASSWD: root #/run/secrets/mysql_passwd
+          DATABASE_HOST: db
+      volumes:
+         - sf4-var:/var/www/var
+         - ./apache2/sites-available:/etc/apache2/sites-available
+      ports:
+          - "80:80"
+          - "443:443"
+secrets:
+#    app_secret:
+#        file: ./secrets/app-secret.txt
+#    mysql_user:
+#        file: ./secrets/mysql-user.txt
+#    mysql_passwd:
+#        file: ./secrets/mysql-passwd.txt
+    mysql_root_password:
+        file: ./secrets/mysql-root-password.txt
+
+volumes:
+    sf4-var:
+    sf4-db:

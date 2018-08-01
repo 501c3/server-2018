@@ -3,6 +3,7 @@
 /public/build/
 /var/
 /vendor/
+/secrets/
 .env
 .git/
 .idea/
@@ -12,7 +13,6 @@ symfony.lock
 yarn.lock
 mink.php
 phpunit.phar
-
 composer.lock
 ###< symfony/framework-bundle ###
 

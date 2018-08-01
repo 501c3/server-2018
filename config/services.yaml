@@ -53,8 +53,8 @@ services:
 
     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
         arguments:
-            - 'mysql:dbname=access'
-            - { db_table: sessions, db_username: '%env(DATABASE_USER_DEV)%', db_password: '%env(DATABASE_PASSWD_DEV)%' }
+            - 'mysql:host=%env(DATABASE_HOST)%;port=3306;dbname=access'
+            - { db_table: sessions, db_username: '%env(DATABASE_USER)%', db_password: '%env(DATABASE_PASSWD)%' }
 
             #If you're using Doctrine & want to re-use that connection, then:
             # comment-out the above 2 lines and uncomment the line below
