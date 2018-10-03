@@ -7,6 +7,7 @@
  */
 
 namespace App\Utils;
+use App\Exceptions\GeneralException;
 use Symfony\Component\Yaml\Yaml;
 
 class YamlPosition
@@ -22,6 +23,9 @@ class YamlPosition
      */
     public static function parse(string $string){
         $data=Yaml::parse($string);
+        if(is_null($data)) {
+            throw new \Exception("No yaml string to parse", 255);
+        }
         $rowColumns=self::rowColumn($string);
         $positions=Yaml::parse($rowColumns);
         return ['data'=>$data, 'position'=>$positions];

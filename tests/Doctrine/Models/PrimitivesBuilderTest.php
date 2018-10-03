@@ -8,7 +8,6 @@
 
 namespace Tests\Doctrine\Models;
 
-
 use App\Doctrine\Model\PrimitivesBuilder;
 use App\Entity\Configuration\Miscellaneous;
 use App\Entity\Models\Domain;

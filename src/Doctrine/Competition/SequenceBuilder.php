@@ -651,7 +651,7 @@ class SequenceBuilder extends Builder
 
 
     /**
-     * @param int $modelId
+     * @param int $modelIdTraceableEventDispatcherInterface
      * @param int $playerId
      * @param array $values
      */

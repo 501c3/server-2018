@@ -23,6 +23,8 @@ class YamlPositionTest extends TestCase
 
     /**
      * @expectedException  \Exception
+     * @expectedExceptionMessage No yaml string to parse
+     * @expectedExceptionCode 255
      */
     public function testEmptyString()
     {
@@ -43,8 +45,8 @@ class YamlPositionTest extends TestCase
 
     public function testParsePrimitivesCorrect()
     {
-        $realpath=realpath( __DIR__ . '/../Source/' );
-        $file=$realpath.'/primitives-correct.yml';
+        $realpath=realpath( __DIR__.'/../Scripts/Yaml/Model');
+        $file=$realpath.'/primitives.yml';
         $primitivesText=file_get_contents($file);
         $result=YamlPosition::rowColumn($primitivesText);
         $this->assertGreaterThan(200, strlen($result));

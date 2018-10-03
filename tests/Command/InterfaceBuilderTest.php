@@ -94,6 +94,7 @@ class InterfaceBuilderTest extends KernelTestCase
     public function testCorrect()
     {
         $output=$this->commandBuildInterface('interface-correct.yml');
+        //var_dump($output);die;
         $message = 'Commencing at';
         $this->assertContains($message,$output);
     }

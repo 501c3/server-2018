@@ -28,7 +28,6 @@ use App\Repository\Configuration\MiscellaneousRepository;
 use App\Repository\Configuration\ModelRepository as ConfigurationRepository;
 use App\Repository\Models\DomainRepository;
 use App\Repository\Models\EventRepository;
-use App\Repository\Models\MappingRepository;
 use App\Repository\Models\ModelRepository;
 use App\Repository\Models\PlayerRepository;
 use App\Repository\Models\SubeventRepository;
@@ -74,7 +73,7 @@ class DefinitionBuilderTest extends KernelTestCase
      * @throws DBALException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws \App\Exceptions\PrimitivesException
+     * @throws \App\Exceptions\GeneralException
      * @throws \Doctrine\Common\Persistence\Mapping\MappingException
      */
     protected function setUp()
@@ -96,12 +95,10 @@ class DefinitionBuilderTest extends KernelTestCase
         /** @var DomainRepository $domainRepository */
         /** @var ValueRepository $valueRepository */
         /** @var TagRepository $tagRepository */
-        /** @var MappingRepository $mappingRepository */
         /** @var MiscellaneousRepository $miscellaneousRepository */
         $domainRepository = self::$entityManagerModels->getRepository( Domain::class );
         $valueRepository = self::$entityManagerModels->getRepository( Value::class );
         $tagRepository = self::$entityManagerModels->getRepository( Tag::class );
-       // $mappingRepository = self::$entityManagerModels->getRepository( Mapping::class );
         $valueRepository->getEntityManager()->clear();
         $miscellaneousRepository = self::$entityManagerConfiguration->getRepository( Miscellaneous::class );
         $primitivesBuilder = new PrimitivesBuilder( $domainRepository,
@@ -120,8 +117,6 @@ class DefinitionBuilderTest extends KernelTestCase
         $subeventRepository = self::$entityManagerModels->getRepository( Subevent::class );
         /** @var PlayerRepository $playerRepository */
         $playerRepository = self::$entityManagerModels->getRepository( Player::class );
-        /* @var ChoiceRepository $choiceRepository */
-        //$choiceRepository = self::$entityManagerModels->getRepository( Choice::class );
         /** @var ConfigurationRepository $configurationRepository */
         $configurationRepository = self::$entityManagerConfiguration->getRepository( Configuration::class );
         $valueRepository = self::$entityManagerModels->getRepository( Value::class );
