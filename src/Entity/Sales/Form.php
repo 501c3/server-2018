@@ -9,7 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Form
  *
- * @ORM\Table(name="form", indexes={@ORM\Index(name="fk_form_tag1_idx", columns={"tag_id"}), @ORM\Index(name="fk_form_workarea1_idx", columns={"workarea_id"})})
+ * @ORM\Table(name="form", indexes={@ORM\Index(name="fk_form_tag1_idx", columns={"tag_id"}),
+ *                                  @ORM\Index(name="fk_form_workarea1_idx", columns={"workarea_id"})})
  * @ORM\Entity(repositoryClass="App\Repository\Sales\FormRepository")
  */
 class Form

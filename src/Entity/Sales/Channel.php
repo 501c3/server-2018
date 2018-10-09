@@ -228,4 +228,9 @@ class Channel
         $this->updatedAt = $updatedAt;
         return $this;
     }
+
+    public function __toString()
+    {
+        return json_encode(['id'=>$this->id, 'name'=>$this->name]);
+    }
 }

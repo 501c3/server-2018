@@ -79,9 +79,9 @@ class ParticipantPoolGeneratorTest extends KernelTestCase
         $ifaceRepository = self::$entityManagerCompetition->getRepository( Iface::class );
         $valueRepository = self::$entityManagerModels->getRepository( Value::class );
         $this->participantPoolGenerator = new ParticipantPoolGenerator( $competitionRepository,
-            $modelRepository,
-            $ifaceRepository,
-            $valueRepository );
+                                                                        $modelRepository,
+                                                                        $ifaceRepository,
+                                                                        $valueRepository );
     }
 
 

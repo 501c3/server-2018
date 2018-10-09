@@ -301,7 +301,8 @@ class PlayerRepository
                 $qualification=$player->getQualificationByKeys($modelId,$genreId);
                 $q = $qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_ID);
                // TODO: Delete next line when debugged.
-               // $qAux =$qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);
+               $qAux =$qualification->toArray(Qualification::DOMAIN_NAME_TO_VALUE_NAME);
+
                 $playerId=$playerLookup[strval($q['genre'])]
                                        [strval($q['proficiency'])]
                                        [strval($q['age'])]
@@ -315,15 +316,23 @@ class PlayerRepository
                     $data['id']=$event->getId();
                     $data['model']=$modelId;
                     $data['etag']=$event->getTag();
-                    switch($data['tag']){
+                    // TODO: Redo classifications to eliminate the need for this logic
+                    // TODO: Standardization needed.
+                    switch($data['type']){
+                        case 'Amateur':
+                            if($data['tag']=='Couple') {
+                                $player->addEvents($model,$data);
+                            }
                         case 'Couple':
                             if($p2){
                                 $player->addEvents($model,$data);
                             }
                             break;
                         case 'Solo':
-                            if(!$p2){
+                            if (!$p2 ){
                                 $player->addEvents($model,$data);
+                            } elseif ($model->getName()=='ISTD Medal Exams'){
+                                $player->addEvents($model, $data);
                             }
                             break;
                         case 'Grandparent Child':
